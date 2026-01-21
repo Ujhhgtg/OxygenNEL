@@ -17,15 +17,10 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Codexus.Development.SDK.Connection;
-using Codexus.Development.SDK.Entities;
 using Codexus.Development.SDK.Enums;
 using Codexus.Development.SDK.Extensions;
 using Codexus.Development.SDK.Packet;
-using Codexus.Development.SDK.Utils;
 using DotNetty.Buffers;
-using OxygenNEL.Component;
-using OxygenNEL.IRC;
-using OxygenNEL.Manager;
 using OxygenNEL.Core.Utils;
 using Serilog;
 
