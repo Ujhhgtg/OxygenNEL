@@ -273,21 +273,21 @@ public class SUpdateAdvancementsFix : IPacket
         
         switch (tagType)
         {
-            case 0: // TAG_End
+            case 0:
                 return new NbtEnd();
-            case 1: // TAG_Byte
+            case 1:
                 return new NbtByte(buffer.ReadByte());
-            case 2: // TAG_Short
+            case 2:
                 return new NbtShort(buffer.ReadShort());
-            case 3: // TAG_Int
+            case 3:
                 return new NbtInt(buffer.ReadInt());
-            case 4: // TAG_Long
+            case 4:
                 return new NbtLong(buffer.ReadLong());
-            case 5: // TAG_Float
+            case 5:
                 return new NbtFloat(buffer.ReadFloat());
-            case 6: // TAG_Double
+            case 6:
                 return new NbtDouble(buffer.ReadDouble());
-            case 7: // TAG_Byte_Array
+            case 7:
                 var byteArrayLength = buffer.ReadInt();
                 
                 if (byteArrayLength < 0 || byteArrayLength > buffer.ReadableBytes)
@@ -298,7 +298,7 @@ public class SUpdateAdvancementsFix : IPacket
                 var byteArray = new byte[byteArrayLength];
                 buffer.ReadBytes(byteArray);
                 return new NbtByteArray(byteArray);
-            case 8: // TAG_String
+            case 8:
                 var stringLength = buffer.ReadUnsignedShort();
                 
                 if (stringLength < 0 || stringLength > buffer.ReadableBytes)
@@ -310,7 +310,7 @@ public class SUpdateAdvancementsFix : IPacket
                 buffer.ReadBytes(stringBytes);
                 var stringValue = System.Text.Encoding.UTF8.GetString(stringBytes);
                 return new NbtString(stringValue);
-            case 9: // TAG_List
+            case 9:
                 var listTagType = buffer.ReadByte();
                 var listLength = buffer.ReadInt();
                 
@@ -325,7 +325,7 @@ public class SUpdateAdvancementsFix : IPacket
                     listElements[i] = ReadNbtTagByType(buffer, listTagType);
                 }
                 return new NbtList(listTagType, listElements);
-            case 10: // TAG_Compound
+            case 10:
                 var compound = new NbtCompound();
                 
                 int tagCount = 0;
@@ -339,7 +339,7 @@ public class SUpdateAdvancementsFix : IPacket
                     }
                     
                     var childTagType = buffer.ReadByte();
-                    if (childTagType == 0) // TAG_End
+                    if (childTagType == 0)
                         break;
                         
                     var tagNameLength = buffer.ReadUnsignedShort();
@@ -359,7 +359,7 @@ public class SUpdateAdvancementsFix : IPacket
                     tagCount++;
                 }
                 return compound;
-            case 11: // TAG_Int_Array
+            case 11:
                 var intArrayLength = buffer.ReadInt();
                 
                 if (intArrayLength < 0 || intArrayLength * sizeof(int) > buffer.ReadableBytes)
@@ -522,54 +522,54 @@ public class SUpdateAdvancementsFix : IPacket
     {
         if (nbtTag is NbtEnd)
         {
-            buffer.WriteByte(0); // TAG_End
+            buffer.WriteByte(0);
         }
         else if (nbtTag is NbtByte nbtByte)
         {
-            buffer.WriteByte(1); // TAG_Byte
+            buffer.WriteByte(1);
             buffer.WriteByte(nbtByte.Value);
         }
         else if (nbtTag is NbtShort nbtShort)
         {
-            buffer.WriteByte(2); // TAG_Short
+            buffer.WriteByte(2);
             buffer.WriteShort(nbtShort.Value);
         }
         else if (nbtTag is NbtInt nbtInt)
         {
-            buffer.WriteByte(3); // TAG_Int
+            buffer.WriteByte(3);
             buffer.WriteInt(nbtInt.Value);
         }
         else if (nbtTag is NbtLong nbtLong)
         {
-            buffer.WriteByte(4); // TAG_Long
+            buffer.WriteByte(4);
             buffer.WriteLong(nbtLong.Value);
         }
         else if (nbtTag is NbtFloat nbtFloat)
         {
-            buffer.WriteByte(5); // TAG_Float
+            buffer.WriteByte(5);
             buffer.WriteFloat(nbtFloat.Value);
         }
         else if (nbtTag is NbtDouble nbtDouble)
         {
-            buffer.WriteByte(6); // TAG_Double
+            buffer.WriteByte(6);
             buffer.WriteDouble(nbtDouble.Value);
         }
         else if (nbtTag is NbtByteArray nbtByteArray)
         {
-            buffer.WriteByte(7); // TAG_Byte_Array
+            buffer.WriteByte(7);
             buffer.WriteInt(nbtByteArray.Value.Length);
             buffer.WriteBytes(nbtByteArray.Value);
         }
         else if (nbtTag is NbtString nbtString)
         {
-            buffer.WriteByte(8); // TAG_String
+            buffer.WriteByte(8);
             var stringBytes = System.Text.Encoding.UTF8.GetBytes(nbtString.Value);
             buffer.WriteShort(stringBytes.Length);
             buffer.WriteBytes(stringBytes);
         }
         else if (nbtTag is NbtList nbtList)
         {
-            buffer.WriteByte(9); // TAG_List
+            buffer.WriteByte(9);
             buffer.WriteByte(nbtList.TagType);
             buffer.WriteInt(nbtList.Elements.Length);
             foreach (var element in nbtList.Elements)
@@ -579,7 +579,7 @@ public class SUpdateAdvancementsFix : IPacket
         }
         else if (nbtTag is NbtCompound nbtCompound)
         {
-            buffer.WriteByte(10); // TAG_Compound
+            buffer.WriteByte(10);
             foreach (var tag in nbtCompound.Tags)
             {
                 var tagValue = tag.Value;
@@ -596,7 +596,7 @@ public class SUpdateAdvancementsFix : IPacket
         }
         else if (nbtTag is NbtIntArray nbtIntArray)
         {
-            buffer.WriteByte(11); // TAG_Int_Array
+            buffer.WriteByte(11);
             buffer.WriteInt(nbtIntArray.Value.Length);
             foreach (var value in nbtIntArray.Value)
             {
@@ -613,18 +613,18 @@ public class SUpdateAdvancementsFix : IPacket
     {
         return tagValue switch
         {
-            NbtByte => 1,   // TAG_Byte
-            NbtShort => 2,  // TAG_Short
-            NbtInt => 3,    // TAG_Int
-            NbtLong => 4,   // TAG_Long
-            NbtFloat => 5,  // TAG_Float
-            NbtDouble => 6, // TAG_Double
-            NbtByteArray => 7, // TAG_Byte_Array
-            NbtString => 8,    // TAG_String
-            NbtList => 9,      // TAG_List
-            NbtCompound => 10, // TAG_Compound
-            NbtIntArray => 11, // TAG_Int_Array
-            _ => 0            // TAG_End
+            NbtByte => 1,
+            NbtShort => 2,
+            NbtInt => 3,
+            NbtLong => 4,
+            NbtFloat => 5,
+            NbtDouble => 6,
+            NbtByteArray => 7,
+            NbtString => 8,
+            NbtList => 9,
+            NbtCompound => 10,
+            NbtIntArray => 11,
+            _ => 0
         };
     }
 

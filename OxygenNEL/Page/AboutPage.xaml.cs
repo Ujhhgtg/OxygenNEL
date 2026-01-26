@@ -7,15 +7,9 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
-using Microsoft.UI.Xaml.Controls;
 using OxygenNEL.type;
-using System.Collections.Generic;
 using Microsoft.UI.Xaml;
 using System;
-using Microsoft.UI.Xaml.Media;
-using Windows.UI;
-using System.Reflection;
-
 
 namespace OxygenNEL.Page
 {
@@ -24,14 +18,6 @@ namespace OxygenNEL.Page
         public static string PageTitle => "关于";
         
         public string AppVersion => AppInfo.AppVersion;
-        public string GithubUrl => AppInfo.GithubUrL;
-        public string QQGroup => AppInfo.QQGroup;
-
-        public List<Contributor> Contributors { get; } = new List<Contributor>
-        {
-            new Contributor { Name = "FandMC", Role = "Owner", ColorBrush = new SolidColorBrush(Color.FromArgb(255, 0, 120, 215)) },
-            new Contributor { Name = "OxygenNEL Team", Role = "Developer", ColorBrush = new SolidColorBrush(Color.FromArgb(255, 40, 167, 69)) },
-        };
 
         public AboutPage()
         {
@@ -45,19 +31,12 @@ namespace OxygenNEL.Page
 
         private async void Github_Click(object sender, RoutedEventArgs e)
         {
-             await Windows.System.Launcher.LaunchUriAsync(new Uri(AppInfo.GithubUrL));
+             await Windows.System.Launcher.LaunchUriAsync(new Uri("https://github.com/OxygenNEL/oxygen"));
         }
 
         private async void QQGroup_Click(object sender, RoutedEventArgs e)
         {
-            await Windows.System.Launcher.LaunchUriAsync(new Uri("https://qm.qq.com/q/JOFAVmoScY"));
+            await Windows.System.Launcher.LaunchUriAsync(new Uri("https://qm.qq.com/q/vF9XAxuoUK"));
         }
-    }
-
-    public class Contributor
-    {
-        public string Name { get; set; }
-        public string Role { get; set; }
-        public SolidColorBrush ColorBrush { get; set; }
     }
 }

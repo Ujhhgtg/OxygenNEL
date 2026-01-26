@@ -212,12 +212,6 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
             }
         }
 
-    void ServersGrid_SizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        if (ServersGrid.ItemsPanelRoot is ItemsWrapGrid panel && e.NewSize.Width > 0)
-            panel.ItemWidth = Math.Max(240, (e.NewSize.Width - 24) / 4);
-    }
-
     public event PropertyChangedEventHandler? PropertyChanged;
     void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

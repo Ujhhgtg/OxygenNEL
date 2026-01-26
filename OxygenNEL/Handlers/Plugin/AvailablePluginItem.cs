@@ -14,14 +14,14 @@ namespace OxygenNEL.Handlers.Plugin
 {
     public class AvailablePluginItem : INotifyPropertyChanged
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string Version { get; set; }
-        public string LogoUrl { get; set; }
-        public string ShortDescription { get; set; }
-        public string Publisher { get; set; }
-        public string DownloadUrl { get; set; }
-        public string Depends { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Version { get; set; } = string.Empty;
+        public string LogoUrl { get; set; } = string.Empty;
+        public string ShortDescription { get; set; } = string.Empty;
+        public string Publisher { get; set; } = string.Empty;
+        public string DownloadUrl { get; set; } = string.Empty;
+        public string Depends { get; set; } = string.Empty;
 
         private bool _isInstalled;
         public bool IsInstalled
@@ -37,8 +37,8 @@ namespace OxygenNEL.Handlers.Plugin
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged([CallerMemberName] string name = null)
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

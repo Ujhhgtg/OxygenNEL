@@ -184,7 +184,7 @@ namespace OxygenNEL.Page
             {
                 NotificationHost.ShowGlobal("需要输入验证码", ToastLevel.Warning);
                 try { dialog.Hide(); } catch { }
-                var succ0 = await ShowCaptchaDialogFor4399Async(dialogContent, acc, pwd, sidExisting, dialogContent.Pc4399CaptchaUrl, dialog);
+                var succ0 = await ShowCaptchaDialogFor4399Async(dialogContent, acc, pwd, sidExisting, dialogContent.Pc4399CaptchaUrl ?? string.Empty, dialog);
                 return (succ0, true);
             }
             object r = await Task.Run(() => new Login4399().Execute(acc, pwd));

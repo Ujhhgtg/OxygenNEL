@@ -54,7 +54,7 @@ namespace OxygenNEL
                 try
                 {
                     LFileUtil.CreateDirectorySafe(PathUtil.CustomModsPath);
-                    AppState.Debug = Debug.Get();
+                    AppState.Debug = SettingManager.Instance.Get()?.Debug ?? false;
                     AppState.AutoDisconnectOnBan = SettingManager.Instance.Get().AutoDisconnectOnBan;
 
                     KillVeta.Run();

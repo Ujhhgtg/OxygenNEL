@@ -16,8 +16,9 @@ namespace OxygenNEL.type;
 
 internal class Services(
     StandardYggdrasil Yggdrasil
-)
-{ public StandardYggdrasil Yggdrasil { get; private set; } = Yggdrasil;
+    )
+{ 
+    public StandardYggdrasil Yggdrasil { get; private set; } = Yggdrasil;
 
     public void RefreshYggdrasil()
     {

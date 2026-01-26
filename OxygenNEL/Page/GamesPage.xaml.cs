@@ -131,13 +131,13 @@ namespace OxygenNEL.Page
 
     public class GameSessionItem
     {
-        public string Id { get; set; }
-        public string ServerName { get; set; }
-        public string CharacterName { get; set; }
-        public string Type { get; set; }
-        public string StatusText { get; set; }
-        public string LocalAddress { get; set; }
-        public string Identifier { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string ServerName { get; set; } = string.Empty;
+        public string CharacterName { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public string StatusText { get; set; } = string.Empty;
+        public string LocalAddress { get; set; } = string.Empty;
+        public string Identifier { get; set; } = string.Empty;
         public string CharacterDisplay => (CharacterName ?? string.Empty) + " · " + (Type ?? string.Empty);
     }
 }

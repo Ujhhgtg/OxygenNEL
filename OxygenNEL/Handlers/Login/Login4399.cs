@@ -21,7 +21,7 @@ namespace OxygenNEL.Handlers.Login
 {
     public class Login4399
     {
-        public object Execute(string account, string password, string captchaIdentifier = null, string captcha = null)
+        public object Execute(string account, string password, string? captchaIdentifier = null, string? captcha = null)
         {
             try
             {
@@ -64,7 +64,7 @@ namespace OxygenNEL.Handlers.Login
             {
                 Log.Warning(ex, "4399 登录需要验证码. account={Account}", account ?? string.Empty);
                 Log.Information("4399 登录需要验证码: {Message}", ex.Message);
-                return HandleCaptchaRequired(account, password);
+                return HandleCaptchaRequired(account ?? string.Empty, password ?? string.Empty);
             }
             catch (Exception ex)
             {
@@ -79,7 +79,7 @@ namespace OxygenNEL.Handlers.Login
                 }
                 if (lower.Contains("parameter") && lower.Contains("'s'"))
                 {
-                    return HandleCaptchaRequired(account, password);
+                    return HandleCaptchaRequired(account ?? string.Empty, password ?? string.Empty);
                 }
                 if (lower.Contains("sessionid"))
                 {

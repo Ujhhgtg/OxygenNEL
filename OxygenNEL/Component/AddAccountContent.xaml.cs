@@ -18,14 +18,19 @@ using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace OxygenNEL.Component
 {
-        public sealed partial class AddAccountContent : UserControl
-        {
-            public event Action AutoLoginSucceeded;
-            public event Action ConfirmRequested;
-            public event Action CancelRequested;
-            public event Action<string,string,string,string> CaptchaRequired;
-            public Func<string, System.Threading.Tasks.Task<string>> CaptchaInputRequested;
-        private string _pc4399SessionId;
+    public sealed partial class AddAccountContent : UserControl
+    {
+        #pragma warning disable CS0067
+        public event Action? AutoLoginSucceeded;
+        public event Action? ConfirmRequested;
+        public event Action? CancelRequested;
+        public event Action<string,string,string,string>? CaptchaRequired;
+        #pragma warning restore CS0067
+        public Func<string, System.Threading.Tasks.Task<string>>? CaptchaInputRequested;
+        #pragma warning disable CS0649 
+        private string? _pc4399SessionId;
+        private string? _pc4399CaptchaUrl;
+        #pragma warning restore CS0649
         public AddAccountContent()
         {
             InitializeComponent();
@@ -36,15 +41,14 @@ namespace OxygenNEL.Component
             this.RequestedTheme = t;
         }
 
-        public string SelectedType => (AccountTypePivot.SelectedItem as PivotItem)?.Header?.ToString();
+        public string? SelectedType => (AccountTypePivot.SelectedItem as PivotItem)?.Header?.ToString();
 
         public string CookieText => CookieInput.Text;
         
         public string Pc4399User => Pc4399Username.Text;
         public string Pc4399Pass => Pc4399Password.Password;
-        private string _pc4399CaptchaUrl;
-        public string Pc4399SessionId => _pc4399SessionId;
-        public string Pc4399CaptchaUrl => _pc4399CaptchaUrl;
+        public string? Pc4399SessionId => _pc4399SessionId;
+        public string? Pc4399CaptchaUrl => _pc4399CaptchaUrl;
         public string Pc4399Captcha => Pc4399CaptchaInput?.Text ?? string.Empty;
         
         public string NeteaseMail => NeteaseEmail.Text;

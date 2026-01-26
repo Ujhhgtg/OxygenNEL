@@ -16,7 +16,7 @@ namespace OxygenNEL.Utils
 {
     public static class UiLog
     {
-        public static event Action<string> Logged;
+        public static event Action<string>? Logged;
         static readonly object _lock = new object();
         static readonly System.Collections.Generic.List<string> _buffer = new System.Collections.Generic.List<string>();
         class Sink : ILogEventSink

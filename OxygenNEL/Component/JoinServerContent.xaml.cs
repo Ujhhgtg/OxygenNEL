@@ -27,7 +27,7 @@ namespace OxygenNEL.Component
     public sealed partial class JoinServerContent : UserControl
     {
         public bool AddRoleRequested { get; private set; }
-        public ContentDialog ParentDialog { get; set; }
+        public ContentDialog? ParentDialog { get; set; }
 
         public JoinServerContent()
         {
@@ -45,8 +45,8 @@ namespace OxygenNEL.Component
 
         public class OptionItem
         {
-            public string Label { get; set; }
-            public string Value { get; set; }
+            public string Label { get; set; } = string.Empty;
+            public string Value { get; set; } = string.Empty;
         }
 
         public void SetAccounts(List<OptionItem> items)
@@ -66,8 +66,8 @@ namespace OxygenNEL.Component
         public string SelectedAccountId => AccountCombo.SelectedValue as string ?? string.Empty;
         public string SelectedRoleId => RoleCombo.SelectedValue as string ?? string.Empty;
 
-        public event Action<string> AccountChanged;
-        public event Action AddRoleClicked;
+        public event Action<string>? AccountChanged;
+        public event Action? AddRoleClicked;
 
         private void AccountCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

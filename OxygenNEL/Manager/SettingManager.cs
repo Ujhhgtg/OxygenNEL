@@ -63,7 +63,6 @@ public class SettingManager
         var fileName = Path.GetFileName(sourcePath);
         var destPath = Path.Combine(DataFolder, fileName);
         
-        // 如果同名文件已存在，添加时间戳
         if (File.Exists(destPath))
         {
             var name = Path.GetFileNameWithoutExtension(sourcePath);

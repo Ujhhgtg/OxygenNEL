@@ -23,7 +23,7 @@ namespace OxygenNEL.Component
     public sealed partial class NotificationHost
     {
         public ObservableCollection<ToastItem> Items { get; } = new ObservableCollection<ToastItem>();
-        public static NotificationHost Instance { get; private set; }
+        public static NotificationHost? Instance { get; private set; }
 
         public NotificationHost()
         {
@@ -102,7 +102,7 @@ namespace OxygenNEL.Component
             }
         }
 
-        void AnimateY(FrameworkElement element, double from, double to, int durationMs, Action completed = null)
+        void AnimateY(FrameworkElement element, double from, double to, int durationMs, Action? completed = null)
         {
             var sb = new Storyboard();
             var da = new DoubleAnimation
@@ -133,11 +133,11 @@ namespace OxygenNEL.Component
 
     public class ToastItem
     {
-        public string Text { get; set; }
-        public Brush Background { get; set; }
-        public Brush Foreground { get; set; }
+        public string Text { get; set; } = string.Empty;
+        public Brush? Background { get; set; }
+        public Brush? Foreground { get; set; }
         public int LifetimeMs { get; set; }
         public ToastLevel Level { get; set; }
-        public string Glyph { get; set; }
+        public string Glyph { get; set; } = string.Empty;
     }
 }

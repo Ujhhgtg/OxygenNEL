@@ -37,14 +37,14 @@ namespace OxygenNEL.Handlers.Login
                     if (tVal == "captcha_required")
                     {
                         Log.Information("[ActivateAccount] 需要验证码");
-                        return result;
+                        return result!;
                     }
                     if (tVal != null && tVal.EndsWith("_error", StringComparison.OrdinalIgnoreCase))
                     {
                         var mProp = result?.GetType().GetProperty("message");
                         var msg = mProp?.GetValue(result) as string ?? "登录失败";
                         Log.Error("[ActivateAccount] 登录失败: {Msg}", msg);
-                        return result;
+                        return result!;
                     }
                     u.Authorized = true;
                     UserManager.Instance.MarkDirtyAndScheduleSave();

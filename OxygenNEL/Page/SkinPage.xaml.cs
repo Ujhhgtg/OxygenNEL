@@ -89,7 +89,7 @@ namespace OxygenNEL.Page
             panel.ItemWidth = itemWidth;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         void OnPropertyChanged(string name)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -100,7 +100,7 @@ namespace OxygenNEL.Page
             {
                 var btn = sender as Button;
                 var id = btn?.Tag as string ?? string.Empty;
-                if (string.IsNullOrWhiteSpace(id)) return;
+                if (string.IsNullOrWhiteSpace(id) || btn == null) return;
                 btn.IsEnabled = false;
                 var r = await Task.Run(() => new SetSkin().Execute(id));
                 if (r.NotLogin)
@@ -127,9 +127,9 @@ namespace OxygenNEL.Page
     
     public class SkinItem
     {
-        public string Name { get; set; }
-        public string PreviewUrl { get; set; }
-        public string EntityId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string PreviewUrl { get; set; } = string.Empty;
+        public string EntityId { get; set; } = string.Empty;
         
     }
 }

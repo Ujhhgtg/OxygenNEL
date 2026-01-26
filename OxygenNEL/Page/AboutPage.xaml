@@ -50,36 +50,9 @@
                              <HyperlinkButton Click="QQGroup_Click">
                                  <TextBlock Text="加入QQ群"/>
                              </HyperlinkButton>
-                             <TextBlock Text="{x:Bind QQGroup}" VerticalAlignment="Center" IsTextSelectionEnabled="True" FontWeight="SemiBold"/>
+                             <TextBlock Text="992459182" VerticalAlignment="Center" IsTextSelectionEnabled="True" FontWeight="SemiBold"/>
                          </StackPanel>
                     </StackPanel>
-                </StackPanel>
-            </Grid>
-
-            <Grid Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="8" Padding="20">
-                <StackPanel Spacing="16">
-                    <StackPanel Orientation="Horizontal" Spacing="12">  
-                         <FontIcon Glyph="&#xE77B;" />
-                         <TextBlock Text="贡献者" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                    </StackPanel>
-                    
-                    <GridView ItemsSource="{x:Bind Contributors}" SelectionMode="None">
-                        <GridView.ItemTemplate>
-                            <DataTemplate x:DataType="page:Contributor">
-                                <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" CornerRadius="4" Padding="0" Width="200">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="6"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Rectangle Fill="{x:Bind ColorBrush}" Grid.Column="0"/>
-                                    <StackPanel Grid.Column="1" Padding="12,8">
-                                        <TextBlock Text="{x:Bind Name}" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                                        <TextBlock Text="{x:Bind Role}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                    </StackPanel>
-                                </Grid>
-                            </DataTemplate>
-                        </GridView.ItemTemplate>
-                    </GridView>
                 </StackPanel>
             </Grid>
 
@@ -98,7 +71,6 @@
                     </HyperlinkButton>
                 </StackPanel>
             </Grid>
-
         </StackPanel>
     </ScrollViewer>
 </Page>

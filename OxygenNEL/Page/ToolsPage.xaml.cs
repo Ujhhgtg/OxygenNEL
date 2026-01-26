@@ -28,7 +28,7 @@ namespace OxygenNEL.Page
         ObservableCollection<string> _logLines = new ObservableCollection<string>();
         readonly Queue<string> _pending = new Queue<string>();
         readonly object _lockObj = new object();
-        DispatcherTimer _flushTimer;
+        DispatcherTimer? _flushTimer;
         public ToolsPage()
         {
             InitializeComponent();
@@ -179,7 +179,7 @@ namespace OxygenNEL.Page
         {
             try
             {
-                List<string> batch = null;
+                List<string>? batch = null;
                 lock (_lockObj)
                 {
                     if (_pending.Count == 0) return;

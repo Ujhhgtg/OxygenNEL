@@ -35,6 +35,6 @@ internal static class AppState
     
     public static Services? Services;
     public static bool Debug;
-    public static string AutoDisconnectOnBan;
+    public static string AutoDisconnectOnBan = string.Empty;
     public static bool IrcEnabled = true;
 }

@@ -17,7 +17,7 @@ namespace OxygenNEL.Component
 {
     public sealed partial class CaptchaContent : UserControl
     {
-        private string _sessionId;
+        private string _sessionId = string.Empty;
 
         public CaptchaContent()
         {

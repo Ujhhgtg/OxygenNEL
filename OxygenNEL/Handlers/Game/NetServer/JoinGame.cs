@@ -117,7 +117,7 @@ public class JoinGame
 
         _lastIp = serverIp;
         _lastPort = serverPort;
-        var socksCfg = _request.Socks5;
+        var socksCfg = _request?.Socks5;
         var socksAddr = socksCfg != null ? (socksCfg.Address ?? string.Empty) : string.Empty;
         var socksPort = socksCfg != null ? socksCfg.Port : 0;
         Log.Information("JoinGame 接收的 SOCKS5 配置: Address={Addr}, Port={Port}, Username={User}, Enabled={Enabled}", socksAddr, socksPort, socksCfg?.Username, !string.IsNullOrWhiteSpace(socksAddr) && socksPort > 0);
@@ -127,13 +127,13 @@ public class JoinGame
             try { Dns.GetHostAddresses(socksAddr); }
             catch { return false; }
         }
-        Interceptor interceptor = Interceptor.CreateInterceptor(_request.Socks5, mods, serverId, serverName, version.Name, serverIp, serverPort, _request.Role, available.UserId, available.AccessToken, delegate(string certification)
+        Interceptor interceptor = Interceptor.CreateInterceptor(_request?.Socks5, mods, serverId, serverName, version.Name, serverIp, serverPort, _request?.Role ?? string.Empty, available.UserId, available.AccessToken, delegate(string certification)
         {
             Log.Information("SOCKS5 => Host: {Host}, Port: {Port}, User: {User} pass: {Pass}",
-                _request.Socks5.Address,
-                _request.Socks5.Port,
-                _request.Socks5.Username,
-                _request.Socks5.Password);
+                _request?.Socks5?.Address,
+                _request?.Socks5?.Port,
+                _request?.Socks5?.Username,
+                _request?.Socks5?.Password);
             Log.Logger.Information("Server certification: {Certification}", certification);
             Task.Run(async delegate
             {
@@ -174,7 +174,7 @@ public class JoinGame
             });
             authorizedSignal.Wait();
         });
-        InterConn.GameStart(available.UserId, available.AccessToken, _request.GameId).GetAwaiter().GetResult();
+        InterConn.GameStart(available.UserId, available.AccessToken, _request?.GameId ?? string.Empty).GetAwaiter().GetResult();
         GameManager.Instance.AddInterceptor(interceptor);
         _lastIp = interceptor.LocalAddress;
         _lastPort = interceptor.LocalPort;

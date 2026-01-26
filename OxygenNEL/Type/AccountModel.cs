@@ -15,7 +15,7 @@ namespace OxygenNEL
     public class AccountModel : INotifyPropertyChanged
     {
         private string _entityId = "未分配";
-        private string _channel;
+        private string _channel = string.Empty;
         private string _status = "offline";
         private bool _isLoading;
         private string _alias = string.Empty;
@@ -50,9 +50,9 @@ namespace OxygenNEL
             set { _alias = value; OnPropertyChanged(); }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

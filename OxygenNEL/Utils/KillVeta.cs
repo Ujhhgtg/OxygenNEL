@@ -39,7 +39,6 @@ internal static class KillVeta
             {
                 var exe = TryGetProcessPath(p);
                 var dir = string.IsNullOrEmpty(exe) ? null : Path.GetDirectoryName(exe);
-                bool overwriteOk = true;
                 p.Kill(true);
                 p.WaitForExit(5000);
                 if (!string.IsNullOrEmpty(dir))

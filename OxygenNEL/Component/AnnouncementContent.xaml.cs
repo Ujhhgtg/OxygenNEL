@@ -10,17 +10,13 @@ the Free Software Foundation, either version 3 of the License, or
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Net.Http;
-using System.Text.Json;
-using OxygenNEL.type;
+using OxygenNEL.Core.Api;
 using Serilog;
 
 namespace OxygenNEL.Component
 {
     public sealed partial class AnnouncementContent : UserControl
     {
-        static readonly HttpClient _http = new();
-
         public AnnouncementContent()
         {
             InitializeComponent();
@@ -31,22 +27,8 @@ namespace OxygenNEL.Component
         {
             try
             {
-                var resp = await _http.GetAsync("https://api.fandmc.cn/get/announcement");
-                var json = await resp.Content.ReadAsStringAsync();
-                Log.Information("获取公告返回: {Json}", json);
-                
-                using var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-                
-                if (root.TryGetProperty("success", out var successProp) && successProp.GetBoolean())
-                {
-                    if (root.TryGetProperty("content", out var contentProp))
-                    {
-                        ContentText.Text = contentProp.GetString() ?? "暂无公告";
-                        return;
-                    }
-                }
-                ContentText.Text = "暂无公告";
+                var resp = await OxygenApi.Instance.GetAnnouncementAsync();
+                ContentText.Text = resp.Success && !string.IsNullOrEmpty(resp.Content) ? resp.Content : "暂无公告";
             }
             catch (Exception ex)
             {

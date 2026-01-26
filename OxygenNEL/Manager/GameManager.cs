@@ -49,7 +49,7 @@ internal class GameManager
     
     public void ShutdownInterceptor(Guid identifier)
     {
-        Interceptor value = null;
+        Interceptor? value = null;
         var has = false;
         using (EnterScope(Lock))
         {
@@ -59,7 +59,7 @@ internal class GameManager
                 has = true;
             }
         }
-        if (has)
+        if (has && value != null)
         {
             value.ShutdownAsync();
         }

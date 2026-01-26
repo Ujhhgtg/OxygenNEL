@@ -95,7 +95,7 @@ namespace OxygenNEL.Manager;
 
 	public EntityAvailableUser? GetAvailableUser(string entityId)
 	{
-		if (!_availableUsers.TryGetValue(entityId, out EntityAvailableUser value))
+		if (!_availableUsers.TryGetValue(entityId, out EntityAvailableUser? value))
 		{
 			return null;
 		}
@@ -150,7 +150,7 @@ namespace OxygenNEL.Manager;
 	{
 		try
 		{
-			EntityAuthenticationUpdate entityAuthenticationUpdate = await launcher.AuthenticationUpdateAsync(expiredUser.UserId, expiredUser.AccessToken);
+			EntityAuthenticationUpdate? entityAuthenticationUpdate = await launcher.AuthenticationUpdateAsync(expiredUser.UserId, expiredUser.AccessToken);
             if (entityAuthenticationUpdate == null || entityAuthenticationUpdate.Token == null)
             {
                 Log.Error("更新用户 {UserId} 的令牌失败", expiredUser.UserId);
@@ -169,11 +169,11 @@ namespace OxygenNEL.Manager;
 	public List<EntityAccount> GetAvailableUsers()
 	{
 		Dictionary<string, EntityUser> userLookup = _users.ToDictionary<KeyValuePair<string, EntityUser>, string, EntityUser>((KeyValuePair<string, EntityUser> kvp) => kvp.Key, (KeyValuePair<string, EntityUser> kvp) => kvp.Value);
-		EntityUser value;
+		EntityUser? value;
 		return _availableUsers.Values.Select((EntityAvailableUser available) => new EntityAccount
 		{
 			UserId = available.UserId,
-			Alias = (userLookup.TryGetValue(available.UserId, out value) ? value.Alias : string.Empty)
+			Alias = (userLookup.TryGetValue(available.UserId, out value) ? value?.Alias ?? string.Empty : string.Empty)
 		}).ToList();
 	}
 
@@ -200,7 +200,7 @@ namespace OxygenNEL.Manager;
 
 	public EntityUser? GetUserByEntityId(string entityId)
 	{
-		if (!_users.TryGetValue(entityId, out EntityUser value))
+		if (!_users.TryGetValue(entityId, out EntityUser? value))
 		{
 			return null;
 		}
@@ -245,59 +245,59 @@ namespace OxygenNEL.Manager;
 
 	public void RemoveUser(string entityId)
 	{
-		if (_users.TryRemove(entityId, out EntityUser _))
+		if (_users.TryRemove(entityId, out _))
 		{
 			MarkDirtyAndScheduleSave();
 		}
 	}
 
-        public void RemoveAvailableUser(string entityId)
-        {
-		_availableUsers.TryRemove(entityId, out EntityAvailableUser _);
-		if (_users.TryGetValue(entityId, out EntityUser value2))
+	public void RemoveAvailableUser(string entityId)
+	{
+		_availableUsers.TryRemove(entityId, out _);
+		if (_users.TryGetValue(entityId, out EntityUser? value2))
 		{
 			value2.Authorized = false;
 			MarkDirtyAndScheduleSave();
 		}
 	}
 
-        public async Task ReadUsersFromDiskAsync()
-        {
-            try
-            {
-                if (!File.Exists(UsersFilePath))
-                {
-                    Log.Information("未找到用户文件，使用空的用户列表启动");
-                    UsersReadFromDisk?.Invoke();
-                    return;
-                }
-                List<EntityUser> list = JsonSerializer.Deserialize<List<EntityUser>>(await File.ReadAllTextAsync(UsersFilePath)) ?? new List<EntityUser>();
-                _users.Clear();
-                foreach (EntityUser item in list)
-                {
-                    item.Authorized = false;
-                    _users.TryAdd(item.UserId, item);
-                }
-                Log.Information("从磁盘加载了 {Count} 个用户", list.Count);
-                UsersReadFromDisk?.Invoke();
-            }
-            catch (Exception exception)
-            {
-                Log.Error(exception, "读取磁盘上的用户时发生错误");
-                _users.Clear();
-                UsersReadFromDisk?.Invoke();
-            }
-        }
+	public async Task ReadUsersFromDiskAsync()
+	{
+		try
+		{
+			if (!File.Exists(UsersFilePath))
+			{
+				Log.Information("未找到用户文件，使用空的用户列表启动");
+				UsersReadFromDisk?.Invoke();
+				return;
+			}
+			List<EntityUser> list = JsonSerializer.Deserialize<List<EntityUser>>(await File.ReadAllTextAsync(UsersFilePath)) ?? new List<EntityUser>();
+			_users.Clear();
+			foreach (EntityUser item in list)
+			{
+				item.Authorized = false;
+				_users.TryAdd(item.UserId, item);
+			}
+			Log.Information("从磁盘加载了 {Count} 个用户", list.Count);
+			UsersReadFromDisk?.Invoke();
+		}
+		catch (Exception exception)
+		{
+			Log.Error(exception, "读取磁盘上的用户时发生错误");
+			_users.Clear();
+			UsersReadFromDisk?.Invoke();
+		}
+	}
 
-        public void UpdateUserAlias(string entityId, string alias)
-        {
-            if (string.IsNullOrWhiteSpace(entityId)) return;
-            if (_users.TryGetValue(entityId, out var user))
-            {
-                user.Alias = alias ?? string.Empty;
-                MarkDirtyAndScheduleSave();
-            }
-        }
+	public void UpdateUserAlias(string entityId, string alias)
+	{
+		if (string.IsNullOrWhiteSpace(entityId)) return;
+		if (_users.TryGetValue(entityId, out var user))
+		{
+			user.Alias = alias ?? string.Empty;
+			MarkDirtyAndScheduleSave();
+		}
+	}
 
 	public void ReadUsersFromDisk()
 	{

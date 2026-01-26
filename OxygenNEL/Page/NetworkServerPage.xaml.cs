@@ -120,12 +120,6 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
     void PrevPageButton_Click(object sender, RoutedEventArgs e) { if (_page > 1) { _page--; _ = RefreshAsync(SearchBox?.Text); } }
     void NextPageButton_Click(object sender, RoutedEventArgs e) { if (_hasMore) { _page++; _ = RefreshAsync(SearchBox?.Text); } }
 
-    void ServersGrid_SizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        if (ServersGrid.ItemsPanelRoot is ItemsWrapGrid panel && e.NewSize.Width > 0)
-            panel.ItemWidth = Math.Max(240, (e.NewSize.Width - 24) / 4);
-    }
-
     async Task JoinServerAsync(string serverId, string serverName)
     {
         var openResult = await RunOnStaAsync(() => new OpenServer().Execute(serverId));
