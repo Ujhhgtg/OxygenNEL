@@ -87,14 +87,18 @@ namespace OxygenNEL.Page
         private void ThemeRadios_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (_init) return;
-            _s.ThemeMode = ThemeRadios.SelectedIndex switch { 1 => "light", 2 => "dark", _ => "system" };
+            var newMode = ThemeRadios.SelectedIndex switch { 1 => "light", 2 => "dark", _ => "system" };
+            if (_s.ThemeMode == newMode) return;
+            _s.ThemeMode = newMode;
             MainWindow.ApplyThemeFromSettingsStatic();
         }
 
         private void BackdropRadios_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (_init) return;
-            _s.Backdrop = BackdropRadios.SelectedIndex switch { 1 => "acrylic", 2 => "custom", _ => "mica" };
+            var newBackdrop = BackdropRadios.SelectedIndex switch { 1 => "acrylic", 2 => "custom", _ => "mica" };
+            if (_s.Backdrop == newBackdrop) return;
+            _s.Backdrop = newBackdrop;
             UpdateCustomBackgroundPanel();
             MainWindow.ApplyThemeFromSettingsStatic();
         }

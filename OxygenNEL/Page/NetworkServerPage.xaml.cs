@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using OxygenNEL.Component;
 using OxygenNEL.Entities.Web.NetGame;
 using OxygenNEL.Handlers.Game.NetServer;
@@ -37,6 +38,7 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
     int _refreshId;
     bool _hasMore;
     bool _notLogin;
+    string? _pendingServerId;
 
     public ObservableCollection<ServerItem> Servers { get; } = new();
     public bool NotLogin { get => _notLogin; private set { _notLogin = value; OnPropertyChanged(nameof(NotLogin)); } }
@@ -45,7 +47,23 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
     {
         InitializeComponent();
         DataContext = this;
-        Loaded += async (_, _) => await RefreshAsync();
+        Loaded += async (_, _) =>
+        {
+            await RefreshAsync();
+            if (_pendingServerId != null)
+            {
+                var id = _pendingServerId;
+                _pendingServerId = null;
+                await JoinServerAsync(id, id);
+            }
+        };
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        if (e.Parameter is string serverId && !string.IsNullOrWhiteSpace(serverId))
+            _pendingServerId = serverId;
     }
 
     async Task RefreshAsync(string? keyword = null)
@@ -114,13 +132,13 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
 
     async void JoinServerButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button { Tag: ServerItem s }) await JoinServerAsync(s.EntityId, s.Name);
+        if (sender is Button { Tag: ServerItem s }) await JoinServerAsync(s.EntityId, s.Name, s.ImageUrl);
     }
 
     void PrevPageButton_Click(object sender, RoutedEventArgs e) { if (_page > 1) { _page--; _ = RefreshAsync(SearchBox?.Text); } }
     void NextPageButton_Click(object sender, RoutedEventArgs e) { if (_hasMore) { _page++; _ = RefreshAsync(SearchBox?.Text); } }
 
-    async Task JoinServerAsync(string serverId, string serverName)
+    async Task JoinServerAsync(string serverId, string serverName, string? imageUrl = null)
     {
         var openResult = await RunOnStaAsync(() => new OpenServer().Execute(serverId));
         if (!openResult.Success) { await DialogService.ShowErrorAsync(XamlRoot, openResult.Message ?? "打开失败"); return; }
@@ -149,7 +167,7 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
             if (result == ContentDialogResult.Primary)
             {
                 if (string.IsNullOrWhiteSpace(accId) || string.IsNullOrWhiteSpace(roleId)) continue;
-                await LaunchGameAsync(accId, serverId, serverName, roleId);
+                await LaunchGameAsync(accId, serverId, serverName, roleId, imageUrl);
                 break;
             }
 
@@ -164,7 +182,7 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
         }
     }
     
-    async Task LaunchGameAsync(string accId, string serverId, string serverName, string roleId)
+    async Task LaunchGameAsync(string accId, string serverId, string serverName, string roleId, string? imageUrl = null)
     {
         NotificationHost.ShowGlobal("正在准备游戏资源...", ToastLevel.Success);
         Log.Information("启动游戏: Server={Server}, Role={Role}", serverId, roleId);
@@ -172,6 +190,7 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
         if (r.Success)
         {
             NotificationHost.ShowGlobal("启动成功", ToastLevel.Success);
+            RecentPlayManager.Instance.AddOrUpdate(serverId, serverName, "网络服", imageUrl);
             var copyText = SettingManager.Instance.GetCopyIpText(r.Ip, r.Port);
             if (copyText != null)
             {

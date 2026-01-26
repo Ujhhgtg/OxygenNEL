@@ -17,10 +17,12 @@ public class ServerItem : INotifyPropertyChanged
     private string _entityId = string.Empty;
     private string _name = string.Empty;
     private string _imageUrl = string.Empty;
+    private string _onlineCount = string.Empty;
 
     public string EntityId { get => _entityId; set { _entityId = value; OnPropertyChanged(nameof(EntityId)); } }
     public string Name { get => _name; set { _name = value; OnPropertyChanged(nameof(Name)); } }
     public string ImageUrl { get => _imageUrl; set { _imageUrl = value; OnPropertyChanged(nameof(ImageUrl)); } }
+    public string OnlineCount { get => _onlineCount; set { _onlineCount = value; OnPropertyChanged(nameof(OnlineCount)); } }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

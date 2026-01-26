@@ -471,6 +471,27 @@ namespace OxygenNEL
             _instance?.ApplyThemeFromSettings();
         }
 
+        public static void NavigateToPageStatic(Type pageType, object? parameter = null)
+        {
+            if (_instance == null) return;
+            _instance.DispatcherQueue.TryEnqueue(() =>
+            {
+                foreach (NavigationViewItemBase item in _instance.NavView.MenuItems)
+                {
+                    if (item is NavigationViewItem navItem)
+                    {
+                        var key = navItem.Tag?.ToString();
+                        if (key != null && Pages.TryGetValue(key, out var info) && info.Page == pageType)
+                        {
+                            _instance.NavView.SelectedItem = navItem;
+                            _instance.ContentFrame.Navigate(pageType, parameter);
+                            return;
+                        }
+                    }
+                }
+            });
+        }
+
         void UpdateTitleBarColors(ElementTheme theme)
         {
             try

@@ -48,7 +48,7 @@
                       Visibility="{Binding NotLogin, Converter={StaticResource BoolNegationConverter}}">
             <ItemsRepeater x:Name="ServersRepeater" ItemsSource="{x:Bind Servers}">
                 <ItemsRepeater.Layout>
-                    <UniformGridLayout MinItemWidth="260" MinItemHeight="200" MinColumnSpacing="12" MinRowSpacing="12"/>
+                    <UniformGridLayout MinItemWidth="260" MinItemHeight="230" MinColumnSpacing="12" MinRowSpacing="12"/>
                 </ItemsRepeater.Layout>
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate x:DataType="netgame:ServerItem">
@@ -58,12 +58,16 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Image Grid.Row="0" Height="100" Stretch="UniformToFill" Margin="0,0,0,8"
                                    Source="{x:Bind ImageUrl, Mode=OneWay, Converter={StaticResource StringToImageSourceConverter}}"/>
                             <TextBlock Grid.Row="1" Text="{x:Bind Name}" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Grid.Row="2" Text="{x:Bind EntityId}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                            <Button Grid.Row="3" Content="加入服务器" HorizontalAlignment="Left" Click="JoinServerButton_Click" Tag="{x:Bind}"/>
+                            <TextBlock Grid.Row="2" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis">
+                                <Run Text="在线人数: "/><Run Text="{x:Bind OnlineCount, Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock Grid.Row="3" Text="{x:Bind EntityId}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                            <Button Grid.Row="4" Content="加入服务器" HorizontalAlignment="Left" Click="JoinServerButton_Click" Tag="{x:Bind}"/>
                         </Grid>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>

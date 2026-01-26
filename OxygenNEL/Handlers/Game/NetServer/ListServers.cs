@@ -27,7 +27,7 @@ public class ListServers
             var servers = AppState.X19.GetAvailableNetGames(last.UserId, last.AccessToken, offset, pageSize);
             if (AppState.Debug) Log.Information("服务器列表: 数量={Count}", servers.Data?.Length ?? 0);
             var data = servers.Data?.ToList() ?? new System.Collections.Generic.List<EntityNetGameItem>();
-            var items = data.Select(s => new ServerItem { EntityId = s.EntityId, Name = s.Name }).ToList();
+            var items = data.Select(s => new ServerItem { EntityId = s.EntityId, Name = s.Name, OnlineCount = s.OnlineCount ?? string.Empty }).ToList();
             return new ListServersResult { Success = true, Items = items, HasMore = data.Count >= pageSize };
         }
         catch (System.ObjectDisposedException ex)
@@ -38,7 +38,7 @@ public class ListServers
             {
                 var servers = AppState.X19.GetAvailableNetGames(last.UserId, last.AccessToken, offset, pageSize);
                 var data = servers.Data?.ToList() ?? new System.Collections.Generic.List<EntityNetGameItem>();
-                var items = data.Select(s => new ServerItem { EntityId = s.EntityId, Name = s.Name }).ToList();
+                var items = data.Select(s => new ServerItem { EntityId = s.EntityId, Name = s.Name, OnlineCount = s.OnlineCount ?? string.Empty }).ToList();
                 return new ListServersResult { Success = true, Items = items, HasMore = data.Count >= pageSize };
             }
             catch (System.Exception retryEx)

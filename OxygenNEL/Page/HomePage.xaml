@@ -22,5 +22,7 @@
             <component:AnnouncementContent Grid.Column="0" Margin="0,0,8,0"/>
             <component:AdContent Grid.Column="1" Margin="8,0,0,0"/>
         </Grid>
+
+        <component:RecentPlayContent Grid.Row="1" Margin="0,16,0,0"/>
     </Grid>
 </Page>

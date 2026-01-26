@@ -4,18 +4,23 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    Background="Transparent">
 
     <NavigationView x:Name="SettingsNav" PaneDisplayMode="Top" IsBackButtonVisible="Collapsed" IsSettingsVisible="False"
-                    SelectionChanged="SettingsNav_SelectionChanged">
+                    SelectionChanged="SettingsNav_SelectionChanged" Background="Transparent">
+        <NavigationView.Resources>
+            <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent"/>
+            <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="Transparent"/>
+        </NavigationView.Resources>
         <NavigationView.MenuItems>
             <NavigationViewItem Tag="appearance" Content="外观" IsSelected="True"/>
             <NavigationViewItem Tag="function" Content="功能"/>
             <NavigationViewItem Tag="proxy" Content="网络代理"/>
         </NavigationView.MenuItems>
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
-            <StackPanel Spacing="12" MaxWidth="600" HorizontalAlignment="Left">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24" Background="Transparent">
+            <StackPanel Spacing="12" HorizontalAlignment="Left">
 
                 <StackPanel x:Name="AppearancePanel" Orientation="Horizontal" Spacing="12">
                     <Grid CornerRadius="8" Padding="16">
