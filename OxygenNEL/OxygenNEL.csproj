@@ -47,6 +47,7 @@
     <PackageReference Include="System.IO.Hashing" Version="10.0.0" />
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
     <PackageReference Include="Downloader" Version="3.2.1" />
+        <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
