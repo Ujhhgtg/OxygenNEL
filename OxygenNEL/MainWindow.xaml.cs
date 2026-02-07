@@ -64,34 +64,9 @@ public sealed partial class MainWindow : Window
         AppTitleTextBlock.Text = _appWindow.Title;
         ApplyThemeFromSettings();
         InitializeMainNavigationIfNeeded();
-        AuthManager.Instance.LoadFromDisk();
-        if (AuthManager.Instance.IsLoggedIn) _ = VerifyAndAutoLoginAsync();
         UpdateAuthOverlay();
         MusicPlayer.ApplySettings();
         _ = CheckUpdateAsync();
-    }
-
-    private async Task VerifyAndAutoLoginAsync()
-    {
-        var result = await AuthManager.Instance.TokenAuthAsync();
-        DispatcherQueue.TryEnqueue(() =>
-        {
-            if (result.Success)
-            {
-                var name = string.IsNullOrWhiteSpace(AuthManager.Instance.Username)
-                    ? "用户"
-                    : AuthManager.Instance.Username;
-                NotificationHost.ShowGlobal($"欢迎 {name}，已自动登录", ToastLevel.Success);
-                _ = Task.Run(async () => await AuthManager.Instance.GetCrcSaltAsync());
-            }
-            else
-            {
-                AuthManager.Instance.Clear();
-                NotificationHost.ShowGlobal("登录已过期，请重新登录", ToastLevel.Warning);
-            }
-
-            UpdateAuthOverlay();
-        });
     }
 
     private async Task CheckUpdateAsync()
@@ -101,18 +76,10 @@ public sealed partial class MainWindow : Window
 
     private void UpdateAuthOverlay()
     {
-        if (AuthManager.Instance.IsLoggedIn)
-        {
-            AuthOverlay.Visibility = Visibility.Collapsed;
-            NavView.Visibility = Visibility.Visible;
-            OverlayFrame.Content = null;
-            UserProfile.UpdateUserInfo();
-            return;
-        }
-
-        NavView.Visibility = Visibility.Collapsed;
-        AuthOverlay.Visibility = Visibility.Visible;
-        if (OverlayFrame.Content == null) OverlayFrame.Navigate(typeof(LoginPage));
+        AuthOverlay.Visibility = Visibility.Collapsed;
+        NavView.Visibility = Visibility.Visible;
+        OverlayFrame.Content = null;
+        UserProfile.UpdateUserInfo();
     }
 
     private static readonly Dictionary<string, (Type Page, string Title)> Pages = new()

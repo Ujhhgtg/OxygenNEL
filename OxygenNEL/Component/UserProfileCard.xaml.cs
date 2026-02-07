@@ -28,23 +28,16 @@ public sealed partial class UserProfileCard : UserControl
 
     public void UpdateUserInfo()
     {
-        var username = AuthManager.Instance.Username;
-        var userId = AuthManager.Instance.UserId;
-        UsernameText.Text = string.IsNullOrWhiteSpace(username) ? "用户" : username;
-        UserIdText.Text = userId > 0 ? $"ID: {userId}" : "ID: -";
+        UsernameText.Text = "--- Ujhhgtg ---";
+        UserIdText.Text = "ID: 1337";
         UpdateAvatar();
         UpdateRank();
-
-        if (AuthManager.Instance.IsLoggedIn) _ = FetchUserInfoAsync();
     }
 
     private void UpdateRank()
     {
-        var rank = AuthManager.Instance.Rank;
-        var text = string.IsNullOrWhiteSpace(rank) ? "no iq" : rank;
-
         RankPanel.Children.Clear();
-        var segments = ParseMinecraftColors(text);
+        var segments = ParseMinecraftColors("§3ADMINISTRATOR");
         foreach (var (content, color) in segments)
             RankPanel.Children.Add(new TextBlock
             {
@@ -109,28 +102,7 @@ public sealed partial class UserProfileCard : UserControl
 
     private void UpdateAvatar()
     {
-        var avatar = AuthManager.Instance.Avatar;
-        if (!string.IsNullOrWhiteSpace(avatar))
-            try
-            {
-                var base64Data = avatar;
-                if (avatar.Contains(",")) base64Data = avatar.Split(',')[1];
-
-                var bytes = Convert.FromBase64String(base64Data);
-                using var ms = new MemoryStream(bytes);
-                var bitmap = new BitmapImage();
-                bitmap.SetSource(ms.AsRandomAccessStream());
-                AvatarImageBrush.ImageSource = bitmap;
-                AvatarImageEllipse.Visibility = Visibility.Visible;
-                AvatarEllipse.Visibility = Visibility.Collapsed;
-                AvatarIcon.Visibility = Visibility.Collapsed;
-            }
-            catch
-            {
-                ShowDefaultAvatar();
-            }
-        else
-            ShowDefaultAvatar();
+        ShowDefaultAvatar();
     }
 
     private void ShowDefaultAvatar()
@@ -140,46 +112,12 @@ public sealed partial class UserProfileCard : UserControl
         AvatarIcon.Visibility = Visibility.Visible;
     }
 
-    private async Task FetchUserInfoAsync()
-    {
-        try
-        {
-            var result = await AuthManager.Instance.FetchUserInfoAsync();
-            if (result.Success)
-                DispatcherQueue.TryEnqueue(() =>
-                {
-                    UsernameText.Text = AuthManager.Instance.Username;
-                    UserIdText.Text = $"ID: {AuthManager.Instance.UserId}";
-                    UpdateAvatar();
-                    UpdateRank();
-                });
-        }
-        catch
-        {
-        }
-    }
-
     private void AvatarButton_Click(object sender, RoutedEventArgs e)
     {
     }
 
-    private async void ManageButton_Click(object sender, RoutedEventArgs e)
+    private void ManageButton_Click(object sender, RoutedEventArgs e)
     {
-        NotificationHost.ShowGlobal("请求中...", ToastLevel.Normal);
-        try
-        {
-            var result = await AuthManager.Instance.GenerateUserUrlAsync();
-            if (!result.Success)
-            {
-                NotificationHost.ShowGlobal(result.Message, ToastLevel.Error);
-                return;
-            }
-
-            if (!string.IsNullOrEmpty(result.UserUrl)) await Launcher.LaunchUriAsync(new Uri(result.UserUrl));
-        }
-        catch (Exception ex)
-        {
-            NotificationHost.ShowGlobal("打开失败: " + ex.Message, ToastLevel.Error);
-        }
+        NotificationHost.ShowGlobal("lol", ToastLevel.Normal);
     }
 }

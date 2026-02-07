@@ -46,7 +46,6 @@ public partial class App : Application
                 AppState.Debug = SettingManager.Instance.Get()?.Debug ?? false;
                 AppState.AutoDisconnectOnBan = SettingManager.Instance.Get().AutoDisconnectOnBan;
 
-                // KillVeta.Run();
                 AppState.Services = await CreateServicesAsync();
                 InternalQuery.Initialize();
 
@@ -68,14 +67,13 @@ public partial class App : Application
             Directory.CreateDirectory(logDir);
             var fileName = DateTime.Now.ToString("yyyy-MM-dd-HHmm-ss") + ".log";
             var filePath = Path.Combine(logDir, fileName);
-            var isDebug = SettingManager.Instance.Get().Debug;
             var logConfig = new LoggerConfiguration()
-                .MinimumLevel.Is(isDebug ? LogEventLevel.Debug : LogEventLevel.Information)
+                .MinimumLevel.Is(LogEventLevel.Debug)
                 .WriteTo.Console()
                 .WriteTo.Sink(UiLog.CreateSink())
                 .WriteTo.File(filePath);
             Log.Logger = logConfig.CreateLogger();
-            Log.Information("日志已创建: {filePath}, Debug={isDebug}", filePath, isDebug);
+            Log.Information("Logging to file: {filePath}", filePath);
         }
         catch (Exception ex)
         {
@@ -84,7 +82,7 @@ public partial class App : Application
                 .WriteTo.Console()
                 .WriteTo.Sink(UiLog.CreateSink())
                 .CreateLogger();
-            Log.Error(ex, "日志初始化失败");
+            Log.Error(ex, "Failed to initialize logger");
         }
     }
 
@@ -114,16 +112,16 @@ public partial class App : Application
     private static void RegisterIrcHandler()
     {
         IrcManager.Enabled = SettingManager.Instance.Get().IrcEnabled;
-        IrcEventHandler.Register(() => AuthManager.Instance.Token ?? "");
+        IrcEventHandler.Register(() => "");
     }
 
-    private async Task<Services> CreateServicesAsync()
+    private static async Task<Services> CreateServicesAsync()
     {
         var yggdrasil = new StandardYggdrasil(new YggdrasilData
         {
             LauncherVersion = WPFLauncher.GetLatestVersionAsync().GetAwaiter().GetResult(),
             Channel = "netease",
-            CrcSalt = await AuthManager.Instance.GetCrcSaltAsyncIfNeeded()
+            CrcSalt = AuthManager.Salt
         });
         return new Services(yggdrasil);
     }

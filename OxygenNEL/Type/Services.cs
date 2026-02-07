@@ -11,12 +11,11 @@ internal class Services(StandardYggdrasil yggdrasil)
 
     public void RefreshYggdrasil()
     {
-        var salt = AuthManager.Instance.CachedSalt;
         Yggdrasil = new StandardYggdrasil(new YggdrasilData
         {
             LauncherVersion = WPFLauncher.GetLatestVersionAsync().GetAwaiter().GetResult(),
             Channel = "netease",
-            CrcSalt = salt
+            CrcSalt = AuthManager.Salt
         });
     }
 }

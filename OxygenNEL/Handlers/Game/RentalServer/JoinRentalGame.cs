@@ -19,7 +19,7 @@ using Serilog;
 
 namespace OxygenNEL.Handlers.Game.RentalServer;
 
-public class JoinRentalGame
+public partial class JoinRentalGame
 {
     private EntityJoinRentalGame? _request;
     private string _lastIp = string.Empty;
@@ -88,7 +88,7 @@ public class JoinRentalGame
         }
         else
         {
-            var shortMatch = Regex.Match(versionName, @"(\d+\.\d+)");
+            var shortMatch = VersionRegex().Match(versionName);
             if (shortMatch.Success) shortVersion = shortMatch.Groups[1].Value;
         }
 
@@ -128,7 +128,7 @@ public class JoinRentalGame
         if (!string.IsNullOrWhiteSpace(socksAddr) && socksPort > 0)
             try
             {
-                Dns.GetHostAddresses(socksAddr);
+                await Dns.GetHostAddressesAsync(socksAddr);
             }
             catch
             {
@@ -146,14 +146,14 @@ public class JoinRentalGame
             roleId,
             available.UserId,
             available.AccessToken,
-            delegate(string certification)
+            certification =>
             {
                 Log.Logger.Information("Rental server certification: {Certification}", certification);
-                Task.Run(async delegate
+                Task.Run(async () =>
                 {
                     try
                     {
-                        var salt = AuthManager.Instance.CachedSalt;
+                        var salt = AuthManager.Salt;
                         Log.Information("租赁服 CrcSalt: {Salt}", salt);
                         AppState.Services?.RefreshYggdrasil();
                         var latest = UserManager.Instance.GetAvailableUser(available.UserId);
@@ -195,4 +195,7 @@ public class JoinRentalGame
         _lastPort = interceptor.LocalPort;
         return true;
     }
+
+    [GeneratedRegex(@"(\d+\.\d+)")]
+    private static partial Regex VersionRegex();
 }

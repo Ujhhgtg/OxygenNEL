@@ -9,12 +9,12 @@ namespace OxygenNEL.IRC;
 
 public static class IrcEventHandler
 {
-    private static readonly ConcurrentDictionary<GameConnection, bool> _processed = new();
+    private static readonly ConcurrentDictionary<GameConnection, bool> Processed = new();
 
     public static void Register(Func<string> tokenProvider)
     {
         IrcManager.TokenProvider = tokenProvider;
-        IrcManager.OnClientRemoved = conn => _processed.TryRemove(conn, out _);
+        IrcManager.OnClientRemoved = conn => Processed.TryRemove(conn, out _);
 
         foreach (var channel in MessageChannels.AllVersions)
             EventManager.Instance.RegisterHandler<EventLoginSuccess>(channel, OnLoginSuccess);
@@ -29,7 +29,7 @@ public static class IrcEventHandler
         var nickName = args.Connection.NickName;
         if (string.IsNullOrEmpty(nickName)) return;
 
-        if (!_processed.TryAdd(args.Connection, true)) return;
+        if (!Processed.TryAdd(args.Connection, true)) return;
 
         var client = IrcManager.GetOrCreate(args.Connection);
         client.ChatReceived += OnChatReceived;

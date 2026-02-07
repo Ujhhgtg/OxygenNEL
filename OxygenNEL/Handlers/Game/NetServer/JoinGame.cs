@@ -127,20 +127,19 @@ public class JoinGame
 
         var interceptor = Interceptor.CreateInterceptor(_request?.Socks5, mods, serverId, serverName, version.Name,
             serverIp, serverPort, _request?.Role ?? string.Empty, available.UserId, available.AccessToken,
-            delegate(string certification)
+            certification =>
             {
                 Log.Information("SOCKS5 => Host: {Host}, Port: {Port}, User: {User} pass: {Pass}",
-                    _request?.Socks5?.Address,
-                    _request?.Socks5?.Port,
-                    _request?.Socks5?.Username,
-                    _request?.Socks5?.Password);
+                    _request?.Socks5.Address,
+                    _request?.Socks5.Port,
+                    _request?.Socks5.Username,
+                    _request?.Socks5.Password);
                 Log.Logger.Information("Server certification: {Certification}", certification);
-                Task.Run(async delegate
+                Task.Run(async () =>
                 {
                     try
                     {
-                        var salt = await AuthManager.Instance.GetCrcSaltAsyncIfNeeded();
-                        Log.Information("加入游戏 CrcSalt: {Salt}", salt);
+                        Log.Information("加入游戏 CrcSalt: {Salt}", AuthManager.Salt);
                         AppState.Services?.RefreshYggdrasil();
                         var latest = UserManager.Instance.GetAvailableUser(available.UserId);
                         var currentToken = latest?.AccessToken ?? available.AccessToken;
