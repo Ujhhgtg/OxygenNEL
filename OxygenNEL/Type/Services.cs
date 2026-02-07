@@ -6,7 +6,7 @@ using OxygenNEL.Manager;
 namespace OxygenNEL.type;
 
 internal class Services(StandardYggdrasil yggdrasil)
-{ 
+{
     public StandardYggdrasil Yggdrasil { get; private set; } = yggdrasil;
 
     public void RefreshYggdrasil()

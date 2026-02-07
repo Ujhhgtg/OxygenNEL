@@ -41,7 +41,6 @@ public sealed partial class PluginStorePage : Microsoft.UI.Xaml.Controls.Page
     private async void InstallAvailablePluginButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button btn && btn.Tag is AvailablePluginItem item)
-        {
             try
             {
                 await InstallOneAsync(item);
@@ -51,7 +50,6 @@ public sealed partial class PluginStorePage : Microsoft.UI.Xaml.Controls.Page
             {
                 Log.Error(ex, "安装插件失败");
             }
-        }
     }
 
     private void BackButton_Click(object sender, RoutedEventArgs e)

@@ -26,7 +26,7 @@ public class CChatCommandIrcV1122 : IPacket
         buffer.SkipBytes(buffer.ReadableBytes);
 
         _isIrcCommand = _command.StartsWith("/irc ", StringComparison.OrdinalIgnoreCase)
-                     || _command.Equals("/irc", StringComparison.OrdinalIgnoreCase);
+                        || _command.Equals("/irc", StringComparison.OrdinalIgnoreCase);
     }
 
     public void WriteToBuffer(IByteBuffer buffer)
@@ -63,6 +63,7 @@ public class CChatCommandIrcV1122 : IPacket
             SendLocalMessage(connection, "§c[IRC] IRC 未连接");
             return true;
         }
+
         ircClient.SendChat(playerName, content);
         return true;
     }

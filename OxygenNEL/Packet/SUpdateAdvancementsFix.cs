@@ -40,23 +40,23 @@ public class SUpdateAdvancementsFix : IPacket
     public void ReadFromBuffer(IByteBuffer buffer)
     {
         Reset = buffer.ReadBoolean();
-        
+
         var advancementsCount = buffer.ReadVarIntFromBuffer();
         Advancements = new EntityAdvancementEntry[advancementsCount];
         for (var i = 0; i < advancementsCount; i++)
         {
             var advancementId = ReadIdentifier(buffer);
             advancementId = SanitizeNamespacedKey(advancementId);
-            
+
             var advancement = ReadAdvancement(buffer);
-            
+
             Advancements[i] = new EntityAdvancementEntry
             {
                 Id = advancementId,
                 Advancement = advancement
             };
         }
-        
+
 
         var removedCount = buffer.ReadVarIntFromBuffer();
         RemovedAdvancements = new string[removedCount];
@@ -66,7 +66,7 @@ public class SUpdateAdvancementsFix : IPacket
             removedId = SanitizeNamespacedKey(removedId);
             RemovedAdvancements[i] = removedId;
         }
-        
+
 
         var progressCount = buffer.ReadVarIntFromBuffer();
         Progress = new EntityAdvancementProgressEntry[progressCount];
@@ -74,9 +74,9 @@ public class SUpdateAdvancementsFix : IPacket
         {
             var advancementId = ReadIdentifier(buffer);
             advancementId = SanitizeNamespacedKey(advancementId);
-            
+
             var advancementProgress = ReadAdvancementProgress(buffer);
-            
+
             Progress[i] = new EntityAdvancementProgressEntry
             {
                 Id = advancementId,
@@ -88,20 +88,17 @@ public class SUpdateAdvancementsFix : IPacket
     public void WriteToBuffer(IByteBuffer buffer)
     {
         buffer.WriteBoolean(Reset);
-        
+
         buffer.WriteVarInt(Advancements.Length);
         foreach (var entry in Advancements)
         {
             WriteIdentifier(buffer, entry.Id);
             WriteAdvancement(buffer, entry.Advancement);
         }
-        
+
         buffer.WriteVarInt(RemovedAdvancements.Length);
-        foreach (var removed in RemovedAdvancements)
-        {
-            WriteIdentifier(buffer, removed);
-        }
-        
+        foreach (var removed in RemovedAdvancements) WriteIdentifier(buffer, removed);
+
         buffer.WriteVarInt(Progress.Length);
         foreach (var entry in Progress)
         {
@@ -112,23 +109,23 @@ public class SUpdateAdvancementsFix : IPacket
 
     public bool HandlePacket(GameConnection connection)
     {
-        Log.Debug("[Advancements] Received advancements update - Reset: {Reset}, Count: {Count}", Reset, Advancements.Length);
+        Log.Debug("[Advancements] Received advancements update - Reset: {Reset}, Count: {Count}", Reset,
+            Advancements.Length);
         return true;
     }
 
     private string ReadIdentifier(IByteBuffer buffer)
     {
         var length = buffer.ReadVarIntFromBuffer();
-        
+
         if (length < 0 || length > buffer.ReadableBytes)
-        {
-            throw new IndexOutOfRangeException($"Invalid string length: {length}, readable bytes: {buffer.ReadableBytes}");
-        }
-        
+            throw new IndexOutOfRangeException(
+                $"Invalid string length: {length}, readable bytes: {buffer.ReadableBytes}");
+
         var bytes = new byte[length];
         buffer.ReadBytes(bytes);
         var str = Encoding.UTF8.GetString(bytes);
-        
+
         return SanitizeLocationString(str);
     }
 
@@ -145,10 +142,7 @@ public class SUpdateAdvancementsFix : IPacket
         }
 
         var hasDisplay = buffer.ReadBoolean();
-        if (hasDisplay)
-        {
-            adv.DisplayData = ReadAdvancementDisplay(buffer);
-        }
+        if (hasDisplay) adv.DisplayData = ReadAdvancementDisplay(buffer);
 
         var criteriaCount = buffer.ReadVarIntFromBuffer();
         adv.Criteria = new string[criteriaCount];
@@ -171,6 +165,7 @@ public class SUpdateAdvancementsFix : IPacket
                 requirement = SanitizeNamespacedKey(requirement);
                 requirementArray[j] = requirement;
             }
+
             adv.Requirements[i] = requirementArray;
         }
 
@@ -188,7 +183,7 @@ public class SUpdateAdvancementsFix : IPacket
         };
 
         var flags = buffer.ReadInt();
-        
+
         if ((flags & 0x1) != 0)
         {
             var backgroundTexture = ReadIdentifier(buffer);
@@ -214,9 +209,8 @@ public class SUpdateAdvancementsFix : IPacket
 
         var itemId = buffer.ReadVarIntFromBuffer();
         var itemCount = buffer.ReadByte();
-        
+
         if (!buffer.IsReadable())
-        {
             return new EntityItemStack
             {
                 Present = true,
@@ -224,8 +218,7 @@ public class SUpdateAdvancementsFix : IPacket
                 ItemCount = itemCount,
                 Nbt = null
             };
-        }
-        
+
         var nbt = ReadNbt(buffer);
 
         return new EntityItemStack
@@ -240,23 +233,17 @@ public class SUpdateAdvancementsFix : IPacket
     private object? ReadNbt(IByteBuffer buffer)
     {
         var marker = buffer.MarkReaderIndex();
-        
+
         try
         {
             var firstByte = buffer.ReadByte();
-            
-            if (firstByte == 0)
-            {
-                return new NbtCompound();
-            }
-            
+
+            if (firstByte == 0) return new NbtCompound();
+
             buffer.ResetReaderIndex();
-            
-            if (buffer.IsReadable())
-            {
-                return ReadNbtTag(buffer);
-            }
-            
+
+            if (buffer.IsReadable()) return ReadNbtTag(buffer);
+
             return null;
         }
         catch
@@ -265,11 +252,11 @@ public class SUpdateAdvancementsFix : IPacket
             return null;
         }
     }
-    
+
     private object ReadNbtTag(IByteBuffer buffer)
     {
         var tagType = buffer.ReadByte();
-        
+
         switch (tagType)
         {
             case 0:
@@ -288,23 +275,21 @@ public class SUpdateAdvancementsFix : IPacket
                 return new NbtDouble(buffer.ReadDouble());
             case 7:
                 var byteArrayLength = buffer.ReadInt();
-                
+
                 if (byteArrayLength < 0 || byteArrayLength > buffer.ReadableBytes)
-                {
-                    throw new IndexOutOfRangeException($"Invalid byte array length in NBT: {byteArrayLength}, readable bytes: {buffer.ReadableBytes}");
-                }
-                
+                    throw new IndexOutOfRangeException(
+                        $"Invalid byte array length in NBT: {byteArrayLength}, readable bytes: {buffer.ReadableBytes}");
+
                 var byteArray = new byte[byteArrayLength];
                 buffer.ReadBytes(byteArray);
                 return new NbtByteArray(byteArray);
             case 8:
                 var stringLength = buffer.ReadUnsignedShort();
-                
+
                 if (stringLength < 0 || stringLength > buffer.ReadableBytes)
-                {
-                    throw new IndexOutOfRangeException($"Invalid string length in NBT: {stringLength}, readable bytes: {buffer.ReadableBytes}");
-                }
-                
+                    throw new IndexOutOfRangeException(
+                        $"Invalid string length in NBT: {stringLength}, readable bytes: {buffer.ReadableBytes}");
+
                 var stringBytes = new byte[stringLength];
                 buffer.ReadBytes(stringBytes);
                 var stringValue = Encoding.UTF8.GetString(stringBytes);
@@ -312,71 +297,60 @@ public class SUpdateAdvancementsFix : IPacket
             case 9:
                 var listTagType = buffer.ReadByte();
                 var listLength = buffer.ReadInt();
-                
-                if (listLength < 0 || listLength > 10000) 
-                {
+
+                if (listLength < 0 || listLength > 10000)
                     throw new IndexOutOfRangeException($"Invalid list length in NBT: {listLength}");
-                }
-                
+
                 var listElements = new object[listLength];
-                for (var i = 0; i < listLength; i++)
-                {
-                    listElements[i] = ReadNbtTagByType(buffer, listTagType);
-                }
+                for (var i = 0; i < listLength; i++) listElements[i] = ReadNbtTagByType(buffer, listTagType);
                 return new NbtList(listTagType, listElements);
             case 10:
                 var compound = new NbtCompound();
-                
+
                 var tagCount = 0;
                 const int maxTags = 10000;
-                
+
                 while (true)
                 {
                     if (tagCount >= maxTags)
-                    {
                         throw new IndexOutOfRangeException($"Too many tags in NBT compound: exceeded {maxTags}");
-                    }
-                    
+
                     var childTagType = buffer.ReadByte();
                     if (childTagType == 0)
                         break;
-                        
+
                     var tagNameLength = buffer.ReadUnsignedShort();
-                    
+
                     if (tagNameLength < 0 || tagNameLength > buffer.ReadableBytes)
-                    {
-                        throw new IndexOutOfRangeException($"Invalid tag name length in NBT: {tagNameLength}, readable bytes: {buffer.ReadableBytes}");
-                    }
-                    
+                        throw new IndexOutOfRangeException(
+                            $"Invalid tag name length in NBT: {tagNameLength}, readable bytes: {buffer.ReadableBytes}");
+
                     var tagNameBytes = new byte[tagNameLength];
                     buffer.ReadBytes(tagNameBytes);
                     var tagName = Encoding.UTF8.GetString(tagNameBytes);
-                    
+
                     var tagValue = ReadNbtTagByType(buffer, childTagType);
                     compound.Tags.Add(new KeyValuePair<string, object>(tagName, tagValue));
-                    
+
                     tagCount++;
                 }
+
                 return compound;
             case 11:
                 var intArrayLength = buffer.ReadInt();
-                
+
                 if (intArrayLength < 0 || intArrayLength * sizeof(int) > buffer.ReadableBytes)
-                {
-                    throw new IndexOutOfRangeException($"Invalid int array length in NBT: {intArrayLength}, readable bytes: {buffer.ReadableBytes}");
-                }
-                
+                    throw new IndexOutOfRangeException(
+                        $"Invalid int array length in NBT: {intArrayLength}, readable bytes: {buffer.ReadableBytes}");
+
                 var intArray = new int[intArrayLength];
-                for (var i = 0; i < intArrayLength; i++)
-                {
-                    intArray[i] = buffer.ReadInt();
-                }
+                for (var i = 0; i < intArrayLength; i++) intArray[i] = buffer.ReadInt();
                 return new NbtIntArray(intArray);
             default:
                 throw new ArgumentException($"Unknown NBT tag type: {tagType}");
         }
     }
-    
+
     private object ReadNbtTagByType(IByteBuffer buffer, byte tagType)
     {
         var tempBuffer = buffer.Duplicate();
@@ -387,24 +361,24 @@ public class SUpdateAdvancementsFix : IPacket
     private EntityAdvancementProgress ReadAdvancementProgress(IByteBuffer buffer)
     {
         var progress = new EntityAdvancementProgress();
-        
+
         var size = buffer.ReadVarIntFromBuffer();
         progress.Criteria = new EntityCriterionProgress[size];
-        
+
         for (var i = 0; i < size; i++)
         {
             var criterionId = ReadIdentifier(buffer);
             criterionId = SanitizeNamespacedKey(criterionId);
-            
+
             var criterionProgress = ReadCriterionProgress(buffer);
-            
+
             progress.Criteria[i] = new EntityCriterionProgress
             {
                 CriterionId = criterionId,
                 Progress = criterionProgress
             };
         }
-        
+
         return progress;
     }
 
@@ -415,11 +389,8 @@ public class SUpdateAdvancementsFix : IPacket
             Achieved = buffer.ReadBoolean()
         };
 
-        if (progressData.Achieved)
-        {
-            progressData.DateOfAchieving = buffer.ReadLong();
-        }
-        
+        if (progressData.Achieved) progressData.DateOfAchieving = buffer.ReadLong();
+
         return progressData;
     }
 
@@ -433,70 +404,51 @@ public class SUpdateAdvancementsFix : IPacket
     private void WriteAdvancement(IByteBuffer buffer, EntityAdvancement advancement)
     {
         buffer.WriteBoolean(!string.IsNullOrEmpty(advancement.ParentId));
-        if (!string.IsNullOrEmpty(advancement.ParentId))
-        {
-            WriteIdentifier(buffer, advancement.ParentId);
-        }
+        if (!string.IsNullOrEmpty(advancement.ParentId)) WriteIdentifier(buffer, advancement.ParentId);
 
         buffer.WriteBoolean(advancement.DisplayData != null);
-        if (advancement.DisplayData != null)
-        {
-            WriteAdvancementDisplay(buffer, advancement.DisplayData);
-        }
+        if (advancement.DisplayData != null) WriteAdvancementDisplay(buffer, advancement.DisplayData);
 
         buffer.WriteVarInt(advancement.Criteria?.Length ?? 0);
         if (advancement.Criteria != null)
-        {
             foreach (var criterion in advancement.Criteria)
-            {
                 WriteIdentifier(buffer, criterion);
-            }
-        }
 
         var requirementsLength = advancement.Requirements?.Length ?? 0;
         buffer.WriteVarInt(requirementsLength);
         if (advancement.Requirements != null)
-        {
             foreach (var requirementArray in advancement.Requirements)
             {
                 buffer.WriteVarInt(requirementArray?.Length ?? 0);
                 if (requirementArray != null)
-                {
                     foreach (var requirement in requirementArray)
-                    {
                         WriteIdentifier(buffer, requirement);
-                    }
-                }
             }
-        }
     }
 
     private void WriteAdvancementDisplay(IByteBuffer buffer, EntityAdvancementDisplay display)
     {
         var serializedTitle = TextComponentSerializer.Serialize(display.Title);
         buffer.WriteBytes(serializedTitle);
-        
+
         var serializedDescription = TextComponentSerializer.Serialize(display.Description);
         buffer.WriteBytes(serializedDescription);
-        
+
         WriteSlot(buffer, display.Icon);
-        
+
         buffer.WriteVarInt((int)display.FrameType);
-        
+
         var flags = 0;
         if (!string.IsNullOrEmpty(display.BackgroundTexture)) flags |= 0x1;
         if (display.ShowToast) flags |= 0x2;
         if (display.Hidden) flags |= 0x4;
-        
+
         buffer.WriteInt(flags);
-        
-        if (!string.IsNullOrEmpty(display.BackgroundTexture))
-        {
-            WriteIdentifier(buffer, display.BackgroundTexture);
-        }
-        
+
+        if (!string.IsNullOrEmpty(display.BackgroundTexture)) WriteIdentifier(buffer, display.BackgroundTexture);
+
         buffer.WriteFloat(display.XCoord);
-        
+
         buffer.WriteFloat(display.YCoord);
     }
 
@@ -507,17 +459,13 @@ public class SUpdateAdvancementsFix : IPacket
 
         buffer.WriteVarInt(itemStack.ItemId);
         buffer.WriteByte(itemStack.ItemCount);
-        
+
         if (itemStack.Nbt != null)
-        {
             WriteNbtTag(buffer, itemStack.Nbt);
-        }
         else
-        {
             buffer.WriteByte(0);
-        }
     }
-    
+
     private void WriteNbtTag(IByteBuffer buffer, object nbtTag)
     {
         if (nbtTag is NbtEnd)
@@ -572,10 +520,7 @@ public class SUpdateAdvancementsFix : IPacket
             buffer.WriteByte(9);
             buffer.WriteByte(nbtList.TagType);
             buffer.WriteInt(nbtList.Elements.Length);
-            foreach (var element in nbtList.Elements)
-            {
-                WriteNbtTag(buffer, element);
-            }
+            foreach (var element in nbtList.Elements) WriteNbtTag(buffer, element);
         }
         else if (nbtTag is NbtCompound nbtCompound)
         {
@@ -585,30 +530,28 @@ public class SUpdateAdvancementsFix : IPacket
                 var tagValue = tag.Value;
                 var tagType = GetNbtTagType(tagValue);
                 buffer.WriteByte(tagType);
-                
+
                 var nameBytes = Encoding.UTF8.GetBytes(tag.Key);
                 buffer.WriteShort(nameBytes.Length);
                 buffer.WriteBytes(nameBytes);
-                
+
                 WriteNbtTag(buffer, tagValue);
             }
+
             buffer.WriteByte(0);
         }
         else if (nbtTag is NbtIntArray nbtIntArray)
         {
             buffer.WriteByte(11);
             buffer.WriteInt(nbtIntArray.Value.Length);
-            foreach (var value in nbtIntArray.Value)
-            {
-                buffer.WriteInt(value);
-            }
+            foreach (var value in nbtIntArray.Value) buffer.WriteInt(value);
         }
         else
         {
             buffer.WriteByte(0);
         }
     }
-    
+
     private byte GetNbtTagType(object tagValue)
     {
         return tagValue switch
@@ -631,33 +574,28 @@ public class SUpdateAdvancementsFix : IPacket
     private void WriteAdvancementProgress(IByteBuffer buffer, EntityAdvancementProgress progress)
     {
         buffer.WriteVarInt(progress.Criteria?.Length ?? 0);
-        
+
         if (progress.Criteria != null)
-        {
             foreach (var criterionProgress in progress.Criteria)
             {
                 WriteIdentifier(buffer, criterionProgress.CriterionId);
-                
+
                 WriteCriterionProgress(buffer, criterionProgress.Progress);
             }
-        }
     }
 
     private void WriteCriterionProgress(IByteBuffer buffer, EntityCriterionProgressData progressData)
     {
         buffer.WriteBoolean(progressData.Achieved);
-        
-        if (progressData.Achieved)
-        {
-            buffer.WriteLong(progressData.DateOfAchieving);
-        }
+
+        if (progressData.Achieved) buffer.WriteLong(progressData.DateOfAchieving);
     }
 
     private static string SanitizeLocationString(string input)
     {
         if (string.IsNullOrEmpty(input))
             return input;
-        
+
         var locationPattern = @"[^\s/:\\]+:[^\s/:\\]+";
         var matches = Regex.Matches(input, locationPattern);
 
@@ -665,7 +603,7 @@ public class SUpdateAdvancementsFix : IPacket
         {
             var locationStr = match.Value;
             var parts = locationStr.Split(':');
-            
+
             if (parts.Length == 2)
             {
                 var namespacePart = parts[0];
@@ -675,7 +613,7 @@ public class SUpdateAdvancementsFix : IPacket
                 {
                     var cleanNamespace = CleanNamespace(namespacePart);
                     var cleanKey = CleanKey(keyPart);
-                    
+
                     var cleanLocation = $"{cleanNamespace}:{cleanKey}";
                     input = input.Replace(locationStr, cleanLocation);
                 }
@@ -692,7 +630,7 @@ public class SUpdateAdvancementsFix : IPacket
 
         var parts = namespacedKey.Split(':');
         if (parts.Length != 2)
-            return namespacedKey; 
+            return namespacedKey;
 
         var namespacePart = CleanNamespace(parts[0]);
         var keyPart = CleanKey(parts[1]);
@@ -703,10 +641,8 @@ public class SUpdateAdvancementsFix : IPacket
     private static bool ContainsNonAsciiChars(string str)
     {
         foreach (var c in str)
-        {
             if (c > 127)
                 return true;
-        }
         return false;
     }
 
@@ -714,7 +650,7 @@ public class SUpdateAdvancementsFix : IPacket
     {
         if (string.IsNullOrEmpty(ns))
             return ns;
-            
+
         var cleaned = Regex.Replace(ns, @"[^a-zA-Z0-9_.-]", "_");
         return cleaned.ToLowerInvariant();
     }
@@ -723,7 +659,7 @@ public class SUpdateAdvancementsFix : IPacket
     {
         if (string.IsNullOrEmpty(key))
             return key;
-            
+
         var cleaned = Regex.Replace(key, @"[^a-zA-Z0-9_.-]", "_");
         return cleaned.ToLowerInvariant();
     }
@@ -794,60 +730,95 @@ public class EntityItemStack
     public object? Nbt { get; set; }
 }
 
-public class NbtEnd {}
+public class NbtEnd
+{
+}
 
 public class NbtByte
 {
     public byte Value { get; set; }
-    public NbtByte(byte value) => Value = value;
+
+    public NbtByte(byte value)
+    {
+        Value = value;
+    }
 }
 
 public class NbtShort
 {
     public short Value { get; set; }
-    public NbtShort(short value) => Value = value;
+
+    public NbtShort(short value)
+    {
+        Value = value;
+    }
 }
 
 public class NbtInt
 {
     public int Value { get; set; }
-    public NbtInt(int value) => Value = value;
+
+    public NbtInt(int value)
+    {
+        Value = value;
+    }
 }
 
 public class NbtLong
 {
     public long Value { get; set; }
-    public NbtLong(long value) => Value = value;
+
+    public NbtLong(long value)
+    {
+        Value = value;
+    }
 }
 
 public class NbtFloat
 {
     public float Value { get; set; }
-    public NbtFloat(float value) => Value = value;
+
+    public NbtFloat(float value)
+    {
+        Value = value;
+    }
 }
 
 public class NbtDouble
 {
     public double Value { get; set; }
-    public NbtDouble(double value) => Value = value;
+
+    public NbtDouble(double value)
+    {
+        Value = value;
+    }
 }
 
 public class NbtByteArray
 {
     public byte[] Value { get; set; }
-    public NbtByteArray(byte[] value) => Value = value;
+
+    public NbtByteArray(byte[] value)
+    {
+        Value = value;
+    }
 }
 
 public class NbtString
 {
     public string Value { get; set; }
-    public NbtString(string value) => Value = value;
+
+    public NbtString(string value)
+    {
+        Value = value;
+    }
 }
 
 public class NbtList
 {
     public byte TagType { get; set; }
     public object[] Elements { get; set; }
+
     public NbtList(byte tagType, object[] elements)
     {
         TagType = tagType;
@@ -863,5 +834,9 @@ public class NbtCompound
 public class NbtIntArray
 {
     public int[] Value { get; set; }
-    public NbtIntArray(int[] value) => Value = value;
+
+    public NbtIntArray(int[] value)
+    {
+        Value = value;
+    }
 }

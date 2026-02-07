@@ -107,6 +107,7 @@ public partial class App : Application
         {
             Log.Error(ex, "插件加载失败");
         }
+
         await Task.CompletedTask;
     }
 
@@ -126,14 +127,17 @@ public partial class App : Application
         });
         return new Services(yggdrasil);
     }
-        
+
     private void App_UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
         try
         {
             Log.Error(e.Exception, "未处理异常");
         }
-        catch { }
+        catch
+        {
+        }
+
         e.Handled = true;
     }
 }

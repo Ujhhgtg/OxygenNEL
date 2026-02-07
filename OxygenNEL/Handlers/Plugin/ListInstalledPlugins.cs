@@ -9,7 +9,6 @@ public class ListInstalledPlugins
     {
         var list = new List<PluginViewModel>();
         foreach (var plugin in PluginManager.Instance.Plugins.Values)
-        {
             list.Add(new PluginViewModel
             {
                 Id = plugin.Id,
@@ -20,7 +19,6 @@ public class ListInstalledPlugins
                 Status = plugin.Status,
                 NeedUpdate = false
             });
-        }
         return list;
     }
 }

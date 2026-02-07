@@ -5,9 +5,7 @@ namespace OxygenNEL.Entities.Web.NetGame;
 
 public class EntityNetGamesResponse
 {
-	[JsonPropertyName("entities")]
-	public required EntityNetGameItem[] Entities { get; set; }
+    [JsonPropertyName("entities")] public required EntityNetGameItem[] Entities { get; set; }
 
-	[JsonPropertyName("total")]
-	public required int Total { get; set; }
+    [JsonPropertyName("total")] public required int Total { get; set; }
 }

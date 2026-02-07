@@ -14,6 +14,7 @@ namespace OxygenNEL.Component;
 public sealed partial class AccountListContent : UserControl
 {
     private static bool _dialogOpen;
+
     public ObservableCollection<AccountModel> Accounts
     {
         get => (ObservableCollection<AccountModel>)GetValue(AccountsProperty);
@@ -21,7 +22,8 @@ public sealed partial class AccountListContent : UserControl
     }
 
     public static readonly DependencyProperty AccountsProperty = DependencyProperty.Register(
-        nameof(Accounts), typeof(ObservableCollection<AccountModel>), typeof(AccountListContent), new PropertyMetadata(null));
+        nameof(Accounts), typeof(ObservableCollection<AccountModel>), typeof(AccountListContent),
+        new PropertyMetadata(null));
 
     public AccountListContent()
     {
@@ -30,7 +32,9 @@ public sealed partial class AccountListContent : UserControl
 
     private ElementTheme GetAppTheme()
     {
-        var mode = UserManager.Instance != null ? SettingManager.Instance.Get().ThemeMode?.Trim().ToLowerInvariant() ?? "system" : "system";
+        var mode = UserManager.Instance != null
+            ? SettingManager.Instance.Get().ThemeMode?.Trim().ToLowerInvariant() ?? "system"
+            : "system";
         if (mode == "light") return ElementTheme.Light;
         if (mode == "dark") return ElementTheme.Dark;
         return ElementTheme.Default;
@@ -56,7 +60,6 @@ public sealed partial class AccountListContent : UserControl
         if (Accounts == null) return;
         Accounts.Clear();
         foreach (var item in GetAccount.GetAccountList().OrderBy(x => x.EntityId))
-        {
             Accounts.Add(new AccountModel
             {
                 EntityId = item.EntityId,
@@ -64,7 +67,6 @@ public sealed partial class AccountListContent : UserControl
                 Status = item.Status,
                 Alias = item.Alias
             });
-        }
     }
 
     private bool TryDetectSuccess(object result)
@@ -78,15 +80,15 @@ public sealed partial class AccountListContent : UserControl
             if (string.Equals(tVal, "login_4399_error", StringComparison.OrdinalIgnoreCase)) return false;
             if (string.Equals(tVal, "captcha_required", StringComparison.OrdinalIgnoreCase)) return false;
         }
+
         if (result is IEnumerable en)
-        {
             foreach (var item in en)
             {
                 var p = item?.GetType().GetProperty("type");
                 var v = p != null ? p.GetValue(item) as string : null;
                 if (string.Equals(v, "Success_login", StringComparison.OrdinalIgnoreCase)) return true;
             }
-        }
+
         if (GetAccount.HasAuthorizedUser()) return true;
         return false;
     }
@@ -119,12 +121,9 @@ public sealed partial class AccountListContent : UserControl
                             var dialogContent = new CaptchaContent();
                             var dlg = CreateDialog(dialogContent, "输入验证码");
                             dialogContent.SetCaptcha(sidVal, urlVal);
-                            if (_dialogOpen)
-                            {
-                                return;
-                            }
+                            if (_dialogOpen) return;
                             _dialogOpen = true;
-                            dlg.Closed += (s,e) => { _dialogOpen = false; };
+                            dlg.Closed += (s, e) => { _dialogOpen = false; };
                             dlg.PrimaryButtonClick += async (s2, e2) =>
                             {
                                 e2.Cancel = true;
@@ -142,6 +141,7 @@ public sealed partial class AccountListContent : UserControl
                                 {
                                     Log.Error(ex, "验证码登录失败");
                                 }
+
                                 dlg.IsPrimaryButtonEnabled = true;
                             };
                             await dlg.ShowAsync();
@@ -157,6 +157,7 @@ public sealed partial class AccountListContent : UserControl
             {
                 Log.Error(ex, "登录失败");
             }
+
             account.IsLoading = false;
         }
     }
@@ -164,7 +165,6 @@ public sealed partial class AccountListContent : UserControl
     private void DeleteAccountButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button btn && btn.Tag is AccountModel account)
-        {
             try
             {
                 var r = new DeleteAccount().Execute(account.EntityId);
@@ -175,13 +175,11 @@ public sealed partial class AccountListContent : UserControl
             {
                 Log.Error(ex, "删除账号失败");
             }
-        }
     }
 
     private void LogoutButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button btn && btn.Tag is AccountModel account)
-        {
             try
             {
                 UserManager.Instance.RemoveAvailableUser(account.EntityId);
@@ -192,13 +190,11 @@ public sealed partial class AccountListContent : UserControl
             {
                 Log.Error(ex, "注销失败");
             }
-        }
     }
 
     private async void AliasBox_LostFocus(object sender, RoutedEventArgs e)
     {
         if (sender is TextBox tb && tb.Tag is AccountModel account)
-        {
             try
             {
                 UserManager.Instance.UpdateUserAlias(account.EntityId, account.Alias);
@@ -208,6 +204,5 @@ public sealed partial class AccountListContent : UserControl
             {
                 Log.Error(ex, "保存描述失败");
             }
-        }
     }
 }

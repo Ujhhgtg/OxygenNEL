@@ -22,7 +22,9 @@ public sealed partial class JoinServerContent : UserControl
             else if (mode == "dark") t = ElementTheme.Dark;
             RequestedTheme = t;
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     public class OptionItem

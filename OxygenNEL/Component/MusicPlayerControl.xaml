@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <UserControl
     x:Class="OxygenNEL.Component.MusicPlayerControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -7,13 +8,13 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid x:Name="MusicPlayerPanel" 
-          HorizontalAlignment="Right" 
+    <Grid x:Name="MusicPlayerPanel"
+          HorizontalAlignment="Right"
           VerticalAlignment="Bottom"
           Margin="0,0,20,20"
           Visibility="Collapsed">
         <Grid.RenderTransform>
-            <TranslateTransform x:Name="MusicPlayerTransform"/>
+            <TranslateTransform x:Name="MusicPlayerTransform" />
         </Grid.RenderTransform>
         <Border Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
                 CornerRadius="8"
@@ -22,16 +23,18 @@
                 BorderThickness="1"
                 Opacity="0.85">
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <FontIcon x:Name="MusicIcon" Glyph="&#xE8D6;" FontSize="16" VerticalAlignment="Center"/>
-                <TextBlock x:Name="MusicTitle" Text="未播放" VerticalAlignment="Center" MaxWidth="100" TextTrimming="CharacterEllipsis"/>
-                <Button x:Name="MusicPlayPauseBtn" Click="MusicPlayPauseBtn_Click" Padding="6,4" Background="Transparent" BorderThickness="0">
-                    <FontIcon x:Name="MusicPlayPauseIcon" Glyph="&#xE768;" FontSize="14"/>
+                <FontIcon x:Name="MusicIcon" Glyph="&#xE8D6;" FontSize="16" VerticalAlignment="Center" />
+                <TextBlock x:Name="MusicTitle" Text="未播放" VerticalAlignment="Center" MaxWidth="100"
+                           TextTrimming="CharacterEllipsis" />
+                <Button x:Name="MusicPlayPauseBtn" Click="MusicPlayPauseBtn_Click" Padding="6,4"
+                        Background="Transparent" BorderThickness="0">
+                    <FontIcon x:Name="MusicPlayPauseIcon" Glyph="&#xE768;" FontSize="14" />
                 </Button>
-                <Slider x:Name="MusicProgressSlider" Width="100" Minimum="0" Maximum="100" Value="0" 
+                <Slider x:Name="MusicProgressSlider" Width="100" Minimum="0" Maximum="100" Value="0"
                         ValueChanged="MusicProgressSlider_ValueChanged"
-                        VerticalAlignment="Center"/>
-                <TextBlock x:Name="MusicTimeText" Text="0:00" VerticalAlignment="Center" FontSize="12" 
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" MinWidth="32"/>
+                        VerticalAlignment="Center" />
+                <TextBlock x:Name="MusicTimeText" Text="0:00" VerticalAlignment="Center" FontSize="12"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" MinWidth="32" />
             </StackPanel>
         </Border>
     </Grid>

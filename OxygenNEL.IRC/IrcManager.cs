@@ -12,7 +12,7 @@ public class IrcChatEventArgs : EventArgs
 public static class IrcManager
 {
     private static readonly ConcurrentDictionary<GameConnection, IrcClient> _clients = new();
-    
+
     public static bool Enabled { get; set; } = true;
     public static Func<string>? TokenProvider { get; set; }
     public static Action<GameConnection>? OnClientRemoved { get; set; }
@@ -39,10 +39,7 @@ public static class IrcManager
 
     public static void Clear()
     {
-        foreach (var kv in _clients)
-        {
-            kv.Value.Dispose();
-        }
+        foreach (var kv in _clients) kv.Value.Dispose();
         _clients.Clear();
     }
 }

@@ -12,14 +12,62 @@ public class RentalServerItem : INotifyPropertyChanged
     private bool _hasPassword;
     private string _mcVersion = string.Empty;
 
-    public string EntityId { get => _entityId; set { _entityId = value; OnPropertyChanged(nameof(EntityId)); } }
-    public string Name { get => _name; set { _name = value; OnPropertyChanged(nameof(Name)); } }
-    public int PlayerCount { get => _playerCount; set { _playerCount = value; OnPropertyChanged(nameof(PlayerCount)); } }
-    public bool HasPassword { get => _hasPassword; set { _hasPassword = value; OnPropertyChanged(nameof(HasPassword)); } }
-    public string McVersion { get => _mcVersion; set { _mcVersion = value; OnPropertyChanged(nameof(McVersion)); } }
+    public string EntityId
+    {
+        get => _entityId;
+        set
+        {
+            _entityId = value;
+            OnPropertyChanged(nameof(EntityId));
+        }
+    }
+
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            _name = value;
+            OnPropertyChanged(nameof(Name));
+        }
+    }
+
+    public int PlayerCount
+    {
+        get => _playerCount;
+        set
+        {
+            _playerCount = value;
+            OnPropertyChanged(nameof(PlayerCount));
+        }
+    }
+
+    public bool HasPassword
+    {
+        get => _hasPassword;
+        set
+        {
+            _hasPassword = value;
+            OnPropertyChanged(nameof(HasPassword));
+        }
+    }
+
+    public string McVersion
+    {
+        get => _mcVersion;
+        set
+        {
+            _mcVersion = value;
+            OnPropertyChanged(nameof(McVersion));
+        }
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+    private void OnPropertyChanged(string name)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
 }
 
 public class ListRentalServersResult

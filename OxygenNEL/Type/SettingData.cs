@@ -7,6 +7,7 @@ namespace OxygenNEL.type;
 public class SettingData : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
+
     private void Set<T>(ref T field, T value, [CallerMemberName] string? name = null)
     {
         if (Equals(field, value)) return;
@@ -30,19 +31,108 @@ public class SettingData : INotifyPropertyChanged
     private string _musicPath = string.Empty;
     private double _musicVolume = 0.5;
 
-    [JsonPropertyName("themeMode")] public string ThemeMode { get => _themeMode; set => Set(ref _themeMode, value); }
-    [JsonPropertyName("backdrop")] public string Backdrop { get => _backdrop; set => Set(ref _backdrop, value); }
-    [JsonPropertyName("customBackgroundPath")] public string CustomBackgroundPath { get => _customBackgroundPath; set => Set(ref _customBackgroundPath, value); }
-    [JsonPropertyName("autoCopyIpOnStart")] public bool AutoCopyIpOnStart { get => _autoCopyIpOnStart; set => Set(ref _autoCopyIpOnStart, value); }
-    [JsonPropertyName("debug")] public bool Debug { get => _debug; set => Set(ref _debug, value); }
-    [JsonPropertyName("autoDisconnectOnBan")] public string AutoDisconnectOnBan { get => _autoDisconnectOnBan; set => Set(ref _autoDisconnectOnBan, value); }
-    [JsonPropertyName("ircEnabled")] public bool IrcEnabled { get => _ircEnabled; set => Set(ref _ircEnabled, value); }
-    [JsonPropertyName("socks5Enabled")] public bool Socks5Enabled { get => _socks5Enabled; set => Set(ref _socks5Enabled, value); }
-    [JsonPropertyName("socks5Address")] public string Socks5Address { get => _socks5Address; set => Set(ref _socks5Address, value); }
-    [JsonPropertyName("socks5Port")] public int Socks5Port { get => _socks5Port; set => Set(ref _socks5Port, value); }
-    [JsonPropertyName("socks5Username")] public string Socks5Username { get => _socks5Username; set => Set(ref _socks5Username, value); }
-    [JsonPropertyName("socks5Password")] public string Socks5Password { get => _socks5Password; set => Set(ref _socks5Password, value); }
-    [JsonPropertyName("musicPlayerEnabled")] public bool MusicPlayerEnabled { get => _musicPlayerEnabled; set => Set(ref _musicPlayerEnabled, value); }
-    [JsonPropertyName("musicPath")] public string MusicPath { get => _musicPath; set => Set(ref _musicPath, value); }
-    [JsonPropertyName("musicVolume")] public double MusicVolume { get => _musicVolume; set => Set(ref _musicVolume, value); }
+    [JsonPropertyName("themeMode")]
+    public string ThemeMode
+    {
+        get => _themeMode;
+        set => Set(ref _themeMode, value);
+    }
+
+    [JsonPropertyName("backdrop")]
+    public string Backdrop
+    {
+        get => _backdrop;
+        set => Set(ref _backdrop, value);
+    }
+
+    [JsonPropertyName("customBackgroundPath")]
+    public string CustomBackgroundPath
+    {
+        get => _customBackgroundPath;
+        set => Set(ref _customBackgroundPath, value);
+    }
+
+    [JsonPropertyName("autoCopyIpOnStart")]
+    public bool AutoCopyIpOnStart
+    {
+        get => _autoCopyIpOnStart;
+        set => Set(ref _autoCopyIpOnStart, value);
+    }
+
+    [JsonPropertyName("debug")]
+    public bool Debug
+    {
+        get => _debug;
+        set => Set(ref _debug, value);
+    }
+
+    [JsonPropertyName("autoDisconnectOnBan")]
+    public string AutoDisconnectOnBan
+    {
+        get => _autoDisconnectOnBan;
+        set => Set(ref _autoDisconnectOnBan, value);
+    }
+
+    [JsonPropertyName("ircEnabled")]
+    public bool IrcEnabled
+    {
+        get => _ircEnabled;
+        set => Set(ref _ircEnabled, value);
+    }
+
+    [JsonPropertyName("socks5Enabled")]
+    public bool Socks5Enabled
+    {
+        get => _socks5Enabled;
+        set => Set(ref _socks5Enabled, value);
+    }
+
+    [JsonPropertyName("socks5Address")]
+    public string Socks5Address
+    {
+        get => _socks5Address;
+        set => Set(ref _socks5Address, value);
+    }
+
+    [JsonPropertyName("socks5Port")]
+    public int Socks5Port
+    {
+        get => _socks5Port;
+        set => Set(ref _socks5Port, value);
+    }
+
+    [JsonPropertyName("socks5Username")]
+    public string Socks5Username
+    {
+        get => _socks5Username;
+        set => Set(ref _socks5Username, value);
+    }
+
+    [JsonPropertyName("socks5Password")]
+    public string Socks5Password
+    {
+        get => _socks5Password;
+        set => Set(ref _socks5Password, value);
+    }
+
+    [JsonPropertyName("musicPlayerEnabled")]
+    public bool MusicPlayerEnabled
+    {
+        get => _musicPlayerEnabled;
+        set => Set(ref _musicPlayerEnabled, value);
+    }
+
+    [JsonPropertyName("musicPath")]
+    public string MusicPath
+    {
+        get => _musicPath;
+        set => Set(ref _musicPath, value);
+    }
+
+    [JsonPropertyName("musicVolume")]
+    public double MusicVolume
+    {
+        get => _musicVolume;
+        set => Set(ref _musicVolume, value);
+    }
 }

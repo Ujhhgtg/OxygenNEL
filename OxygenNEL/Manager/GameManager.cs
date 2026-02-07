@@ -19,10 +19,23 @@ internal class GameManager
     public sealed class LockScope : IDisposable
     {
         private readonly object l;
-        public LockScope(object o){l=o; Monitor.Enter(l);} 
-        public void Dispose(){ Monitor.Exit(l);} 
+
+        public LockScope(object o)
+        {
+            l = o;
+            Monitor.Enter(l);
+        }
+
+        public void Dispose()
+        {
+            Monitor.Exit(l);
+        }
     }
-    public static LockScope EnterScope(object o)=>new(o);
+
+    public static LockScope EnterScope(object o)
+    {
+        return new LockScope(o);
+    }
 
     public List<EntityQueryInterceptors> GetQueryInterceptors()
     {
@@ -37,7 +50,7 @@ internal class GameManager
             LocalAddress = $"{interceptor.LocalAddress}:{interceptor.LocalPort}"
         }).ToList();
     }
-    
+
     public void ShutdownInterceptor(Guid identifier)
     {
         Interceptor? value = null;
@@ -50,11 +63,10 @@ internal class GameManager
                 has = true;
             }
         }
-        if (has && value != null)
-        {
-            value.ShutdownAsync();
-        }
+
+        if (has && value != null) value.ShutdownAsync();
     }
+
     public void AddInterceptor(Interceptor interceptor)
     {
         using (_lock.EnterScope())

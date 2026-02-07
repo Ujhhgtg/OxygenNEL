@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <Page
     x:Class="OxygenNEL.Page.RentalServerPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -10,73 +11,84 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <local:BoolNegationConverter x:Key="BoolNegationConverter"/>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <local:BoolNegationConverter x:Key="BoolNegationConverter" />
     </Page.Resources>
 
     <Grid Padding="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="0,0,0,12">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Text="租赁服" Style="{StaticResource TitleTextBlockStyle}" VerticalAlignment="Center"/>
-            <Button Grid.Column="1" Content="指定服务器" Click="SpecifyServerButton_Click" Margin="0,0,8,0"/>
-            <Button Grid.Column="2" Content="刷新" Click="RefreshButton_Click"/>
+            <TextBlock Text="租赁服" Style="{StaticResource TitleTextBlockStyle}" VerticalAlignment="Center" />
+            <Button Grid.Column="1" Content="指定服务器" Click="SpecifyServerButton_Click" Margin="0,0,8,0" />
+            <Button Grid.Column="2" Content="刷新" Click="RefreshButton_Click" />
         </Grid>
 
         <TextBlock Grid.Row="1"
                    Text="未登录"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
-                   Visibility="{Binding NotLogin, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                   Visibility="{Binding NotLogin, Converter={StaticResource BoolToVisibilityConverter}}" />
 
         <ScrollViewer Grid.Row="1"
                       Visibility="{Binding NotLogin, Converter={StaticResource BoolNegationConverter}}">
             <ItemsRepeater x:Name="ServersRepeater" ItemsSource="{x:Bind Servers}">
                 <ItemsRepeater.Layout>
-                    <UniformGridLayout MinItemWidth="260" MinItemHeight="160" MinColumnSpacing="12" MinRowSpacing="12"/>
+                    <UniformGridLayout MinItemWidth="260" MinItemHeight="160" MinColumnSpacing="12" MinRowSpacing="12" />
                 </ItemsRepeater.Layout>
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate x:DataType="rental:RentalServerItem">
                         <Grid Padding="12" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="8">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Text="{x:Bind Name}" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Grid.Row="1" Text="{x:Bind EntityId}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Grid.Row="2" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis">
-                                <Run Text="在线人数: "/><Run Text="{x:Bind PlayerCount}"/>
+                            <TextBlock Grid.Row="0" Text="{x:Bind Name}"
+                                       Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Grid.Row="1" Text="{x:Bind EntityId}"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Grid.Row="2" Style="{StaticResource CaptionTextBlockStyle}"
+                                       TextWrapping="NoWrap" TextTrimming="CharacterEllipsis">
+                                <Run Text="在线人数: " /><Run Text="{x:Bind PlayerCount}" />
                             </TextBlock>
                             <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="4" Margin="0,4,0,0">
-                                <FontIcon Glyph="&#xE72E;" FontSize="12" Visibility="{x:Bind HasPassword, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"/>
-                                <TextBlock Text="需要密码" FontSize="12" Visibility="{x:Bind HasPassword, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"/>
+                                <FontIcon Glyph="&#xE72E;" FontSize="12"
+                                          Visibility="{x:Bind HasPassword, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+                                <TextBlock Text="需要密码" FontSize="12"
+                                           Visibility="{x:Bind HasPassword, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
                             </StackPanel>
-                            <Button Grid.Row="4" Content="加入服务器" HorizontalAlignment="Left" Click="JoinServerButton_Click" Tag="{x:Bind}" Margin="0,8,0,0"/>
+                            <Button Grid.Row="4" Content="加入服务器" HorizontalAlignment="Left"
+                                    Click="JoinServerButton_Click" Tag="{x:Bind}" Margin="0,8,0,0" />
                         </Grid>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>
             </ItemsRepeater>
         </ScrollViewer>
 
-        <Grid Grid.Row="2" Visibility="{Binding NotLogin, Converter={StaticResource BoolNegationConverter}}" Margin="0,12,0,0">
+        <Grid Grid.Row="2" Visibility="{Binding NotLogin, Converter={StaticResource BoolNegationConverter}}"
+              Margin="0,12,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}"/>
+            <TextBlock Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                       Style="{StaticResource CaptionTextBlockStyle}" />
         </Grid>
     </Grid>
 </Page>

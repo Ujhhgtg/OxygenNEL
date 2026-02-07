@@ -64,7 +64,14 @@ public sealed partial class AccountPage : Microsoft.UI.Xaml.Controls.Page
         var dialog = CreateDialog(dialogContent, "添加账号");
         dialogContent.CaptchaInputRequested = async url =>
         {
-            try { dialog.Hide(); } catch { }
+            try
+            {
+                dialog.Hide();
+            }
+            catch
+            {
+            }
+
             var content = new CaptchaContent();
             var sid = Guid.NewGuid().ToString("N");
             var dlg2 = CreateDialog(content, "输入验证码");
@@ -74,7 +81,13 @@ public sealed partial class AccountPage : Microsoft.UI.Xaml.Controls.Page
             {
                 e2.Cancel = true;
                 cap = content.CaptchaText;
-                try { dlg2.Hide(); } catch { }
+                try
+                {
+                    dlg2.Hide();
+                }
+                catch
+                {
+                }
             };
             await dlg2.ShowAsync();
             await dialog.ShowAsync();
@@ -82,12 +95,26 @@ public sealed partial class AccountPage : Microsoft.UI.Xaml.Controls.Page
         };
         dialogContent.AutoLoginSucceeded += () =>
         {
-            try { dialog.Hide(); } catch { }
+            try
+            {
+                dialog.Hide();
+            }
+            catch
+            {
+            }
+
             RefreshAccounts();
         };
         dialogContent.CaptchaRequired += async (sid, url, acc, pwd) =>
         {
-            try { dialog.Hide(); } catch { }
+            try
+            {
+                dialog.Hide();
+            }
+            catch
+            {
+            }
+
             await ShowCaptchaDialogFor4399Async(dialogContent, acc, pwd, sid, url, dialog);
         };
         dialog.PrimaryButtonClick += async (s, e) =>
@@ -165,7 +192,8 @@ public sealed partial class AccountPage : Microsoft.UI.Xaml.Controls.Page
         return succ;
     }
 
-    private async Task<(bool succ, bool parentHidden)> ProcessPc4399Async(AddAccountContent dialogContent, ContentDialog dialog)
+    private async Task<(bool succ, bool parentHidden)> ProcessPc4399Async(AddAccountContent dialogContent,
+        ContentDialog dialog)
     {
         var acc = dialogContent.Pc4399User;
         var pwd = dialogContent.Pc4399Pass;
@@ -173,10 +201,19 @@ public sealed partial class AccountPage : Microsoft.UI.Xaml.Controls.Page
         if (!string.IsNullOrWhiteSpace(sidExisting))
         {
             NotificationHost.ShowGlobal("需要输入验证码", ToastLevel.Warning);
-            try { dialog.Hide(); } catch { }
-            var succ0 = await ShowCaptchaDialogFor4399Async(dialogContent, acc, pwd, sidExisting, dialogContent.Pc4399CaptchaUrl ?? string.Empty, dialog);
+            try
+            {
+                dialog.Hide();
+            }
+            catch
+            {
+            }
+
+            var succ0 = await ShowCaptchaDialogFor4399Async(dialogContent, acc, pwd, sidExisting,
+                dialogContent.Pc4399CaptchaUrl ?? string.Empty, dialog);
             return (succ0, true);
         }
+
         var r = await Task.Run(() => new Login4399().Execute(acc, pwd));
         var tProp = r.GetType().GetProperty("type");
         var tVal = tProp != null ? tProp.GetValue(r) as string : null;
@@ -186,21 +223,30 @@ public sealed partial class AccountPage : Microsoft.UI.Xaml.Controls.Page
             var pwdProp = r.GetType().GetProperty("password");
             var sidProp = r.GetType().GetProperty("captchaIdentifier");
             var urlProp = r.GetType().GetProperty("captchaUrl");
-                
+
             var captchaAcc = accProp?.GetValue(r) as string;
             var captchaPwd = pwdProp?.GetValue(r) as string;
             var captchaSid = sidProp?.GetValue(r) as string;
             var captchaUrl = urlProp?.GetValue(r) as string;
-                
+
             if (!string.IsNullOrEmpty(captchaSid) && !string.IsNullOrEmpty(captchaUrl))
             {
                 NotificationHost.ShowGlobal("需要输入验证码", ToastLevel.Warning);
-                try { dialog.Hide(); } catch { }
-                var succE = await ShowCaptchaDialogFor4399Async(dialogContent, captchaAcc ?? acc, captchaPwd ?? pwd, captchaSid, captchaUrl, dialog);
+                try
+                {
+                    dialog.Hide();
+                }
+                catch
+                {
+                }
+
+                var succE = await ShowCaptchaDialogFor4399Async(dialogContent, captchaAcc ?? acc, captchaPwd ?? pwd,
+                    captchaSid, captchaUrl, dialog);
                 return (succE, true);
             }
         }
-        else if (string.Equals(tVal, "login_error", StringComparison.OrdinalIgnoreCase) || string.Equals(tVal, "login_4399_error", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(tVal, "login_error", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(tVal, "login_4399_error", StringComparison.OrdinalIgnoreCase))
         {
             var mProp = r.GetType().GetProperty("message");
             var mVal = mProp?.GetValue(r) as string ?? string.Empty;
@@ -210,16 +256,25 @@ public sealed partial class AccountPage : Microsoft.UI.Xaml.Controls.Page
                 var sidVal = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N")[..8];
                 var urlVal = "https://ptlogin.4399.com/ptlogin/captcha.do?captchaId=" + sidVal;
                 NotificationHost.ShowGlobal("需要输入验证码", ToastLevel.Warning);
-                try { dialog.Hide(); } catch { }
+                try
+                {
+                    dialog.Hide();
+                }
+                catch
+                {
+                }
+
                 var succE = await ShowCaptchaDialogFor4399Async(dialogContent, acc, pwd, sidVal, urlVal, dialog);
                 return (succE, true);
             }
         }
+
         var succ = dialogContent.TryDetectSuccess(r);
         return (succ, false);
     }
 
-    private async Task<bool> ShowCaptchaDialogFor4399Async(AddAccountContent dialogContent, string acc, string pwd, string sid, string url, ContentDialog parentDialog)
+    private async Task<bool> ShowCaptchaDialogFor4399Async(AddAccountContent dialogContent, string acc, string pwd,
+        string sid, string url, ContentDialog parentDialog)
     {
         var dialogContent2 = new CaptchaContent();
         var dlg2 = CreateDialog(dialogContent2, "输入验证码");
@@ -238,14 +293,28 @@ public sealed partial class AccountPage : Microsoft.UI.Xaml.Controls.Page
                 {
                     NotificationHost.ShowGlobal("账号添加成功", ToastLevel.Success);
                     success = true;
-                    try { dlg2.Hide(); } catch { }
-                    try { parentDialog.Hide(); } catch { }
+                    try
+                    {
+                        dlg2.Hide();
+                    }
+                    catch
+                    {
+                    }
+
+                    try
+                    {
+                        parentDialog.Hide();
+                    }
+                    catch
+                    {
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Log.Error(ex, "验证码登录失败");
             }
+
             dlg2.IsPrimaryButtonEnabled = true;
         };
         await dlg2.ShowAsync();
@@ -256,13 +325,11 @@ public sealed partial class AccountPage : Microsoft.UI.Xaml.Controls.Page
     {
         Accounts.Clear();
         foreach (var item in GetAccount.GetAccountList().OrderBy(x => x.EntityId))
-        {
             Accounts.Add(new AccountModel
             {
                 EntityId = item.EntityId,
                 Channel = item.Channel,
                 Status = item.Status
             });
-        }
     }
 }

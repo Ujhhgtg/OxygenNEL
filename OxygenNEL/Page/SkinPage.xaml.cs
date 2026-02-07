@@ -11,12 +11,22 @@ using Serilog;
 
 namespace OxygenNEL.Page;
 
-public sealed partial class SkinPage : Microsoft.UI.Xaml.Controls.Page , INotifyPropertyChanged
+public sealed partial class SkinPage : Microsoft.UI.Xaml.Controls.Page, INotifyPropertyChanged
 {
     public static string PageTitle => "皮肤";
     public ObservableCollection<SkinItem> Skins { get; } = new();
     private bool _notLogin;
-    public bool NotLogin { get => _notLogin; private set { _notLogin = value; OnPropertyChanged(nameof(NotLogin)); } }
+
+    public bool NotLogin
+    {
+        get => _notLogin;
+        private set
+        {
+            _notLogin = value;
+            OnPropertyChanged(nameof(NotLogin));
+        }
+    }
+
     public SkinPage()
     {
         InitializeComponent();
@@ -43,6 +53,7 @@ public sealed partial class SkinPage : Microsoft.UI.Xaml.Controls.Page , INotify
             Skins.Clear();
             return;
         }
+
         NotLogin = false;
         try
         {
@@ -55,19 +66,22 @@ public sealed partial class SkinPage : Microsoft.UI.Xaml.Controls.Page , INotify
                 NotLogin = true;
                 return;
             }
+
             if (!r.Success)
             {
                 Log.Error("皮肤刷新失败: {Message}", r.Message);
-                NotificationHost.ShowGlobal(string.IsNullOrWhiteSpace(r.Message) ? "刷新失败" : r.Message, ToastLevel.Error);
+                NotificationHost.ShowGlobal(string.IsNullOrWhiteSpace(r.Message) ? "刷新失败" : r.Message,
+                    ToastLevel.Error);
                 return;
             }
+
             foreach (var it in r.Items)
-            {
                 Skins.Add(new SkinItem { Name = it.Name, PreviewUrl = it.PreviewUrl, EntityId = it.EntityId });
-            }
             if (r.Items.Count == 0) NotificationHost.ShowGlobal("暂无皮肤数据", ToastLevel.Error);
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     private void SkinsGrid_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -86,6 +100,7 @@ public sealed partial class SkinPage : Microsoft.UI.Xaml.Controls.Page , INotify
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
+
     private async void ApplySkinButton_Click(object sender, RoutedEventArgs e)
     {
         try
@@ -100,27 +115,32 @@ public sealed partial class SkinPage : Microsoft.UI.Xaml.Controls.Page , INotify
                 NotificationHost.ShowGlobal("未登录", ToastLevel.Error);
                 return;
             }
+
             if (r.Success)
-            {
                 NotificationHost.ShowGlobal("皮肤已应用", ToastLevel.Success);
-            }
             else
-            {
-                NotificationHost.ShowGlobal(string.IsNullOrWhiteSpace(r.Message) ? "设置失败" : r.Message, ToastLevel.Error);
-            }
+                NotificationHost.ShowGlobal(string.IsNullOrWhiteSpace(r.Message) ? "设置失败" : r.Message,
+                    ToastLevel.Error);
         }
-        catch { }
+        catch
+        {
+        }
         finally
         {
-            try { (sender as Button)!.IsEnabled = true; } catch { }
+            try
+            {
+                (sender as Button)!.IsEnabled = true;
+            }
+            catch
+            {
+            }
         }
     }
 }
-    
+
 public class SkinItem
 {
     public string Name { get; set; } = string.Empty;
     public string PreviewUrl { get; set; } = string.Empty;
     public string EntityId { get; set; } = string.Empty;
-        
 }

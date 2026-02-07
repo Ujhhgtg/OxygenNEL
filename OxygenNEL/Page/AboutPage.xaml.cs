@@ -8,7 +8,7 @@ namespace OxygenNEL.Page;
 public sealed partial class AboutPage : Microsoft.UI.Xaml.Controls.Page
 {
     public static string PageTitle => "关于";
-        
+
     public string AppVersion => AppInfo.AppVersion;
 
     public AboutPage()

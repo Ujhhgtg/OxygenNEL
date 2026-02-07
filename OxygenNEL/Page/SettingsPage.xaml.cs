@@ -48,7 +48,11 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
 
         for (var i = 0; i < AutoDisconnectOnBanCombo.Items.Count; i++)
             if (AutoDisconnectOnBanCombo.Items[i] is ComboBoxItem item && item.Tag as string == _s.AutoDisconnectOnBan)
-            { AutoDisconnectOnBanCombo.SelectedIndex = i; break; }
+            {
+                AutoDisconnectOnBanCombo.SelectedIndex = i;
+                break;
+            }
+
         if (AutoDisconnectOnBanCombo.SelectedIndex < 0) AutoDisconnectOnBanCombo.SelectedIndex = 0;
 
         _init = false;
@@ -58,7 +62,7 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
     {
         var isCustom = _s.Backdrop == "custom";
         CustomBackgroundPanel.Visibility = isCustom ? Visibility.Visible : Visibility.Collapsed;
-            
+
         if (!string.IsNullOrEmpty(_s.CustomBackgroundPath))
         {
             BackgroundPathText.Text = Path.GetFileName(_s.CustomBackgroundPath);
@@ -73,7 +77,8 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
 
     private void UpdateSocks5Enabled()
     {
-        Socks5HostBox.IsEnabled = Socks5PortBox.IsEnabled = Socks5UsernameBox.IsEnabled = Socks5PasswordBox.IsEnabled = _s.Socks5Enabled;
+        Socks5HostBox.IsEnabled = Socks5PortBox.IsEnabled =
+            Socks5UsernameBox.IsEnabled = Socks5PasswordBox.IsEnabled = _s.Socks5Enabled;
     }
 
     private void ThemeRadios_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -99,7 +104,7 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
     {
         if (_isPickerOpen) return;
         _isPickerOpen = true;
-            
+
         string? filePath = null;
         try
         {
@@ -136,7 +141,6 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
         }
 
         if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
-        {
             try
             {
                 var destPath = SettingManager.CopyBackgroundToData(filePath);
@@ -148,7 +152,6 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
             {
                 Log.Error(ex, "复制背景文件失败");
             }
-        }
     }
 
     private void ClearBackgroundBtn_Click(object sender, RoutedEventArgs e)
@@ -161,7 +164,7 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
     private void UpdateMusicPlayerPanel()
     {
         MusicPlayerSettingsPanel.Visibility = _s.MusicPlayerEnabled ? Visibility.Visible : Visibility.Collapsed;
-            
+
         if (!string.IsNullOrEmpty(_s.MusicPath))
         {
             MusicPathText.Text = Path.GetFileName(_s.MusicPath);
@@ -186,7 +189,7 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
     {
         if (_isPickerOpen) return;
         _isPickerOpen = true;
-            
+
         string? filePath = null;
         try
         {
@@ -221,7 +224,6 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
         }
 
         if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
-        {
             try
             {
                 var destPath = SettingManager.CopyMusicToData(filePath);
@@ -233,7 +235,6 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
             {
                 Log.Error(ex, "复制音乐文件失败");
             }
-        }
     }
 
     private void ClearMusicBtn_Click(object sender, RoutedEventArgs e)
@@ -251,14 +252,57 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
         MainWindow.UpdateMusicVolumeStatic(e.NewValue);
     }
 
-    private void AutoCopyIpSwitch_Toggled(object sender, RoutedEventArgs e) { if (!_init) _s.AutoCopyIpOnStart = AutoCopyIpSwitch.IsOn; }
-    private void IrcEnabledSwitch_Toggled(object sender, RoutedEventArgs e) { if (!_init) { _s.IrcEnabled = IrcEnabledSwitch.IsOn; AppState.IrcEnabled = _s.IrcEnabled; } }
-    private void DebugSwitch_Toggled(object sender, RoutedEventArgs e) { if (!_init) { _s.Debug = DebugSwitch.IsOn; AppState.Debug = _s.Debug; } }
-    private void Socks5HostBox_TextChanged(object sender, TextChangedEventArgs e) { if (!_init) _s.Socks5Address = Socks5HostBox.Text; }
-    private void Socks5PortBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args) { if (!_init) _s.Socks5Port = (int)Math.Clamp(sender.Value, 0, 65535); }
-    private void Socks5UsernameBox_TextChanged(object sender, TextChangedEventArgs e) { if (!_init) _s.Socks5Username = Socks5UsernameBox.Text; }
-    private void Socks5PasswordBox_PasswordChanged(object sender, RoutedEventArgs e) { if (!_init) _s.Socks5Password = Socks5PasswordBox.Password; }
-    private void Socks5EnableSwitch_Toggled(object sender, RoutedEventArgs e) { if (!_init) { _s.Socks5Enabled = Socks5EnableSwitch.IsOn; UpdateSocks5Enabled(); } }
+    private void AutoCopyIpSwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (!_init) _s.AutoCopyIpOnStart = AutoCopyIpSwitch.IsOn;
+    }
+
+    private void IrcEnabledSwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (!_init)
+        {
+            _s.IrcEnabled = IrcEnabledSwitch.IsOn;
+            AppState.IrcEnabled = _s.IrcEnabled;
+        }
+    }
+
+    private void DebugSwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (!_init)
+        {
+            _s.Debug = DebugSwitch.IsOn;
+            AppState.Debug = _s.Debug;
+        }
+    }
+
+    private void Socks5HostBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (!_init) _s.Socks5Address = Socks5HostBox.Text;
+    }
+
+    private void Socks5PortBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    {
+        if (!_init) _s.Socks5Port = (int)Math.Clamp(sender.Value, 0, 65535);
+    }
+
+    private void Socks5UsernameBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (!_init) _s.Socks5Username = Socks5UsernameBox.Text;
+    }
+
+    private void Socks5PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+    {
+        if (!_init) _s.Socks5Password = Socks5PasswordBox.Password;
+    }
+
+    private void Socks5EnableSwitch_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (!_init)
+        {
+            _s.Socks5Enabled = Socks5EnableSwitch.IsOn;
+            UpdateSocks5Enabled();
+        }
+    }
 
     private void AutoDisconnectOnBanCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -291,6 +335,7 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
             var fromRight = newIndex > _currentIndex;
             AnimatePanel(panel, fromRight);
         }
+
         _currentIndex = newIndex;
     }
 
@@ -305,7 +350,8 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
 
         var offsetAnim = compositor.CreateVector3KeyFrameAnimation();
         offsetAnim.InsertKeyFrame(0, new Vector3(offsetStart, 0, 0));
-        offsetAnim.InsertKeyFrame(1, Vector3.Zero, compositor.CreateCubicBezierEasingFunction(new Vector2(0.1f, 0.9f), new Vector2(0.2f, 1f)));
+        offsetAnim.InsertKeyFrame(1, Vector3.Zero,
+            compositor.CreateCubicBezierEasingFunction(new Vector2(0.1f, 0.9f), new Vector2(0.2f, 1f)));
         offsetAnim.Duration = TimeSpan.FromMilliseconds(250);
 
         var opacityAnim = compositor.CreateScalarKeyFrameAnimation();

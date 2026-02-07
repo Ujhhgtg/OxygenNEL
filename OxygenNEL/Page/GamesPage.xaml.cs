@@ -47,7 +47,14 @@ public sealed partial class GamesPage : Microsoft.UI.Xaml.Controls.Page
         {
             IsBackground = true
         };
-        try { thread.SetApartmentState(ApartmentState.STA); } catch { }
+        try
+        {
+            thread.SetApartmentState(ApartmentState.STA);
+        }
+        catch
+        {
+        }
+
         thread.Start();
         return tcs.Task;
     }
@@ -64,6 +71,7 @@ public sealed partial class GamesPage : Microsoft.UI.Xaml.Controls.Page
         {
             return;
         }
+
         var typeProp = result.GetType().GetProperty("type");
         var typeVal = typeProp != null ? typeProp.GetValue(result) as string : null;
         if (!string.Equals(typeVal, "query_game_session")) return;
@@ -103,7 +111,9 @@ public sealed partial class GamesPage : Microsoft.UI.Xaml.Controls.Page
             {
                 Clipboard.SetContent(pkg);
             }
-            catch { }
+            catch
+            {
+            }
         }
     }
 
@@ -117,7 +127,10 @@ public sealed partial class GamesPage : Microsoft.UI.Xaml.Controls.Page
             {
                 await RunOnStaAsync(() => new ShutdownGame().Execute([identifier]));
             }
-            catch { }
+            catch
+            {
+            }
+
             NotificationHost.ShowGlobal("通道已成功关闭", ToastLevel.Success);
             await RefreshSessions();
         }

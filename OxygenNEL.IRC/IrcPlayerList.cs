@@ -20,7 +20,10 @@ public class IrcPlayerList
                 _players[p.PlayerName] = p.Username;
     }
 
-    public void Clear() => _players.Clear();
+    public void Clear()
+    {
+        _players.Clear();
+    }
 
     private class PlayerData
     {

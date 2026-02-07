@@ -26,10 +26,7 @@ public sealed partial class PluginsPage : Microsoft.UI.Xaml.Controls.Page
     {
         Plugins.Clear();
         var list = new ListInstalledPlugins().Execute();
-        foreach (var item in list)
-        {
-            Plugins.Add(item);
-        }
+        foreach (var item in list) Plugins.Add(item);
     }
 
     private void RestartButton_Click(object sender, RoutedEventArgs e)
@@ -40,7 +37,6 @@ public sealed partial class PluginsPage : Microsoft.UI.Xaml.Controls.Page
     private void UninstallPluginButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button btn && btn.Tag is PluginViewModel plugin)
-        {
             try
             {
                 new UninstallPlugin().Execute(plugin.Id);
@@ -50,7 +46,6 @@ public sealed partial class PluginsPage : Microsoft.UI.Xaml.Controls.Page
             {
                 Log.Error(ex, "Uninstall failed");
             }
-        }
     }
 
     private void OpenPluginsFolderButton_Click(object sender, RoutedEventArgs e)
@@ -58,10 +53,7 @@ public sealed partial class PluginsPage : Microsoft.UI.Xaml.Controls.Page
         try
         {
             var dir = FileUtil.GetPluginDirectory();
-            if (!Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
             Process.Start(new ProcessStartInfo
             {
                 FileName = dir,
@@ -73,6 +65,7 @@ public sealed partial class PluginsPage : Microsoft.UI.Xaml.Controls.Page
             Log.Error(ex, "打开插件目录失败");
         }
     }
+
     private void OpenStoreButton_Click(object sender, RoutedEventArgs e)
     {
         Frame.Navigate(typeof(PluginStorePage));

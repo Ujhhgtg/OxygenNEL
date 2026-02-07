@@ -9,10 +9,7 @@ public class CountToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        if (value is int count)
-        {
-            return count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        }
+        if (value is int count) return count == 0 ? Visibility.Visible : Visibility.Collapsed;
         return Visibility.Collapsed;
     }
 
@@ -27,9 +24,7 @@ public class StatusToVisibilityConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, string language)
     {
         if (value is string status && parameter is string targetStatus)
-        {
             return status == targetStatus ? Visibility.Visible : Visibility.Collapsed;
-        }
         return Visibility.Collapsed;
     }
 
@@ -43,10 +38,7 @@ public class BoolNegationConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        if (value is bool b)
-        {
-            return !b;
-        }
+        if (value is bool b) return !b;
         return false;
     }
 
@@ -60,10 +52,7 @@ public class BoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        if (value is bool b)
-        {
-            return b ? Visibility.Visible : Visibility.Collapsed;
-        }
+        if (value is bool b) return b ? Visibility.Visible : Visibility.Collapsed;
         return Visibility.Collapsed;
     }
 
@@ -77,10 +66,7 @@ public class BoolToVisibilityNegationConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        if (value is bool b)
-        {
-            return b ? Visibility.Collapsed : Visibility.Visible;
-        }
+        if (value is bool b) return b ? Visibility.Collapsed : Visibility.Visible;
         return Visibility.Visible;
     }
 
@@ -97,12 +83,12 @@ public class StringToImageSourceConverter : IValueConverter
         try
         {
             var s = value as string;
-            if (!string.IsNullOrWhiteSpace(s))
-            {
-                return new BitmapImage(new Uri(s));
-            }
+            if (!string.IsNullOrWhiteSpace(s)) return new BitmapImage(new Uri(s));
         }
-        catch { }
+        catch
+        {
+        }
+
         return new BitmapImage(new Uri("ms-appx:///Assets/OxygenNEL.png"));
     }
 

@@ -5,12 +5,9 @@ namespace OxygenNEL.Entities.Web.NEL;
 
 public class EntityUpdateUserAlias
 {
-	[JsonPropertyName("id")]
-	public required string EntityId { get; set; }
+    [JsonPropertyName("id")] public required string EntityId { get; set; }
 
-	[JsonPropertyName("platform")]
-	public required Platform Platform { get; set; }
+    [JsonPropertyName("platform")] public required Platform Platform { get; set; }
 
-	[JsonPropertyName("alias")]
-	public required string Alias { get; set; }
+    [JsonPropertyName("alias")] public required string Alias { get; set; }
 }

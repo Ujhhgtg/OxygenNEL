@@ -18,6 +18,7 @@ public class ShutdownGame
                 closed.Add(s);
             }
         }
+
         var payloads = new object[]
         {
             new { type = "shutdown_ack", identifiers = closed.ToArray() },

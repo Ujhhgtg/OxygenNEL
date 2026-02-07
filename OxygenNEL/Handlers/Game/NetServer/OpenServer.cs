@@ -15,14 +15,13 @@ public class OpenServer
     {
         var last = UserManager.Instance.GetLastAvailableUser();
         if (last == null) return new ServerRolesResult { NotLogin = true };
-        if (string.IsNullOrWhiteSpace(serverId))
-        {
-            return new ServerRolesResult { Success = false, Message = "参数错误" };
-        }
+        if (string.IsNullOrWhiteSpace(serverId)) return new ServerRolesResult { Success = false, Message = "参数错误" };
         try
         {
-            if (AppState.Debug) Log.Information("打开服务器: serverId={ServerId}, account={AccountId}", serverId, last.UserId);
-            Entities<EntityGameCharacter> entities = AppState.X19.QueryNetGameCharacters(last.UserId, last.AccessToken, serverId);
+            if (AppState.Debug)
+                Log.Information("打开服务器: serverId={ServerId}, account={AccountId}", serverId, last.UserId);
+            Entities<EntityGameCharacter> entities =
+                AppState.X19.QueryNetGameCharacters(last.UserId, last.AccessToken, serverId);
             var items = entities.Data.Select(r => new RoleItem { Id = r.Name, Name = r.Name }).ToList();
             return new ServerRolesResult { Success = true, ServerId = serverId, Items = items };
         }
@@ -42,7 +41,8 @@ public class OpenServer
             var u = UserManager.Instance.GetAvailableUser(accountId);
             if (u == null) return new ServerRolesResult { NotLogin = true };
             if (AppState.Debug) Log.Information("打开服务器: serverId={ServerId}, account={AccountId}", serverId, u.UserId);
-            Entities<EntityGameCharacter> entities = AppState.X19.QueryNetGameCharacters(u.UserId, u.AccessToken, serverId);
+            Entities<EntityGameCharacter> entities =
+                AppState.X19.QueryNetGameCharacters(u.UserId, u.AccessToken, serverId);
             var items = entities.Data.Select(r => new RoleItem { Id = r.Name, Name = r.Name }).ToList();
             return new ServerRolesResult { Success = true, ServerId = serverId, Items = items };
         }

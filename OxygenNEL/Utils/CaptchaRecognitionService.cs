@@ -40,6 +40,7 @@ public static class CaptchaRecognitionService
                 Log.Warning("[CaptchaRecognition] API 返回空结果");
                 return null;
             }
+
             Log.Information("[CaptchaRecognition] 验证码识别成功: {Result}", result);
             return result;
         }

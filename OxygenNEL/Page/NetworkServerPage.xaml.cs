@@ -32,7 +32,16 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
     private string? _pendingServerId;
 
     public ObservableCollection<ServerItem> Servers { get; } = new();
-    public bool NotLogin { get => _notLogin; private set { _notLogin = value; OnPropertyChanged(nameof(NotLogin)); } }
+
+    public bool NotLogin
+    {
+        get => _notLogin;
+        private set
+        {
+            _notLogin = value;
+            OnPropertyChanged(nameof(NotLogin));
+        }
+    }
 
     public NetworkServerPage()
     {
@@ -78,7 +87,11 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
         Servers.Clear();
         _hasMore = result.HasMore;
 
-        if (!result.Success) { UpdatePaging(); return; }
+        if (!result.Success)
+        {
+            UpdatePaging();
+            return;
+        }
 
         if (_page == 1 && DateTime.Now <= new DateTime(2026, 1, 5))
             Servers.Add(new ServerItem { EntityId = "77114517833647104", Name = "花雨庭(2026.1.5 R.I.P)" });
@@ -89,6 +102,7 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
             Servers.Add(item);
             _ = LoadImageAsync(item, myId, ct);
         }
+
         UpdatePaging();
     }
 
@@ -102,8 +116,14 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
             if (d.Success && d.Images.Count > 0 && myId == _refreshId)
                 DispatcherQueue.TryEnqueue(() => item.ImageUrl = d.Images[0]);
         }
-        catch (Exception ex) { Log.Debug(ex, "加载图片失败"); }
-        finally { _imageLimiter.Release(); }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "加载图片失败");
+        }
+        finally
+        {
+            _imageLimiter.Release();
+        }
     }
 
     private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -117,7 +137,12 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
     private async void SpecifyServerButton_Click(object sender, RoutedEventArgs e)
     {
         var id = await DialogService.ShowInputAsync(XamlRoot, "指定服务器", "请输入服务器号");
-        if (string.IsNullOrWhiteSpace(id)) { if (id != null) NotificationHost.ShowGlobal("请输入服务器号", ToastLevel.Error); return; }
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            if (id != null) NotificationHost.ShowGlobal("请输入服务器号", ToastLevel.Error);
+            return;
+        }
+
         await JoinServerAsync(id, id);
     }
 
@@ -126,13 +151,32 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
         if (sender is Button { Tag: ServerItem s }) await JoinServerAsync(s.EntityId, s.Name, s.ImageUrl);
     }
 
-    private void PrevPageButton_Click(object sender, RoutedEventArgs e) { if (_page > 1) { _page--; _ = RefreshAsync(SearchBox?.Text); } }
-    private void NextPageButton_Click(object sender, RoutedEventArgs e) { if (_hasMore) { _page++; _ = RefreshAsync(SearchBox?.Text); } }
+    private void PrevPageButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_page > 1)
+        {
+            _page--;
+            _ = RefreshAsync(SearchBox?.Text);
+        }
+    }
+
+    private void NextPageButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_hasMore)
+        {
+            _page++;
+            _ = RefreshAsync(SearchBox?.Text);
+        }
+    }
 
     private async Task JoinServerAsync(string serverId, string serverName, string? imageUrl = null)
     {
         var openResult = await RunOnStaAsync(() => new OpenServer().Execute(serverId));
-        if (!openResult.Success) { await DialogService.ShowErrorAsync(XamlRoot, openResult.Message ?? "打开失败"); return; }
+        if (!openResult.Success)
+        {
+            await DialogService.ShowErrorAsync(XamlRoot, openResult.Message ?? "打开失败");
+            return;
+        }
 
         var accounts = UserManager.Instance.GetAuthorizedAccounts();
         var roles = openResult.Items;
@@ -140,13 +184,21 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
         while (true)
         {
             var content = new JoinServerContent();
-            content.SetAccounts(accounts.Select(a => new JoinServerContent.OptionItem { Label = a.Label, Value = a.Id }).ToList());
-            content.SetRoles(roles.Select(r => new JoinServerContent.OptionItem { Label = r.Name, Value = r.Id }).ToList());
+            content.SetAccounts(accounts.Select(a => new JoinServerContent.OptionItem { Label = a.Label, Value = a.Id })
+                .ToList());
+            content.SetRoles(roles.Select(r => new JoinServerContent.OptionItem { Label = r.Name, Value = r.Id })
+                .ToList());
             content.AccountChanged += async id =>
             {
                 await RunOnStaAsync(() => new SelectAccount().Execute(id));
                 var r = await RunOnStaAsync(() => new OpenServer().ExecuteForAccount(id, serverId));
-                if (r.Success) { roles = r.Items; DispatcherQueue.TryEnqueue(() => content.SetRoles(roles.Select(x => new JoinServerContent.OptionItem { Label = x.Name, Value = x.Id }).ToList())); }
+                if (r.Success)
+                {
+                    roles = r.Items;
+                    DispatcherQueue.TryEnqueue(() =>
+                        content.SetRoles(roles.Select(x => new JoinServerContent.OptionItem
+                            { Label = x.Name, Value = x.Id }).ToList()));
+                }
             };
 
             var dlg = DialogService.Create(XamlRoot, "加入服务器", content, "启动", "白端");
@@ -169,11 +221,13 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
                 content.ResetAddRoleRequested();
                 continue;
             }
+
             break;
         }
     }
 
-    private async Task LaunchGameAsync(string accId, string serverId, string serverName, string roleId, string? imageUrl = null)
+    private async Task LaunchGameAsync(string accId, string serverId, string serverName, string roleId,
+        string? imageUrl = null)
     {
         NotificationHost.ShowGlobal("正在准备游戏资源...", ToastLevel.Success);
         Log.Information("启动游戏: Server={Server}, Role={Role}", serverId, roleId);
@@ -185,7 +239,10 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
             var copyText = SettingManager.Instance.GetCopyIpText(r.Ip, r.Port);
             if (copyText != null)
             {
-                var dp = new DataPackage(); dp.SetText(copyText); Clipboard.SetContent(dp); Clipboard.Flush();
+                var dp = new DataPackage();
+                dp.SetText(copyText);
+                Clipboard.SetContent(dp);
+                Clipboard.Flush();
                 NotificationHost.ShowGlobal("地址已复制", ToastLevel.Success);
             }
         }
@@ -195,7 +252,8 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
     {
         var addContent = new AddRoleContent();
         var dlg = DialogService.Create(XamlRoot, "添加角色", addContent, "添加");
-        if (await dlg.ShowAsync() != ContentDialogResult.Primary || string.IsNullOrWhiteSpace(addContent.RoleName)) return null;
+        if (await dlg.ShowAsync() != ContentDialogResult.Primary ||
+            string.IsNullOrWhiteSpace(addContent.RoleName)) return null;
         var roleName = addContent.RoleName;
         var r = await RunOnStaAsync(() => new CreateRoleNamed().Execute(serverId, roleName));
         return r.Success ? r.Items : null;
@@ -209,5 +267,9 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+    private void OnPropertyChanged(string name)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
 }

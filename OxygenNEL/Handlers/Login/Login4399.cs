@@ -20,18 +20,17 @@ public class Login4399
         {
             InternalQuery.Initialize();
             using var pc = new Pc4399();
-            var cookieJson = pc.LoginWithPasswordAsync(account, password, captchaIdentifier, captcha).GetAwaiter().GetResult();
-                
+            var cookieJson = pc.LoginWithPasswordAsync(account, password, captchaIdentifier, captcha).GetAwaiter()
+                .GetResult();
+
             if (AppState.Debug) Log.Information("4399 Login cookieJson length: {Length}", cookieJson?.Length ?? 0);
             if (string.IsNullOrWhiteSpace(cookieJson))
-            {
                 return new { type = "login_4399_error", message = "cookie empty" };
-            }
-                
+
             var (authOtp, channel) = AppState.X19.LoginWithCookie(cookieJson);
             Log.Information("Login with password: {UserId} Channel: {LoginChannel}", authOtp.EntityId, channel);
             Log.Debug("User details: {UserId},{Token}", authOtp.EntityId, authOtp.Token);
-                
+
             UserManager.Instance.AddUserToMaintain(authOtp);
             UserManager.Instance.AddUser(new EntityUser
             {
@@ -46,7 +45,7 @@ public class Login4399
                     Password = password
                 })
             });
-                
+
             var list = new ArrayList();
             list.Add(new { type = "Success_login", entityId = authOtp.EntityId, channel });
             var items = GetAccount.GetAccountItems();
@@ -65,19 +64,12 @@ public class Login4399
             var lower = msg.ToLowerInvariant();
             Log.Error(ex, "4399 登录失败. account={Account}", account ?? string.Empty);
             Log.Information("4399 登录失败信息: {Message}", ex.Message);
-                
+
             if (lower.Contains("unactived"))
-            {
                 return new { type = "login_4399_error", message = "账号未激活，请先使用官方启动器进入游戏一次" };
-            }
             if (lower.Contains("parameter") && lower.Contains("'s'"))
-            {
                 return HandleCaptchaRequired(account ?? string.Empty, password ?? string.Empty);
-            }
-            if (lower.Contains("sessionid"))
-            {
-                return new { type = "login_4399_error", message = "账号或密码错误" };
-            }
+            if (lower.Contains("sessionid")) return new { type = "login_4399_error", message = "账号或密码错误" };
             return new { type = "login_4399_error", message = string.IsNullOrEmpty(msg) ? "登录失败" : msg };
         }
     }
@@ -86,7 +78,7 @@ public class Login4399
     {
         var captchaSid = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N")[..8];
         var url = "https://ptlogin.4399.com/ptlogin/captcha.do?captchaId=" + captchaSid;
-            
+
         try
         {
             var recognizedCaptcha = CaptchaRecognitionService.RecognizeFromUrlAsync(url).GetAwaiter().GetResult();
@@ -96,11 +88,12 @@ public class Login4399
                 return Execute(account, password, captchaSid, recognizedCaptcha);
             }
         }
-            
+
         catch (Exception ex)
         {
             Log.Warning("[Login4399] 验证码自动识别失败: {Error}", ex.Message);
         }
+
         return new { type = "captcha_required", account, password, captchaIdentifier = captchaSid, captchaUrl = url };
     }
 }

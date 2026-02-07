@@ -12,14 +12,9 @@ public class OpenRentalServer
     public RentalServerRolesResult Execute(string serverId)
     {
         var last = UserManager.Instance.GetLastAvailableUser();
-        if (last == null)
-        {
-            return new RentalServerRolesResult { NotLogin = true };
-        }
+        if (last == null) return new RentalServerRolesResult { NotLogin = true };
         if (string.IsNullOrWhiteSpace(serverId))
-        {
             return new RentalServerRolesResult { Success = false, Message = "参数错误" };
-        }
         try
         {
             var entities = AppState.X19.GetRentalGameRolesList(last.UserId, last.AccessToken, serverId);
@@ -35,8 +30,10 @@ public class OpenRentalServer
 
     public RentalServerRolesResult ExecuteForAccount(string accountId, string serverId)
     {
-        if (string.IsNullOrWhiteSpace(accountId)) return new RentalServerRolesResult { Success = false, Message = "参数错误" };
-        if (string.IsNullOrWhiteSpace(serverId)) return new RentalServerRolesResult { Success = false, Message = "参数错误" };
+        if (string.IsNullOrWhiteSpace(accountId))
+            return new RentalServerRolesResult { Success = false, Message = "参数错误" };
+        if (string.IsNullOrWhiteSpace(serverId))
+            return new RentalServerRolesResult { Success = false, Message = "参数错误" };
         try
         {
             var u = UserManager.Instance.GetAvailableUser(accountId);

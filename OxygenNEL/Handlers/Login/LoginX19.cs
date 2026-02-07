@@ -20,13 +20,11 @@ public class LoginX19
         try
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-            {
                 return new { type = "login_x19_error", message = "邮箱或密码不能为空" };
-            }
 
             InternalQuery.Initialize();
             using var wpf = new WPFLauncher();
-            
+
             var mPayUser = wpf.LoginWithEmailAsync(email, password).GetAwaiter().GetResult();
             var device = wpf.MPay.GetDevice();
             var cookieRequest = WPFLauncher.GenerateCookie(mPayUser, device);
@@ -52,7 +50,7 @@ public class LoginX19
         catch (VerifyException ve)
         {
             Log.Error(ve, "[LoginX19] 验证失败");
-            
+
             if (TryParseSecurityVerify(ve.Message) is { } verify)
             {
                 try
@@ -67,31 +65,30 @@ public class LoginX19
                 {
                     Log.Warning(browserEx, "[LoginX19] 打开浏览器失败");
                 }
+
                 return new { type = "login_x19_verify", message = verify.Reason, verify_url = verify.VerifyUrl };
             }
-            
-            return new { type = "login_x19_error", message = ve.Message};
+
+            return new { type = "login_x19_error", message = ve.Message };
         }
         catch (Exception ex)
         {
             Log.Error(ex, "[LoginX19] 登录异常");
-            
+
             if (ex is ObjectDisposedException && ex.Message.Contains("HttpClient"))
             {
                 Log.Warning("HttpClient已释放，重置X19服务");
                 AppState.ResetX19();
             }
-            
+
             var msg = ex.Message;
-            
+
             if (msg.Contains("password") || msg.Contains("密码"))
-            {
                 return new { type = "login_x19_error", message = "邮箱或密码错误" };
-            }
             return new { type = "login_x19_error", message = msg.Length == 0 ? "登录失败" : msg };
         }
     }
-    
+
     private static EntitySecurityVerify? TryParseSecurityVerify(string message)
     {
         try
@@ -104,7 +101,9 @@ public class LoginX19
             }
         }
         catch
-        {}
+        {
+        }
+
         return null;
     }
 }

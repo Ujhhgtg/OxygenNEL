@@ -27,12 +27,24 @@ public class SetSkin
             var msg = t?.GetProperty("Message")?.GetValue(r) as string ?? string.Empty;
             var code = 0;
             if (codeObj != null)
-            {
-                try { code = Convert.ToInt32(codeObj); } catch { }
-            }
+                try
+                {
+                    code = Convert.ToInt32(codeObj);
+                }
+                catch
+                {
+                }
+
             var succ = code == 0;
             Log.Debug("设置皮肤响应: code={Code} message={Message}", code, msg);
-            try { Log.Debug("设置皮肤响应对象: {Json}", JsonSerializer.Serialize(r)); } catch { }
+            try
+            {
+                Log.Debug("设置皮肤响应对象: {Json}", JsonSerializer.Serialize(r));
+            }
+            catch
+            {
+            }
+
             return new SetSkinResult { Success = succ, Message = msg };
         }
         catch (Exception ex)

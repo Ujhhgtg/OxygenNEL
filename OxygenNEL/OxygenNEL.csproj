@@ -1,87 +1,87 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-    <RootNamespace>OxygenNEL</RootNamespace>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Platforms>x86;x64;ARM64</Platforms>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
-    <UseWinUI>true</UseWinUI>
-    <WinUISDKReferences>false</WinUISDKReferences>
-    <EnableMsixTooling>true</EnableMsixTooling>
-    <Nullable>enable</Nullable>
-    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-    <WindowsAppSdkUndockedRegFreeWinRTInitialize>true</WindowsAppSdkUndockedRegFreeWinRTInitialize>
-    <ApplicationIcon>Assets\OxygenNEL.ico</ApplicationIcon>
-    <WindowsPackageType>None</WindowsPackageType>
-  </PropertyGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Assets\OxygenNEL.targetsize-24_altform-unplated.png" />
-    <EmbeddedResource Include="Assets\OxygenNEL.png" />
-    <EmbeddedResource Include="Assets\OxygenNEL.ico" />
-    <EmbeddedResource Include="Assets\prefix.txt" />
-    <EmbeddedResource Include="Assets\character.txt" />
-    <EmbeddedResource Include="Assets\verb.txt" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Content Include="resources\api-ms-win-crt-utility-l1-1-1.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0-beta.98" />
-    <PackageReference Include="DotNetty.Buffers" Version="0.7.6" />
-    <PackageReference Include="DotNetty.Codecs" Version="0.7.6" />
-    <PackageReference Include="DotNetty.Common" Version="0.7.6" />
-    <PackageReference Include="DotNetty.Handlers" Version="0.7.6" />
-    <PackageReference Include="DotNetty.Transport" Version="0.7.6" />
-    <PackageReference Include="OpenTl.Netty.Socks" Version="1.0.2" />
-    <PackageReference Include="Serilog" Version="4.3.1-dev-02406" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
-    <PackageReference Include="SharpCompress" Version="0.45.0-beta.378" />
-    <PackageReference Include="SharpZipLib" Version="1.4.2" />
-    <PackageReference Include="System.IO.Hashing" Version="10.0.2" />
-    <PackageReference Include="YamlDotNet" Version="16.3.0" />
-    <PackageReference Include="Downloader" Version="4.0.3" />
-        <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.2" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Manifest Include="$(ApplicationManifest)" />
-    <Compile Remove="plugins\**" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\external\Codexus\Codexus.Cipher\Codexus.Cipher.csproj" />
-    <ProjectReference Include="..\external\Codexus\Codexus.Development.SDK\Codexus.Development.SDK.csproj" />
-    <ProjectReference Include="..\external\Codexus\Codexus.Game.Launcher\Codexus.Game.Launcher.csproj" />
-    <ProjectReference Include="..\external\Codexus\Codexus.OpenSDK\Codexus.OpenSDK.csproj" />
-    <ProjectReference Include="..\OxygenNEL.Core\OxygenNEL.Core.csproj" />
-    <ProjectReference Include="..\OxygenNEL.IRC\OxygenNEL.IRC.csproj" />
-    <Reference Include="Codexus.Interceptors">
-      <HintPath>..\SDK\Codexus.Interceptors.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1-RTM" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.0.0-experimental4" />
-    <PackageReference Include="Serilog.Sinks.File" Version="8.0.0-dev-02318" />
-  </ItemGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+        <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+        <RootNamespace>OxygenNEL</RootNamespace>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <Platforms>x86;x64;ARM64</Platforms>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+        <UseWinUI>true</UseWinUI>
+        <WinUISDKReferences>false</WinUISDKReferences>
+        <EnableMsixTooling>true</EnableMsixTooling>
+        <Nullable>enable</Nullable>
+        <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+        <WindowsAppSdkUndockedRegFreeWinRTInitialize>true</WindowsAppSdkUndockedRegFreeWinRTInitialize>
+        <ApplicationIcon>Assets\OxygenNEL.ico</ApplicationIcon>
+        <WindowsPackageType>None</WindowsPackageType>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
-    <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">False</PublishReadyToRun>
-    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
-    <PublishSingleFile>true</PublishSingleFile>
-    <SelfContained>true</SelfContained>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-  </PropertyGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="Assets\OxygenNEL.targetsize-24_altform-unplated.png"/>
+        <EmbeddedResource Include="Assets\OxygenNEL.png"/>
+        <EmbeddedResource Include="Assets\OxygenNEL.ico"/>
+        <EmbeddedResource Include="Assets\prefix.txt"/>
+        <EmbeddedResource Include="Assets\character.txt"/>
+        <EmbeddedResource Include="Assets\verb.txt"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="resources\api-ms-win-crt-utility-l1-1-1.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0-beta.98"/>
+        <PackageReference Include="DotNetty.Buffers" Version="0.7.6"/>
+        <PackageReference Include="DotNetty.Codecs" Version="0.7.6"/>
+        <PackageReference Include="DotNetty.Common" Version="0.7.6"/>
+        <PackageReference Include="DotNetty.Handlers" Version="0.7.6"/>
+        <PackageReference Include="DotNetty.Transport" Version="0.7.6"/>
+        <PackageReference Include="OpenTl.Netty.Socks" Version="1.0.2"/>
+        <PackageReference Include="Serilog" Version="4.3.1-dev-02406"/>
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1"/>
+        <PackageReference Include="SharpCompress" Version="0.45.0-beta.378"/>
+        <PackageReference Include="SharpZipLib" Version="1.4.2"/>
+        <PackageReference Include="System.IO.Hashing" Version="10.0.2"/>
+        <PackageReference Include="YamlDotNet" Version="16.3.0"/>
+        <PackageReference Include="Downloader" Version="4.0.3"/>
+        <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Manifest Include="$(ApplicationManifest)"/>
+        <Compile Remove="plugins\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\external\Codexus\Codexus.Cipher\Codexus.Cipher.csproj"/>
+        <ProjectReference Include="..\external\Codexus\Codexus.Development.SDK\Codexus.Development.SDK.csproj"/>
+        <ProjectReference Include="..\external\Codexus\Codexus.Game.Launcher\Codexus.Game.Launcher.csproj"/>
+        <ProjectReference Include="..\external\Codexus\Codexus.OpenSDK\Codexus.OpenSDK.csproj"/>
+        <ProjectReference Include="..\OxygenNEL.Core\OxygenNEL.Core.csproj"/>
+        <ProjectReference Include="..\OxygenNEL.IRC\OxygenNEL.IRC.csproj"/>
+        <Reference Include="Codexus.Interceptors">
+            <HintPath>..\SDK\Codexus.Interceptors.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1-RTM"/>
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.0.0-experimental4"/>
+        <PackageReference Include="Serilog.Sinks.File" Version="8.0.0-dev-02318"/>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+        <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">False</PublishReadyToRun>
+        <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
+        <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    </PropertyGroup>
 </Project>

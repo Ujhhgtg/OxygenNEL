@@ -21,20 +21,18 @@ public static class FileUtil
                 Log.Error("目标目录不存在: {Dir}", dirPath);
                 return false;
             }
+
             var option = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             var files = Directory.GetFiles(dirPath, "*", option);
             var ok = true;
             foreach (var f in files)
-            {
                 try
                 {
                     if (File.Exists(f))
                     {
                         var attr = File.GetAttributes(f);
                         if ((attr & FileAttributes.ReadOnly) != 0)
-                        {
                             File.SetAttributes(f, attr & ~FileAttributes.ReadOnly);
-                        }
                         File.Delete(f);
                     }
                 }
@@ -43,22 +41,19 @@ public static class FileUtil
                     ok = false;
                     Log.Error(ex, "删除文件失败: {File}", f);
                 }
-            }
+
             if (recursive)
             {
                 var dirs = Directory.GetDirectories(dirPath, "*", SearchOption.AllDirectories);
                 Array.Sort(dirs, (a, b) => b.Length.CompareTo(a.Length));
                 foreach (var d in dirs)
-                {
                     try
                     {
                         if (Directory.Exists(d))
                         {
                             var attr = File.GetAttributes(d);
                             if ((attr & FileAttributes.ReadOnly) != 0)
-                            {
                                 File.SetAttributes(d, attr & ~FileAttributes.ReadOnly);
-                            }
                             Directory.Delete(d, true);
                         }
                     }
@@ -67,14 +62,12 @@ public static class FileUtil
                         ok = false;
                         Log.Error(ex, "删除目录失败: {Dir}", d);
                     }
-                }
+
                 try
                 {
                     var rootAttr = File.GetAttributes(dirPath);
                     if ((rootAttr & FileAttributes.ReadOnly) != 0)
-                    {
                         File.SetAttributes(dirPath, rootAttr & ~FileAttributes.ReadOnly);
-                    }
                     Directory.Delete(dirPath, true);
                 }
                 catch (Exception ex)
@@ -83,6 +76,7 @@ public static class FileUtil
                     Log.Error(ex, "删除根目录失败: {Dir}", dirPath);
                 }
             }
+
             return ok;
         }
         catch (Exception ex)

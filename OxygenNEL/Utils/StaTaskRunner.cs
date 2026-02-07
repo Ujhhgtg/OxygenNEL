@@ -24,7 +24,14 @@ public static class StaTaskRunner
         {
             IsBackground = true
         };
-        try { thread.SetApartmentState(ApartmentState.STA); } catch { }
+        try
+        {
+            thread.SetApartmentState(ApartmentState.STA);
+        }
+        catch
+        {
+        }
+
         thread.Start();
         return tcs.Task;
     }

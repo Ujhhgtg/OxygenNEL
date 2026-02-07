@@ -21,7 +21,9 @@ public sealed partial class CaptchaContent : UserControl
             else if (mode == "dark") t = ElementTheme.Dark;
             RequestedTheme = t;
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     public string CaptchaText => CaptchaInput.Text;
@@ -34,10 +36,7 @@ public sealed partial class CaptchaContent : UserControl
         CaptchaInput.Text = string.Empty;
         try
         {
-            if (!string.IsNullOrWhiteSpace(captchaUrl))
-            {
-                CaptchaImage.Source = new BitmapImage(new Uri(captchaUrl));
-            }
+            if (!string.IsNullOrWhiteSpace(captchaUrl)) CaptchaImage.Source = new BitmapImage(new Uri(captchaUrl));
         }
         catch
         {

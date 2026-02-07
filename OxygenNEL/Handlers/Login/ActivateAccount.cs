@@ -16,10 +16,7 @@ public class ActivateAccount
     {
         if (string.IsNullOrWhiteSpace(id)) return new { type = "activate_account_error", message = "缺少id" };
         var u = UserManager.Instance.GetUserByEntityId(id!);
-        if (u == null)
-        {
-            return new { type = "activate_account_error", message = "账号不存在" };
-        }
+        if (u == null) return new { type = "activate_account_error", message = "账号不存在" };
         try
         {
             if (!u.Authorized)
@@ -32,6 +29,7 @@ public class ActivateAccount
                     Log.Information("[ActivateAccount] 需要验证码");
                     return result!;
                 }
+
                 if (tVal != null && tVal.EndsWith("_error", StringComparison.OrdinalIgnoreCase))
                 {
                     var mProp = result?.GetType().GetProperty("message");
@@ -39,9 +37,11 @@ public class ActivateAccount
                     Log.Error("[ActivateAccount] 登录失败: {Msg}", msg);
                     return result!;
                 }
+
                 u.Authorized = true;
                 UserManager.Instance.MarkDirtyAndScheduleSave();
             }
+
             var list = new ArrayList();
             var items = GetAccount.GetAccountItems();
             list.Add(new { type = "Success_login", entityId = u.UserId, channel = u.Channel });
@@ -59,9 +59,7 @@ public class ActivateAccount
             var msg = ex.Message;
             var lower = msg.ToLowerInvariant();
             if (lower.Contains("parameter") && lower.Contains("'s'") && u.Type?.ToLowerInvariant() == "password")
-            {
                 return HandleCaptchaRequired(u);
-            }
             return new { type = "activate_account_error", message = msg.Length == 0 ? "激活失败" : msg };
         }
     }
@@ -92,11 +90,9 @@ public class ActivateAccount
 
     private class NeteaseLoginInfo
     {
-        [JsonPropertyName("email")]
-        public string Email { get; set; } = string.Empty;
-            
-        [JsonPropertyName("password")]
-        public string Password { get; set; } = string.Empty;
+        [JsonPropertyName("email")] public string Email { get; set; } = string.Empty;
+
+        [JsonPropertyName("password")] public string Password { get; set; } = string.Empty;
     }
 
     private object HandleCaptchaRequired(EntityUser u)
@@ -107,7 +103,11 @@ public class ActivateAccount
             var captchaSid = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N")[..8];
             var url = "https://ptlogin.4399.com/ptlogin/captcha.do?captchaId=" + captchaSid;
 
-            return new { type = "captcha_required", account = req?.Account ?? string.Empty, password = req?.Password ?? string.Empty, sessionId = captchaSid, captchaUrl = url };
+            return new
+            {
+                type = "captcha_required", account = req?.Account ?? string.Empty,
+                password = req?.Password ?? string.Empty, sessionId = captchaSid, captchaUrl = url
+            };
         }
         catch
         {

@@ -38,7 +38,11 @@ public class JoinGame
         var enabled = set.Socks5Enabled;
         req.Socks5 = !enabled || string.IsNullOrWhiteSpace(set.Socks5Address)
             ? new EntitySocks5 { Address = string.Empty, Port = 0, Username = string.Empty, Password = string.Empty }
-            : new EntitySocks5 { Enabled = true, Address = set!.Socks5Address, Port = set.Socks5Port, Username = set.Socks5Username, Password = set.Socks5Password };
+            : new EntitySocks5
+            {
+                Enabled = true, Address = set!.Socks5Address, Port = set.Socks5Port, Username = set.Socks5Username,
+                Password = set.Socks5Password
+            };
         return req;
     }
 
@@ -51,9 +55,7 @@ public class JoinGame
         var last = UserManager.Instance.GetLastAvailableUser();
         if (last == null) return new JoinGameResult { NotLogin = true };
         if (string.IsNullOrWhiteSpace(serverId) || string.IsNullOrWhiteSpace(role))
-        {
             return new JoinGameResult { Success = false, Message = "参数错误" };
-        }
         try
         {
             var ok = await StartAsync(serverId!, serverName, role!);
@@ -76,24 +78,22 @@ public class JoinGame
         if (selected == null) return false;
         var details = AppState.X19.QueryNetGameDetailById(available.UserId, available.AccessToken, serverId);
         var address = AppState.X19.GetNetGameServerAddress(available.UserId, available.AccessToken, serverId);
-        
+
         var serverIp = address.Data!.Ip;
         var serverPort = address.Data!.Port;
         if (serverPort <= 0 && details.Data != null)
-        {
             if (!string.IsNullOrWhiteSpace(details.Data.ServerAddress) && details.Data.ServerPort > 0)
             {
                 serverIp = details.Data.ServerAddress;
                 serverPort = details.Data.ServerPort;
             }
-        }
-        
+
         if (serverPort <= 0)
         {
             Log.Warning("服务器端口为 0，强制使用默认端口 25565");
             serverPort = 25565;
         }
-        
+
         var version = details.Data!.McVersionList[0];
         var gameVersion = GameVersionUtil.GetEnumFromGameVersion(version.Name);
         var serverMod = await InstallerService.InstallGameMods(
@@ -112,61 +112,72 @@ public class JoinGame
         var socksCfg = _request?.Socks5;
         var socksAddr = socksCfg != null ? socksCfg.Address ?? string.Empty : string.Empty;
         var socksPort = socksCfg?.Port ?? 0;
-        Log.Information("JoinGame 接收的 SOCKS5 配置: Address={Addr}, Port={Port}, Username={User}, Enabled={Enabled}", socksAddr, socksPort, socksCfg?.Username, !string.IsNullOrWhiteSpace(socksAddr) && socksPort > 0);
+        Log.Information("JoinGame 接收的 SOCKS5 配置: Address={Addr}, Port={Port}, Username={User}, Enabled={Enabled}",
+            socksAddr, socksPort, socksCfg?.Username, !string.IsNullOrWhiteSpace(socksAddr) && socksPort > 0);
         if (!string.IsNullOrWhiteSpace(socksAddr) && socksPort <= 0) return false;
         if (!string.IsNullOrWhiteSpace(socksAddr) && socksPort > 0)
-        {
-            try { Dns.GetHostAddresses(socksAddr); }
-            catch { return false; }
-        }
-        var interceptor = Interceptor.CreateInterceptor(_request?.Socks5, mods, serverId, serverName, version.Name, serverIp, serverPort, _request?.Role ?? string.Empty, available.UserId, available.AccessToken, delegate(string certification)
-        {
-            Log.Information("SOCKS5 => Host: {Host}, Port: {Port}, User: {User} pass: {Pass}",
-                _request?.Socks5?.Address,
-                _request?.Socks5?.Port,
-                _request?.Socks5?.Username,
-                _request?.Socks5?.Password);
-            Log.Logger.Information("Server certification: {Certification}", certification);
-            Task.Run(async delegate
+            try
             {
-                try
+                Dns.GetHostAddresses(socksAddr);
+            }
+            catch
+            {
+                return false;
+            }
+
+        var interceptor = Interceptor.CreateInterceptor(_request?.Socks5, mods, serverId, serverName, version.Name,
+            serverIp, serverPort, _request?.Role ?? string.Empty, available.UserId, available.AccessToken,
+            delegate(string certification)
+            {
+                Log.Information("SOCKS5 => Host: {Host}, Port: {Port}, User: {User} pass: {Pass}",
+                    _request?.Socks5?.Address,
+                    _request?.Socks5?.Port,
+                    _request?.Socks5?.Username,
+                    _request?.Socks5?.Password);
+                Log.Logger.Information("Server certification: {Certification}", certification);
+                Task.Run(async delegate
                 {
-                    var salt = await AuthManager.Instance.GetCrcSaltAsyncIfNeeded();
-                    Log.Information("加入游戏 CrcSalt: {Salt}", salt);
-                    AppState.Services?.RefreshYggdrasil();
-                    var latest = UserManager.Instance.GetAvailableUser(available.UserId);
-                    var currentToken = latest?.AccessToken ?? available.AccessToken;
-                    var success = await AppState.Services!.Yggdrasil.JoinServerAsync(new GameProfile
+                    try
                     {
-                        GameId = serverId,
-                        GameVersion = version.Name,
-                        BootstrapMd5 = pair.BootstrapMd5,
-                        DatFileMd5 = pair.DatFileMd5,
-                        Mods = JsonSerializer.Deserialize<ModList>(mods)!,
-                        User = new UserProfile { UserId = int.Parse(available.UserId), UserToken = currentToken }
-                    }, certification);
-                    if (success.IsSuccess)
-                    {
-                        if (AppState.Debug) Log.Information("消息认证成功");
+                        var salt = await AuthManager.Instance.GetCrcSaltAsyncIfNeeded();
+                        Log.Information("加入游戏 CrcSalt: {Salt}", salt);
+                        AppState.Services?.RefreshYggdrasil();
+                        var latest = UserManager.Instance.GetAvailableUser(available.UserId);
+                        var currentToken = latest?.AccessToken ?? available.AccessToken;
+                        var success = await AppState.Services!.Yggdrasil.JoinServerAsync(new GameProfile
+                        {
+                            GameId = serverId,
+                            GameVersion = version.Name,
+                            BootstrapMd5 = pair.BootstrapMd5,
+                            DatFileMd5 = pair.DatFileMd5,
+                            Mods = JsonSerializer.Deserialize<ModList>(mods)!,
+                            User = new UserProfile { UserId = int.Parse(available.UserId), UserToken = currentToken }
+                        }, certification);
+                        if (success.IsSuccess)
+                        {
+                            if (AppState.Debug) Log.Information("消息认证成功");
+                        }
+                        else
+                        {
+                            if (AppState.Debug)
+                                Log.Error(new Exception(success.Error ?? "未知错误"), "消息认证失败，详细信息: {Error}",
+                                    success.Error);
+                            else Log.Error("消息认证失败: {Error}", success.Error);
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        if (AppState.Debug) Log.Error(new Exception(success.Error ?? "未知错误"), "消息认证失败，详细信息: {Error}", success.Error);
-                        else Log.Error("消息认证失败: {Error}", success.Error);
+                        Log.Error(e, "认证过程中发生异常");
                     }
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, "认证过程中发生异常");
-                }
-                finally
-                {
-                    authorizedSignal.Release();
-                }
+                    finally
+                    {
+                        authorizedSignal.Release();
+                    }
+                });
+                authorizedSignal.Wait();
             });
-            authorizedSignal.Wait();
-        });
-        InterConn.GameStart(available.UserId, available.AccessToken, _request?.GameId ?? string.Empty).GetAwaiter().GetResult();
+        InterConn.GameStart(available.UserId, available.AccessToken, _request?.GameId ?? string.Empty).GetAwaiter()
+            .GetResult();
         GameManager.Instance.AddInterceptor(interceptor);
         _lastIp = interceptor.LocalAddress;
         _lastPort = interceptor.LocalPort;

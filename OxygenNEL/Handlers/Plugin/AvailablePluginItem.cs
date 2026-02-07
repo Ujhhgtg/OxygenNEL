@@ -15,6 +15,7 @@ public class AvailablePluginItem : INotifyPropertyChanged
     public string Depends { get; set; } = string.Empty;
 
     private bool _isInstalled;
+
     public bool IsInstalled
     {
         get => _isInstalled;
@@ -29,6 +30,7 @@ public class AvailablePluginItem : INotifyPropertyChanged
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
     private void OnPropertyChanged([CallerMemberName] string? name = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

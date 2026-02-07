@@ -27,7 +27,7 @@ public class CChatCommandIrc : IPacket
         buffer.SkipBytes(buffer.ReadableBytes);
 
         _isIrcCommand = _command.StartsWith("irc ", StringComparison.OrdinalIgnoreCase)
-                     || _command.Equals("irc", StringComparison.OrdinalIgnoreCase);
+                        || _command.Equals("irc", StringComparison.OrdinalIgnoreCase);
         if (_isIrcCommand) Log.Information("[IRC] 拦截到命令: {Cmd}", _command);
     }
 
@@ -66,6 +66,7 @@ public class CChatCommandIrc : IPacket
             SendLocalMessage(connection, "§c[IRC] IRC 未连接");
             return true;
         }
+
         ircClient.SendChat(playerName, content);
         return true;
     }
@@ -74,12 +75,14 @@ public class CChatCommandIrc : IPacket
     {
         try
         {
-            Log.Debug("[IRC] SendLocalMessage: State={State}, Version={Version}", connection.State, connection.ProtocolVersion);
+            Log.Debug("[IRC] SendLocalMessage: State={State}, Version={Version}", connection.State,
+                connection.ProtocolVersion);
             if (connection.State != EnumConnectionState.Play)
             {
                 Log.Debug("[IRC] 跳过: 状态不是Play");
                 return;
             }
+
             switch (connection.ProtocolVersion)
             {
                 case EnumProtocolVersion.V1122:

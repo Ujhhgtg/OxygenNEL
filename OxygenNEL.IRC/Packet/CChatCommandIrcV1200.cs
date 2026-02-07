@@ -26,7 +26,7 @@ public class CChatCommandIrcV1200 : IPacket
         buffer.SkipBytes(buffer.ReadableBytes);
 
         _isIrcCommand = _command.StartsWith("irc ", StringComparison.OrdinalIgnoreCase)
-                     || _command.Equals("irc", StringComparison.OrdinalIgnoreCase);
+                        || _command.Equals("irc", StringComparison.OrdinalIgnoreCase);
     }
 
     public void WriteToBuffer(IByteBuffer buffer)
@@ -63,6 +63,7 @@ public class CChatCommandIrcV1200 : IPacket
             SendLocalMessage(connection, "§c[IRC] IRC 未连接");
             return true;
         }
+
         ircClient.SendChat(playerName, content);
         return true;
     }
@@ -74,7 +75,7 @@ public class CChatCommandIrcV1200 : IPacket
             if (connection.State != EnumConnectionState.Play) return;
             if (connection.ProtocolVersion != EnumProtocolVersion.V1200) return;
             var buffer = Unpooled.Buffer();
-            buffer.WriteVarInt(0x64); 
+            buffer.WriteVarInt(0x64);
             var jsonMessage = "{\"text\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"}";
             var messageBytes = Encoding.UTF8.GetBytes(jsonMessage);
             buffer.WriteVarInt(messageBytes.Length);

@@ -31,7 +31,15 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
     private bool _notLogin;
     private string? _pendingServerId;
 
-    public bool NotLogin { get => _notLogin; private set { _notLogin = value; OnPropertyChanged(nameof(NotLogin)); } }
+    public bool NotLogin
+    {
+        get => _notLogin;
+        private set
+        {
+            _notLogin = value;
+            OnPropertyChanged(nameof(NotLogin));
+        }
+    }
 
     public RentalServerPage()
     {
@@ -56,12 +64,20 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
             _pendingServerId = serverId;
     }
 
-    private async void RefreshButton_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
+    private async void RefreshButton_Click(object sender, RoutedEventArgs e)
+    {
+        await RefreshAsync();
+    }
 
     private async void SpecifyServerButton_Click(object sender, RoutedEventArgs e)
     {
         var id = await DialogService.ShowInputAsync(XamlRoot, "指定服务器", "请输入服务器号");
-        if (string.IsNullOrWhiteSpace(id)) { if (id != null) NotificationHost.ShowGlobal("请输入服务器号", ToastLevel.Error); return; }
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            if (id != null) NotificationHost.ShowGlobal("请输入服务器号", ToastLevel.Error);
+            return;
+        }
+
         await JoinServerByIdAsync(id, id);
     }
 
@@ -70,11 +86,17 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
         try
         {
             var r = await RunOnStaAsync(() => new OpenRentalServer().Execute(serverId));
-            if (!r.Success) { NotificationHost.ShowGlobal(r.Message ?? "打开失败", ToastLevel.Error); return; }
+            if (!r.Success)
+            {
+                NotificationHost.ShowGlobal(r.Message ?? "打开失败", ToastLevel.Error);
+                return;
+            }
 
             var accounts = UserManager.Instance.GetAuthorizedAccounts();
-            var acctItems = accounts.Select(a => new JoinRentalServerContent.OptionItem { Label = a.Label, Value = a.Id }).ToList();
-            var roleItems = r.Items.Select(x => new JoinRentalServerContent.OptionItem { Label = x.Name, Value = x.Id }).ToList();
+            var acctItems = accounts.Select(a => new JoinRentalServerContent.OptionItem
+                { Label = a.Label, Value = a.Id }).ToList();
+            var roleItems = r.Items.Select(x => new JoinRentalServerContent.OptionItem { Label = x.Name, Value = x.Id })
+                .ToList();
 
             await ShowJoinDialogAsync(serverId, serverName, acctItems, roleItems, false);
         }
@@ -130,15 +152,16 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
     private async void JoinServerButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button btn && btn.Tag is RentalServerItem s)
-        {
             try
             {
                 var r = await RunOnStaAsync(() => new OpenRentalServer().Execute(s.EntityId));
                 if (!r.Success) return;
 
                 var accounts = UserManager.Instance.GetAuthorizedAccounts();
-                var acctItems = accounts.Select(a => new JoinRentalServerContent.OptionItem { Label = a.Label, Value = a.Id }).ToList();
-                var roleItems = r.Items.Select(x => new JoinRentalServerContent.OptionItem { Label = x.Name, Value = x.Id }).ToList();
+                var acctItems = accounts.Select(a => new JoinRentalServerContent.OptionItem
+                    { Label = a.Label, Value = a.Id }).ToList();
+                var roleItems = r.Items.Select(x => new JoinRentalServerContent.OptionItem
+                    { Label = x.Name, Value = x.Id }).ToList();
 
                 await ShowJoinDialogAsync(s.EntityId, s.Name, acctItems, roleItems, s.HasPassword, s.McVersion);
             }
@@ -147,10 +170,11 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
                 Log.Error(ex, "加入租赁服失败");
                 NotificationHost.ShowGlobal("加入失败: " + ex.Message, ToastLevel.Error);
             }
-        }
     }
 
-    private async Task ShowJoinDialogAsync(string serverId, string serverName, List<JoinRentalServerContent.OptionItem> acctItems, List<JoinRentalServerContent.OptionItem> roleItems, bool hasPassword, string? mcVersion = null)
+    private async Task ShowJoinDialogAsync(string serverId, string serverName,
+        List<JoinRentalServerContent.OptionItem> acctItems, List<JoinRentalServerContent.OptionItem> roleItems,
+        bool hasPassword, string? mcVersion = null)
     {
         while (true)
         {
@@ -166,11 +190,15 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
                     var rAcc = await RunOnStaAsync(() => new OpenRentalServer().ExecuteForAccount(accountId, serverId));
                     if (rAcc.Success)
                     {
-                        var newRoles = rAcc.Items.Select(x => new JoinRentalServerContent.OptionItem { Label = x.Name, Value = x.Id }).ToList();
+                        var newRoles = rAcc.Items.Select(x => new JoinRentalServerContent.OptionItem
+                            { Label = x.Name, Value = x.Id }).ToList();
                         DispatcherQueue.TryEnqueue(() => joinContent.SetRoles(newRoles));
                     }
                 }
-                catch (Exception ex) { Log.Debug(ex, "切换账号失败"); }
+                catch (Exception ex)
+                {
+                    Log.Debug(ex, "切换账号失败");
+                }
             };
 
             var dlg = DialogService.Create(XamlRoot, "加入租赁服", joinContent, "启动");
@@ -204,8 +232,13 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
                 var set = SettingManager.Instance.Get();
                 var enabled = set?.Socks5Enabled ?? false;
                 req.Socks5 = !enabled || string.IsNullOrWhiteSpace(set?.Socks5Address)
-                    ? new EntitySocks5 { Address = string.Empty, Port = 0, Username = string.Empty, Password = string.Empty }
-                    : new EntitySocks5 { Enabled = true, Address = set!.Socks5Address, Port = set.Socks5Port, Username = set.Socks5Username, Password = set.Socks5Password };
+                    ? new EntitySocks5
+                        { Address = string.Empty, Port = 0, Username = string.Empty, Password = string.Empty }
+                    : new EntitySocks5
+                    {
+                        Enabled = true, Address = set!.Socks5Address, Port = set.Socks5Port,
+                        Username = set.Socks5Username, Password = set.Socks5Password
+                    };
 
                 var rStart = await Task.Run(async () => await new JoinRentalGame().Execute(req));
                 if (rStart.Success)
@@ -215,7 +248,10 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
                     var copyText = SettingManager.Instance.GetCopyIpText(rStart.Ip, rStart.Port);
                     if (copyText != null)
                     {
-                        var dp = new DataPackage(); dp.SetText(copyText); Clipboard.SetContent(dp); Clipboard.Flush();
+                        var dp = new DataPackage();
+                        dp.SetText(copyText);
+                        Clipboard.SetContent(dp);
+                        Clipboard.Flush();
                         NotificationHost.ShowGlobal("地址已复制", ToastLevel.Success);
                     }
                 }
@@ -223,6 +259,7 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
                 {
                     NotificationHost.ShowGlobal(rStart.Message ?? "启动失败", ToastLevel.Error);
                 }
+
                 break;
             }
 
@@ -240,10 +277,12 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
                     var r2 = await RunOnStaAsync(() => new CreateRentalRole().Execute(serverId, roleName));
                     if (r2.Success)
                     {
-                        roleItems = r2.Items.Select(x => new JoinRentalServerContent.OptionItem { Label = x.Name, Value = x.Id }).ToList();
+                        roleItems = r2.Items.Select(x => new JoinRentalServerContent.OptionItem
+                            { Label = x.Name, Value = x.Id }).ToList();
                         NotificationHost.ShowGlobal("角色创建成功", ToastLevel.Success);
                     }
                 }
+
                 joinContent.ResetAddRoleRequested();
             }
             else
@@ -254,5 +293,9 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+    private void OnPropertyChanged(string name)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
 }

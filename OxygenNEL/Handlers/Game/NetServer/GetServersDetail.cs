@@ -28,14 +28,13 @@ public class GetServersDetail
                 var arr = upProp != null ? upProp.GetValue(dataVal) as IEnumerable : null;
                 if (arr == null && lowProp != null) arr = lowProp.GetValue(dataVal) as IEnumerable;
                 if (arr != null)
-                {
                     foreach (var it in arr)
                     {
                         var s = it != null ? it.ToString() : string.Empty;
                         if (!string.IsNullOrWhiteSpace(s)) imgs.Add(s.Replace("`", string.Empty).Trim());
                     }
-                }
             }
+
             return new ServerDetailResult { Success = true, Images = imgs };
         }
         catch (Exception ex)

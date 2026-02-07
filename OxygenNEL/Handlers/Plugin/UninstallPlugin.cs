@@ -13,8 +13,10 @@ public class UninstallPlugin
             Log.Information("卸载插件 {PluginId}", pluginId);
             PluginManager.Instance.UninstallPlugin(pluginId);
         }
+
         var updPayload = new { type = "installed_plugins_updated" };
-        var items = PluginManager.Instance.Plugins.Values.Select(plugin => new {
+        var items = PluginManager.Instance.Plugins.Values.Select(plugin => new
+        {
             identifier = plugin.Id,
             name = plugin.Name,
             version = plugin.Version,

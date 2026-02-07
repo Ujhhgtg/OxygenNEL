@@ -88,10 +88,7 @@ public sealed partial class MusicPlayerControl : UserControl
 
     public void UpdateVolume(double volume)
     {
-        if (_musicPlayer != null)
-        {
-            _musicPlayer.Volume = volume;
-        }
+        if (_musicPlayer != null) _musicPlayer.Volume = volume;
     }
 
     private void Cleanup()
@@ -102,11 +99,45 @@ public sealed partial class MusicPlayerControl : UserControl
 
         if (player != null)
         {
-            try { player.Pause(); } catch { }
-            try { player.MediaOpened -= OnMediaOpened; } catch { }
-            try { player.PlaybackSession.PositionChanged -= OnPositionChanged; } catch { }
-            try { player.Source = null; } catch { }
-            try { player.Dispose(); } catch { }
+            try
+            {
+                player.Pause();
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                player.MediaOpened -= OnMediaOpened;
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                player.PlaybackSession.PositionChanged -= OnPositionChanged;
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                player.Source = null;
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                player.Dispose();
+            }
+            catch
+            {
+            }
         }
 
         UpdatePlayPauseIcon();
@@ -128,6 +159,7 @@ public sealed partial class MusicPlayerControl : UserControl
             _musicPlayer.Play();
             _isMusicPlaying = true;
         }
+
         UpdatePlayPauseIcon();
     }
 
@@ -144,12 +176,11 @@ public sealed partial class MusicPlayerControl : UserControl
             try
             {
                 var duration = sender.PlaybackSession.NaturalDuration;
-                if (duration.TotalSeconds > 0)
-                {
-                    MusicProgressSlider.Maximum = duration.TotalSeconds;
-                }
+                if (duration.TotalSeconds > 0) MusicProgressSlider.Maximum = duration.TotalSeconds;
             }
-            catch { }
+            catch
+            {
+            }
         });
     }
 
@@ -165,8 +196,13 @@ public sealed partial class MusicPlayerControl : UserControl
                 var pos = sender.Position;
                 MusicTimeText.Text = $"{(int)pos.TotalMinutes}:{pos.Seconds:D2}";
             }
-            catch { }
-            finally { _isUpdatingSlider = false; }
+            catch
+            {
+            }
+            finally
+            {
+                _isUpdatingSlider = false;
+            }
         });
     }
 
@@ -178,7 +214,7 @@ public sealed partial class MusicPlayerControl : UserControl
 
     private void Panel_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
-        if (e.OriginalSource is Button || e.OriginalSource is Slider || 
+        if (e.OriginalSource is Button || e.OriginalSource is Slider ||
             e.OriginalSource is Thumb) return;
 
         _isDragging = true;

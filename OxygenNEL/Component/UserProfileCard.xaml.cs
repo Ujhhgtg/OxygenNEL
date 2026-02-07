@@ -35,21 +35,17 @@ public sealed partial class UserProfileCard : UserControl
         UpdateAvatar();
         UpdateRank();
 
-        if (AuthManager.Instance.IsLoggedIn)
-        {
-            _ = FetchUserInfoAsync();
-        }
+        if (AuthManager.Instance.IsLoggedIn) _ = FetchUserInfoAsync();
     }
 
     private void UpdateRank()
     {
         var rank = AuthManager.Instance.Rank;
         var text = string.IsNullOrWhiteSpace(rank) ? "no iq" : rank;
-        
+
         RankPanel.Children.Clear();
         var segments = ParseMinecraftColors(text);
         foreach (var (content, color) in segments)
-        {
             RankPanel.Children.Add(new TextBlock
             {
                 Text = content,
@@ -57,7 +53,6 @@ public sealed partial class UserProfileCard : UserControl
                 FontWeight = FontWeights.SemiBold,
                 Foreground = new SolidColorBrush(color)
             });
-        }
         RankPanel.Visibility = Visibility.Visible;
     }
 
@@ -66,9 +61,8 @@ public sealed partial class UserProfileCard : UserControl
         var result = new List<(string, Color)>();
         var currentColor = Color.FromArgb(255, 255, 255, 255);
         var buffer = "";
-        
+
         for (var i = 0; i < text.Length; i++)
-        {
             if (text[i] == '§' && i + 1 < text.Length)
             {
                 if (buffer.Length > 0)
@@ -76,6 +70,7 @@ public sealed partial class UserProfileCard : UserControl
                     result.Add((buffer, currentColor));
                     buffer = "";
                 }
+
                 currentColor = GetMinecraftColor(text[i + 1]);
                 i++;
             }
@@ -83,45 +78,44 @@ public sealed partial class UserProfileCard : UserControl
             {
                 buffer += text[i];
             }
-        }
+
         if (buffer.Length > 0) result.Add((buffer, currentColor));
         return result;
     }
 
-    private static Color GetMinecraftColor(char code) => char.ToLower(code) switch
+    private static Color GetMinecraftColor(char code)
     {
-        '0' => Color.FromArgb(255, 0, 0, 0),
-        '1' => Color.FromArgb(255, 0, 0, 170),
-        '2' => Color.FromArgb(255, 0, 170, 0),
-        '3' => Color.FromArgb(255, 0, 170, 170),
-        '4' => Color.FromArgb(255, 170, 0, 0),
-        '5' => Color.FromArgb(255, 170, 0, 170),
-        '6' => Color.FromArgb(255, 255, 170, 0),
-        '7' => Color.FromArgb(255, 170, 170, 170),
-        '8' => Color.FromArgb(255, 85, 85, 85),
-        '9' => Color.FromArgb(255, 85, 85, 255),
-        'a' => Color.FromArgb(255, 85, 255, 85),
-        'b' => Color.FromArgb(255, 85, 255, 255),
-        'c' => Color.FromArgb(255, 255, 85, 85),
-        'd' => Color.FromArgb(255, 255, 85, 255),
-        'e' => Color.FromArgb(255, 255, 255, 85),
-        'f' => Color.FromArgb(255, 255, 255, 255),
-        _ => Color.FromArgb(255, 255, 255, 255)
-    };
+        return char.ToLower(code) switch
+        {
+            '0' => Color.FromArgb(255, 0, 0, 0),
+            '1' => Color.FromArgb(255, 0, 0, 170),
+            '2' => Color.FromArgb(255, 0, 170, 0),
+            '3' => Color.FromArgb(255, 0, 170, 170),
+            '4' => Color.FromArgb(255, 170, 0, 0),
+            '5' => Color.FromArgb(255, 170, 0, 170),
+            '6' => Color.FromArgb(255, 255, 170, 0),
+            '7' => Color.FromArgb(255, 170, 170, 170),
+            '8' => Color.FromArgb(255, 85, 85, 85),
+            '9' => Color.FromArgb(255, 85, 85, 255),
+            'a' => Color.FromArgb(255, 85, 255, 85),
+            'b' => Color.FromArgb(255, 85, 255, 255),
+            'c' => Color.FromArgb(255, 255, 85, 85),
+            'd' => Color.FromArgb(255, 255, 85, 255),
+            'e' => Color.FromArgb(255, 255, 255, 85),
+            'f' => Color.FromArgb(255, 255, 255, 255),
+            _ => Color.FromArgb(255, 255, 255, 255)
+        };
+    }
 
     private void UpdateAvatar()
     {
         var avatar = AuthManager.Instance.Avatar;
         if (!string.IsNullOrWhiteSpace(avatar))
-        {
             try
             {
                 var base64Data = avatar;
-                if (avatar.Contains(","))
-                {
-                    base64Data = avatar.Split(',')[1];
-                }
-                
+                if (avatar.Contains(",")) base64Data = avatar.Split(',')[1];
+
                 var bytes = Convert.FromBase64String(base64Data);
                 using var ms = new MemoryStream(bytes);
                 var bitmap = new BitmapImage();
@@ -135,11 +129,8 @@ public sealed partial class UserProfileCard : UserControl
             {
                 ShowDefaultAvatar();
             }
-        }
         else
-        {
             ShowDefaultAvatar();
-        }
     }
 
     private void ShowDefaultAvatar()
@@ -155,7 +146,6 @@ public sealed partial class UserProfileCard : UserControl
         {
             var result = await AuthManager.Instance.FetchUserInfoAsync();
             if (result.Success)
-            {
                 DispatcherQueue.TryEnqueue(() =>
                 {
                     UsernameText.Text = AuthManager.Instance.Username;
@@ -163,9 +153,10 @@ public sealed partial class UserProfileCard : UserControl
                     UpdateAvatar();
                     UpdateRank();
                 });
-            }
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     private void AvatarButton_Click(object sender, RoutedEventArgs e)
@@ -183,10 +174,8 @@ public sealed partial class UserProfileCard : UserControl
                 NotificationHost.ShowGlobal(result.Message, ToastLevel.Error);
                 return;
             }
-            if (!string.IsNullOrEmpty(result.UserUrl))
-            {
-                await Launcher.LaunchUriAsync(new Uri(result.UserUrl));
-            }
+
+            if (!string.IsNullOrEmpty(result.UserUrl)) await Launcher.LaunchUriAsync(new Uri(result.UserUrl));
         }
         catch (Exception ex)
         {

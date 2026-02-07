@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using OxygenNEL.Entities.Web.RentalGame;
 using OxygenNEL.Manager;
@@ -12,15 +13,12 @@ public class ListRentalServers
     public ListRentalServersResult Execute(int offset, int limit)
     {
         var user = UserManager.Instance.GetLastAvailableUser();
-        if (user == null)
-        {
-            return new ListRentalServersResult { NotLogin = true };
-        }
+        if (user == null) return new ListRentalServersResult { NotLogin = true };
 
         try
         {
             var result = AppState.X19.GetRentalGameList(user.UserId, user.AccessToken, offset);
-            
+
             var items = result.Data?.Select(item => new RentalServerItem
             {
                 EntityId = item.EntityId,
@@ -28,8 +26,8 @@ public class ListRentalServers
                 PlayerCount = (int)item.PlayerCount,
                 HasPassword = item.HasPassword == "1",
                 McVersion = item.McVersion
-            }).ToList() ?? new();
-            
+            }).ToList() ?? new List<RentalServerItem>();
+
             var hasMore = items.Count >= limit;
             return new ListRentalServersResult { Success = true, Items = items, HasMore = hasMore };
         }

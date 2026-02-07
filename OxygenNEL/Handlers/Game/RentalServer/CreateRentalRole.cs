@@ -12,18 +12,13 @@ public class CreateRentalRole
     public RentalServerRolesResult Execute(string serverId, string roleName)
     {
         var last = UserManager.Instance.GetLastAvailableUser();
-        if (last == null)
-        {
-            return new RentalServerRolesResult { NotLogin = true };
-        }
+        if (last == null) return new RentalServerRolesResult { NotLogin = true };
         if (string.IsNullOrWhiteSpace(serverId) || string.IsNullOrWhiteSpace(roleName))
-        {
             return new RentalServerRolesResult { Success = false, Message = "参数错误" };
-        }
         try
         {
             var result = AppState.X19.AddRentalGameRole(last.UserId, last.AccessToken, serverId, roleName);
-            
+
             if (result.Code != 0)
             {
                 Log.Error("[RentalServer] 创建角色失败: {Message}", result.Message);

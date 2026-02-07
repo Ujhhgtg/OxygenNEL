@@ -36,14 +36,20 @@ public sealed partial class MainWindow : Window
     private DesktopAcrylicController? _acrylicController;
     private SystemBackdropConfiguration? _configurationSource;
     private MediaPlayer? _mediaPlayer;
-        
+
     public static DispatcherQueue? UIQueue => _instance?.DispatcherQueue;
+
     public static XamlRoot? DialogXamlRoot =>
-        _instance == null ? null :
-            (_instance.AuthOverlay.Visibility == Visibility.Visible ? _instance.OverlayFrame.XamlRoot : null)
-            ?? _instance.ContentFrame.XamlRoot
-            ?? _instance.NavView.XamlRoot;
-    public static void RefreshAuthUi() => _instance?.UpdateAuthOverlay();
+        _instance == null
+            ? null
+            : (_instance.AuthOverlay.Visibility == Visibility.Visible ? _instance.OverlayFrame.XamlRoot : null)
+              ?? _instance.ContentFrame.XamlRoot
+              ?? _instance.NavView.XamlRoot;
+
+    public static void RefreshAuthUi()
+    {
+        _instance?.UpdateAuthOverlay();
+    }
 
     public MainWindow()
     {
@@ -59,10 +65,7 @@ public sealed partial class MainWindow : Window
         ApplyThemeFromSettings();
         InitializeMainNavigationIfNeeded();
         AuthManager.Instance.LoadFromDisk();
-        if (AuthManager.Instance.IsLoggedIn)
-        {
-            _ = VerifyAndAutoLoginAsync();
-        }
+        if (AuthManager.Instance.IsLoggedIn) _ = VerifyAndAutoLoginAsync();
         UpdateAuthOverlay();
         MusicPlayer.ApplySettings();
         _ = CheckUpdateAsync();
@@ -75,7 +78,9 @@ public sealed partial class MainWindow : Window
         {
             if (result.Success)
             {
-                var name = string.IsNullOrWhiteSpace(AuthManager.Instance.Username) ? "用户" : AuthManager.Instance.Username;
+                var name = string.IsNullOrWhiteSpace(AuthManager.Instance.Username)
+                    ? "用户"
+                    : AuthManager.Instance.Username;
                 NotificationHost.ShowGlobal($"欢迎 {name}，已自动登录", ToastLevel.Success);
                 _ = Task.Run(async () => await AuthManager.Instance.GetCrcSaltAsync());
             }
@@ -84,6 +89,7 @@ public sealed partial class MainWindow : Window
                 AuthManager.Instance.Clear();
                 NotificationHost.ShowGlobal("登录已过期，请重新登录", ToastLevel.Warning);
             }
+
             UpdateAuthOverlay();
         });
     }
@@ -119,7 +125,7 @@ public sealed partial class MainWindow : Window
         ["GamesPage"] = (typeof(GamesPage), GamesPage.PageTitle),
         ["SkinPage"] = (typeof(SkinPage), SkinPage.PageTitle),
         ["ToolsPage"] = (typeof(ToolsPage), ToolsPage.PageTitle),
-        ["AboutPage"] = (typeof(AboutPage), AboutPage.PageTitle),
+        ["AboutPage"] = (typeof(AboutPage), AboutPage.PageTitle)
     };
 
     private void NavView_Loaded(object sender, RoutedEventArgs e)
@@ -150,34 +156,26 @@ public sealed partial class MainWindow : Window
         AddNavItem(Symbol.ContactInfo, "AboutPage");
 
         foreach (NavigationViewItemBase item in NavView.MenuItems)
-        {
             if (item is NavigationViewItem navItem && navItem.Tag?.ToString() == "HomePage")
             {
                 NavView.SelectedItem = navItem;
                 ContentFrame.Navigate(typeof(HomePage));
                 break;
             }
-        }
     }
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         if (args.IsSettingsSelected)
-        {
             ContentFrame.Navigate(typeof(SettingsPage));
-        }
         else if (args.SelectedItem is NavigationViewItem { Tag: string key } && Pages.TryGetValue(key, out var info))
-        {
             ContentFrame.Navigate(info.Page);
-        }
     }
 
     private void NavView_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         if (NavView.PaneDisplayMode == NavigationViewPaneDisplayMode.Left)
-        {
-            NavView.OpenPaneLength = e.NewSize.Width * 0.2; 
-        }
+            NavView.OpenPaneLength = e.NewSize.Width * 0.2;
     }
 
     private void ApplyThemeFromSettings()
@@ -216,13 +214,11 @@ public sealed partial class MainWindow : Window
                     CleanupCustomBackgroundSync();
                     SystemBackdrop = new MicaBackdrop();
                 }
+
                 RootGrid.Background = null;
                 _currentBackdrop = bd;
 
-                if (oldAcrylicController != null)
-                {
-                    oldAcrylicController.Dispose();
-                }
+                if (oldAcrylicController != null) oldAcrylicController.Dispose();
                 if (oldConfigurationSource != null)
                 {
                     Activated -= Window_Activated;
@@ -238,10 +234,14 @@ public sealed partial class MainWindow : Window
                 ApplyCustomBackground();
             }
         }
-        catch (Exception ex) { Log.Warning(ex, "应用主题失败"); }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "应用主题失败");
+        }
     }
 
-    private static readonly HashSet<string> VideoExtensions = new(StringComparer.OrdinalIgnoreCase) { ".mp4", ".webm", ".wmv", ".avi", ".mkv" };
+    private static readonly HashSet<string> VideoExtensions = new(StringComparer.OrdinalIgnoreCase)
+        { ".mp4", ".webm", ".wmv", ".avi", ".mkv" };
 
     private async void ApplyCustomBackground()
     {
@@ -264,7 +264,6 @@ public sealed partial class MainWindow : Window
         try
         {
             if (isVideo)
-            {
                 DispatcherQueue.TryEnqueue(async () =>
                 {
                     try
@@ -293,7 +292,7 @@ public sealed partial class MainWindow : Window
                         BackgroundVideo.SetMediaPlayer(_mediaPlayer);
                         BackgroundVideo.Visibility = Visibility.Visible;
                         _mediaPlayer.Play();
-                            
+
                         Log.Information("已应用自定义视频背景: {Path}", fullPath);
                     }
                     catch (Exception ex)
@@ -303,23 +302,20 @@ public sealed partial class MainWindow : Window
                         SystemBackdrop = new MicaBackdrop();
                     }
                 });
-            }
             else
-            {
                 DispatcherQueue.TryEnqueue(() =>
                 {
                     SystemBackdrop = null;
                     RootGrid.Background = new SolidColorBrush(Colors.Transparent);
-                        
+
                     CleanupVideoPlayer();
 
                     var bitmap = new BitmapImage(new Uri(fullPath));
                     BackgroundImage.Source = bitmap;
                     BackgroundImage.Visibility = Visibility.Visible;
-                        
+
                     Log.Information("已应用自定义图片背景: {Path}", fullPath);
                 });
-            }
         }
         catch (Exception ex)
         {
@@ -364,6 +360,7 @@ public sealed partial class MainWindow : Window
             _acrylicController.Dispose();
             _acrylicController = null;
         }
+
         if (_configurationSource != null)
         {
             Activated -= Window_Activated;
@@ -374,7 +371,7 @@ public sealed partial class MainWindow : Window
 
     private void TrySetCustomAcrylic(ElementTheme theme)
     {
-        if (!DesktopAcrylicController.IsSupported()) 
+        if (!DesktopAcrylicController.IsSupported())
         {
             SystemBackdrop = new DesktopAcrylicBackdrop();
             return;
@@ -391,11 +388,11 @@ public sealed partial class MainWindow : Window
         UpdateAcrylicTheme(theme);
 
         _acrylicController = new DesktopAcrylicController();
-            
+
         _acrylicController.Kind = DesktopAcrylicKind.Thin;
         _acrylicController.TintOpacity = 0.0f;
         _acrylicController.LuminosityOpacity = 0.1f;
-            
+
         _acrylicController.AddSystemBackdropTarget(this.As<ICompositionSupportsSystemBackdrop>());
         _acrylicController.SetSystemBackdropConfiguration(_configurationSource);
     }
@@ -427,7 +424,8 @@ public sealed partial class MainWindow : Window
     }
 
     [DllImport("CoreMessaging.dll")]
-    private static extern int CreateDispatcherQueueController(DispatcherQueueOptions options, out nint dispatcherQueueController);
+    private static extern int CreateDispatcherQueueController(DispatcherQueueOptions options,
+        out nint dispatcherQueueController);
 
     private void UpdateAcrylicTheme(ElementTheme theme)
     {
@@ -455,10 +453,7 @@ public sealed partial class MainWindow : Window
 
     private void Window_ThemeChanged(FrameworkElement sender, object args)
     {
-        if (_configurationSource != null)
-        {
-            UpdateAcrylicTheme(((FrameworkElement)Content).ActualTheme);
-        }
+        if (_configurationSource != null) UpdateAcrylicTheme(((FrameworkElement)Content).ActualTheme);
     }
 
     public static void ApplyThemeFromSettingsStatic()
@@ -472,7 +467,6 @@ public sealed partial class MainWindow : Window
         _instance.DispatcherQueue.TryEnqueue(() =>
         {
             foreach (NavigationViewItemBase item in _instance.NavView.MenuItems)
-            {
                 if (item is NavigationViewItem navItem)
                 {
                     var key = navItem.Tag?.ToString();
@@ -483,7 +477,6 @@ public sealed partial class MainWindow : Window
                         return;
                     }
                 }
-            }
         });
     }
 
@@ -508,7 +501,10 @@ public sealed partial class MainWindow : Window
             tb.ButtonHoverBackgroundColor = ColorUtil.HoverBackgroundForTheme(theme);
             tb.ButtonPressedBackgroundColor = ColorUtil.PressedBackgroundForTheme(theme);
         }
-        catch (Exception ex) { Log.Warning(ex, "更新标题栏颜色失败"); }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "更新标题栏颜色失败");
+        }
     }
 
     public static void ApplyMusicPlayerSettingsStatic()

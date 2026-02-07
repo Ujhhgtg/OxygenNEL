@@ -25,6 +25,7 @@ public static class ColorUtil
                 b = Convert.ToByte(s.Substring(6, 2), 16);
                 break;
         }
+
         return Color.FromArgb(a, r, g, b);
     }
 

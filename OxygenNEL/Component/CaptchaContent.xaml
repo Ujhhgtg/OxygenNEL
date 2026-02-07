@@ -8,8 +8,8 @@
 
     <Grid>
         <StackPanel Spacing="10" Margin="0,10,0,0">
-            <TextBox x:Name="CaptchaInput" Header="验证码" PlaceholderText="填写验证码"/>
-            <Image x:Name="CaptchaImage" Height="80" HorizontalAlignment="Left"/>
+            <TextBox x:Name="CaptchaInput" Header="验证码" PlaceholderText="填写验证码" />
+            <Image x:Name="CaptchaImage" Height="80" HorizontalAlignment="Left" />
         </StackPanel>
     </Grid>
 </UserControl>

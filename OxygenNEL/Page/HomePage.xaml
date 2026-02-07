@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <Page
     x:Class="OxygenNEL.Page.HomePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -10,19 +11,19 @@
 
     <Grid Padding="20" VerticalAlignment="Top">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <component:AnnouncementContent Grid.Column="0" Margin="0,0,8,0"/>
-            <component:AdContent Grid.Column="1" Margin="8,0,0,0"/>
+            <component:AnnouncementContent Grid.Column="0" Margin="0,0,8,0" />
+            <component:AdContent Grid.Column="1" Margin="8,0,0,0" />
         </Grid>
 
-        <component:RecentPlayContent Grid.Row="1" Margin="0,16,0,0"/>
+        <component:RecentPlayContent Grid.Row="1" Margin="0,16,0,0" />
     </Grid>
 </Page>

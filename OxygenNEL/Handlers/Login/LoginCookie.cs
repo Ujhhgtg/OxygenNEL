@@ -17,12 +17,14 @@ public class LoginCookie
             EntityX19CookieRequest req;
             try
             {
-                req = JsonSerializer.Deserialize<EntityX19CookieRequest>(cookie) ?? new EntityX19CookieRequest { Json = cookie};
+                req = JsonSerializer.Deserialize<EntityX19CookieRequest>(cookie) ??
+                      new EntityX19CookieRequest { Json = cookie };
             }
             catch
             {
                 req = new EntityX19CookieRequest { Json = cookie };
             }
+
             var (authOtp, channel) = AppState.X19.LoginWithCookie(req);
             UserManager.Instance.AddUserToMaintain(authOtp);
             UserManager.Instance.AddUser(new EntityUser
@@ -46,7 +48,7 @@ public class LoginCookie
         }
         catch (Exception ex)
         {
-            return new { type = "login_error", message = ex.Message};
+            return new { type = "login_error", message = ex.Message };
         }
     }
 }

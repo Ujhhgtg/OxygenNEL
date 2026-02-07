@@ -66,7 +66,7 @@ public class SSynchronizePlayerPosition : IPacket
     private bool IsBlackRoom()
     {
         if ((Flags & 0x07) != 0) return false;
-        
+
         return X >= 12 && X <= 13 &&
                Y >= -60 && Y <= -58 &&
                Z >= 10 && Z <= 11;
@@ -103,14 +103,16 @@ public class SSynchronizePlayerPosition : IPacket
             var serverName = interceptor?.ServerName ?? string.Empty;
 
             var settings = SettingManager.Instance.Get();
-            var socks5 = settings.Socks5Enabled ? new EntitySocks5
-            {
-                Enabled = true,
-                Address = settings.Socks5Address,
-                Port = settings.Socks5Port,
-                Username = settings.Socks5Username,
-                Password = settings.Socks5Password
-            } : new EntitySocks5();
+            var socks5 = settings.Socks5Enabled
+                ? new EntitySocks5
+                {
+                    Enabled = true,
+                    Address = settings.Socks5Address,
+                    Port = settings.Socks5Port,
+                    Username = settings.Socks5Username,
+                    Password = settings.Socks5Password
+                }
+                : new EntitySocks5();
 
             _ = Task.Run(async () =>
             {

@@ -41,7 +41,10 @@ public static class DialogService
             var dlg = Create(root, "错误", new TextBlock { Text = message });
             await dlg.ShowAsync();
         }
-        catch (Exception ex) { Log.Debug(ex, "显示错误对话框失败"); }
+        catch (Exception ex)
+        {
+            Log.Debug(ex, "显示错误对话框失败");
+        }
     }
 
     public static async Task<bool> ShowConfirmAsync(XamlRoot root, string title, string message)

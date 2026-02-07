@@ -19,50 +19,50 @@ namespace OxygenNEL.Utils.Update;
 
 public class UpdateManager
 {
-    private static async Task<T> RetryHttpRequest<T>(Func<Task<T>> httpRequestFunc, string requestType, int maxRetries = 3)
+    private static async Task<T> RetryHttpRequest<T>(Func<Task<T>> httpRequestFunc, string requestType,
+        int maxRetries = 3)
     {
         var retryDelayMs = 2000;
-        
+
         for (var attempt = 0; attempt <= maxRetries; attempt++)
-        {
             try
             {
                 return await httpRequestFunc();
             }
             catch (Exception ex) when (attempt < maxRetries)
             {
-                Log.Warning(ex, "{RequestType} 请求失败，第 {Attempt} 次尝试，将在 {RetryDelayMs}ms 后重试", requestType, attempt + 1, retryDelayMs);
+                Log.Warning(ex, "{RequestType} 请求失败，第 {Attempt} 次尝试，将在 {RetryDelayMs}ms 后重试", requestType, attempt + 1,
+                    retryDelayMs);
                 await Task.Delay(retryDelayMs);
-                
+
                 retryDelayMs *= 2;
             }
-        }
-        
+
         throw new InvalidOperationException($"{requestType} 请求在多次重试后仍然失败");
     }
-    
+
     private static async Task ExecuteWithRetry(Func<Task> operation, string operationType, int maxRetries = 3)
     {
         var retryDelayMs = 2000;
-        
+
         for (var attempt = 0; attempt <= maxRetries; attempt++)
-        {
             try
             {
                 await operation();
-                return; 
+                return;
             }
             catch (Exception ex) when (attempt < maxRetries)
             {
-                Log.Warning(ex, "{OperationType} 操作失败，第 {Attempt} 次尝试，将在 {RetryDelayMs}ms 后重试", operationType, attempt + 1, retryDelayMs);
+                Log.Warning(ex, "{OperationType} 操作失败，第 {Attempt} 次尝试，将在 {RetryDelayMs}ms 后重试", operationType,
+                    attempt + 1, retryDelayMs);
                 await Task.Delay(retryDelayMs);
-                
+
                 retryDelayMs *= 2;
             }
-        }
-        
+
         throw new InvalidOperationException($"{operationType} 操作在多次重试后仍然失败");
     }
+
     private static readonly HttpClient HttpClient = new(new HttpClientHandler
     {
         MaxConnectionsPerServer = 16
@@ -70,16 +70,15 @@ public class UpdateManager
     {
         Timeout = TimeSpan.FromMinutes(1)
     };
-    
+
     public static async Task CheckForUpdatesAsync(Window window)
     {
         await Task.Delay(1000);
-        
+
         try
         {
             var result = await OxygenApi.Instance.GetLatestVersionAsync();
             if (result.Success && !string.IsNullOrWhiteSpace(result.Version))
-            {
                 if (!string.Equals(result.Version, AppInfo.AppVersion, StringComparison.OrdinalIgnoreCase))
                 {
                     var dialog = new ThemedContentDialog
@@ -96,10 +95,8 @@ public class UpdateManager
                     // var dialogResult = await dialog.ShowAsync();
                     // if (dialogResult != ContentDialogResult.Primary) return;
                     await dialog.ShowAsync();
-                    
                     // await DownloadAndApplyUpdateAsync(result.DownloadUrl!, window);
                 }
-            }
         }
         catch (Exception ex)
         {
@@ -145,39 +142,38 @@ public class UpdateManager
                 response.EnsureSuccessStatusCode();
                 return response;
             }, "HEAD");
-            
+
             var totalBytes = headResponse.Content.Headers.ContentLength ?? -1;
-            
-            if (totalBytes <= 0)
-            {
-                throw new InvalidOperationException("无法获取文件大小");
-            }
+
+            if (totalBytes <= 0) throw new InvalidOperationException("无法获取文件大小");
 
             var acceptRanges = headResponse.Headers.GetValues("Accept-Ranges").FirstOrDefault();
-                        
+
             var tempFilesToClean = new List<string>();
-                        
+
             try
             {
                 if (acceptRanges != "bytes")
                 {
                     await ExecuteWithRetry(async () =>
                     {
-                        using var response = await HttpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
+                        using var response =
+                            await HttpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
                         response.EnsureSuccessStatusCode();
-                                    
+
                         var buffer = new byte[64 * 1024];
                         long downloadedBytes = 0;
-                                                
+
                         await using var contentStream = await response.Content.ReadAsStreamAsync();
-                        await using var fileStream = new FileStream(newExePath, FileMode.Create, FileAccess.Write, FileShare.None);
-                                                
+                        await using var fileStream = new FileStream(newExePath, FileMode.Create, FileAccess.Write,
+                            FileShare.None);
+
                         int bytesRead;
                         while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
                         {
                             await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
                             downloadedBytes += bytesRead;
-                                                    
+
                             var percent = (double)downloadedBytes / totalBytes * 100;
                             DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
                             {
@@ -189,21 +185,18 @@ public class UpdateManager
                 }
                 else
                 {
-                    const int maxThreadCount = 8; 
+                    const int maxThreadCount = 8;
                     var threadCount = Math.Min(maxThreadCount, Environment.ProcessorCount);
                     var minChunkSize = 1024 * 1024;
                     var calculatedChunkSize = totalBytes / threadCount;
-                                    
-                    if (calculatedChunkSize < minChunkSize)
-                    {
-                        threadCount = Math.Max(1, (int)(totalBytes / minChunkSize));
-                    }
-                                    
+
+                    if (calculatedChunkSize < minChunkSize) threadCount = Math.Max(1, (int)(totalBytes / minChunkSize));
+
                     var chunkSize = totalBytes / threadCount;
                     var tasks = new Task[threadCount];
                     var tempFiles = new string[threadCount];
                     var downloadedBytesArray = new long[threadCount];
-            
+
                     for (var i = 0; i < threadCount; i++)
                     {
                         var start = i * chunkSize;
@@ -211,24 +204,26 @@ public class UpdateManager
                         var range = $"bytes={start}-{end}";
                         tempFiles[i] = Path.GetTempFileName();
                         tempFilesToClean.Add(tempFiles[i]);
-                                    
-                        tasks[i] = DownloadChunkAsync(downloadUrl, range, tempFiles[i], start, end, totalBytes, progressBar, statusText, downloadedBytesArray, i);
+
+                        tasks[i] = DownloadChunkAsync(downloadUrl, range, tempFiles[i], start, end, totalBytes,
+                            progressBar, statusText, downloadedBytesArray, i);
                     }
-            
+
                     await Task.WhenAll(tasks);
-            
-                    await ExecuteWithRetry(async () =>
-                    {
-                        await MergeChunksAsync(tempFiles, newExePath);
-                    }, "合并分块");
+
+                    await ExecuteWithRetry(async () => { await MergeChunksAsync(tempFiles, newExePath); }, "合并分块");
                 }
             }
             finally
             {
                 foreach (var tempFile in tempFilesToClean)
-                {
-                    try { File.Delete(tempFile); } catch { }
-                }
+                    try
+                    {
+                        File.Delete(tempFile);
+                    }
+                    catch
+                    {
+                    }
             }
 
             DispatcherQueue.GetForCurrentThread().TryEnqueue(() => statusText.Text = "下载完成，正在准备更新...");
@@ -270,41 +265,41 @@ del ""%~f0""
         }
     }
 
-    private static async Task DownloadChunkAsync(string downloadUrl, string range, string tempFile, long start, long end, long totalBytes, ProgressBar progressBar, TextBlock statusText, long[] downloadedBytesArray, int threadIndex)
+    private static async Task DownloadChunkAsync(string downloadUrl, string range, string tempFile, long start,
+        long end, long totalBytes, ProgressBar progressBar, TextBlock statusText, long[] downloadedBytesArray,
+        int threadIndex)
     {
         var maxRetries = 3;
         var retryDelayMs = 2000;
-        
+
         for (var attempt = 0; attempt <= maxRetries; attempt++)
-        {
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Get, downloadUrl);
                 request.Headers.Range = new RangeHeaderValue(start, end);
-                
+
                 using var response = await HttpClient.SendAsync(request);
                 response.EnsureSuccessStatusCode();
-                
+
                 var buffer = new byte[64 * 1024];
                 long chunkDownloadedBytes = 0;
-                
+
                 await using var contentStream = await response.Content.ReadAsStreamAsync();
-                await using var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None);
-                
+                await using var fileStream =
+                    new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None);
+
                 int bytesRead;
                 while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
                 {
                     await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
                     chunkDownloadedBytes += bytesRead;
-                    
+
                     Volatile.Write(ref downloadedBytesArray[threadIndex], chunkDownloadedBytes);
-                    
+
                     var totalDownloaded = 0L;
                     for (var i = 0; i < downloadedBytesArray.Length; i++)
-                    {
                         totalDownloaded += Volatile.Read(ref downloadedBytesArray[i]);
-                    }
-                    
+
                     var percent = (double)totalDownloaded / totalBytes * 100;
                     DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
                     {
@@ -312,23 +307,27 @@ del ""%~f0""
                         statusText.Text = $"正在下载... {percent:F1}%";
                     });
                 }
-                
+
                 break;
             }
             catch (Exception ex) when (attempt < maxRetries)
             {
-                Log.Warning(ex, "分块下载失败，第 {Attempt} 次尝试，将在 {RetryDelayMs}ms 后重试。范围: {Range}", attempt + 1, retryDelayMs, range);
-                
+                Log.Warning(ex, "分块下载失败，第 {Attempt} 次尝试，将在 {RetryDelayMs}ms 后重试。范围: {Range}", attempt + 1, retryDelayMs,
+                    range);
+
                 if (File.Exists(tempFile))
-                {
-                    try { File.Delete(tempFile); } catch { }
-                }
-                
+                    try
+                    {
+                        File.Delete(tempFile);
+                    }
+                    catch
+                    {
+                    }
+
                 await Task.Delay(retryDelayMs);
-                
+
                 retryDelayMs *= 2;
             }
-        }
     }
 
     private static async Task MergeChunksAsync(string[] tempFiles, string outputPath)
@@ -336,11 +335,8 @@ del ""%~f0""
         await using var outputStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None);
         foreach (var tempFile in tempFiles)
         {
-            if (!File.Exists(tempFile))
-            {
-                throw new FileNotFoundException($"分块文件不存在: {tempFile}");
-            }
-            
+            if (!File.Exists(tempFile)) throw new FileNotFoundException($"分块文件不存在: {tempFile}");
+
             await using var inputStream = new FileStream(tempFile, FileMode.Open, FileAccess.Read, FileShare.Read);
             await inputStream.CopyToAsync(outputStream);
         }

@@ -38,14 +38,15 @@ public class SettingManager
     {
         const string oldPath = "setting.json";
         if (File.Exists(oldPath) && !File.Exists(SettingsFilePath))
-        {
             try
             {
                 File.Move(oldPath, SettingsFilePath);
                 Log.Information("已迁移旧设置文件到 data 目录");
             }
-            catch (Exception ex) { Log.Warning(ex, "迁移旧设置文件失败"); }
-        }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "迁移旧设置文件失败");
+            }
     }
 
     public static string CopyBackgroundToData(string sourcePath)
@@ -53,14 +54,14 @@ public class SettingManager
         EnsureDataFolder();
         var fileName = Path.GetFileName(sourcePath);
         var destPath = Path.Combine(DataFolder, fileName);
-        
+
         if (File.Exists(destPath))
         {
             var name = Path.GetFileNameWithoutExtension(sourcePath);
             var ext = Path.GetExtension(sourcePath);
             destPath = Path.Combine(DataFolder, $"{name}_{DateTime.Now:yyyyMMddHHmmss}{ext}");
         }
-        
+
         File.Copy(sourcePath, destPath, false);
         Log.Information("已复制背景文件到: {Path}", destPath);
         return destPath;
@@ -71,20 +72,23 @@ public class SettingManager
         EnsureDataFolder();
         var fileName = Path.GetFileName(sourcePath);
         var destPath = Path.Combine(DataFolder, fileName);
-        
+
         if (File.Exists(destPath))
         {
             var name = Path.GetFileNameWithoutExtension(sourcePath);
             var ext = Path.GetExtension(sourcePath);
             destPath = Path.Combine(DataFolder, $"{name}_{DateTime.Now:yyyyMMddHHmmss}{ext}");
         }
-        
+
         File.Copy(sourcePath, destPath, false);
         Log.Information("已复制音乐文件到: {Path}", destPath);
         return destPath;
     }
 
-    public SettingData Get() => _settings;
+    public SettingData Get()
+    {
+        return _settings;
+    }
 
     public ElementTheme GetAppTheme()
     {
@@ -92,8 +96,15 @@ public class SettingManager
         return mode switch { "light" => ElementTheme.Light, "dark" => ElementTheme.Dark, _ => ElementTheme.Default };
     }
 
-    public void ApplyTheme(ContentDialog dialog) => dialog.RequestedTheme = GetAppTheme();
-    public void ApplyTheme(FrameworkElement element) => element.RequestedTheme = GetAppTheme();
+    public void ApplyTheme(ContentDialog dialog)
+    {
+        dialog.RequestedTheme = GetAppTheme();
+    }
+
+    public void ApplyTheme(FrameworkElement element)
+    {
+        element.RequestedTheme = GetAppTheme();
+    }
 
     public string? GetCopyIpText(string? ip, int port)
     {
@@ -105,20 +116,38 @@ public class SettingManager
     {
         try
         {
-            if (!File.Exists(SettingsFilePath)) { _settings = new(); return; }
-            var obj = JsonSerializer.Deserialize<SettingData>(File.ReadAllText(SettingsFilePath)) ?? new();
+            if (!File.Exists(SettingsFilePath))
+            {
+                _settings = new SettingData();
+                return;
+            }
+
+            var obj = JsonSerializer.Deserialize<SettingData>(File.ReadAllText(SettingsFilePath)) ?? new SettingData();
             _settings = obj;
             _settings.PropertyChanged += (_, _) => SaveToDisk();
             Log.Information("设置已加载");
         }
-        catch (Exception ex) { Log.Error(ex, "加载设置失败"); _settings = new(); }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "加载设置失败");
+            _settings = new SettingData();
+        }
     }
 
     public void SaveToDisk()
     {
         if (!_saveLock.Wait(0)) return;
-        try { File.WriteAllText(SettingsFilePath, JsonSerializer.Serialize(_settings, JsonOptions)); }
-        catch (Exception ex) { Log.Error(ex, "保存设置失败"); }
-        finally { _saveLock.Release(); }
+        try
+        {
+            File.WriteAllText(SettingsFilePath, JsonSerializer.Serialize(_settings, JsonOptions));
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "保存设置失败");
+        }
+        finally
+        {
+            _saveLock.Release();
+        }
     }
 }

@@ -14,10 +14,10 @@ public sealed partial class AddAccountContent : UserControl
     public event Action? AutoLoginSucceeded;
     public event Action? ConfirmRequested;
     public event Action? CancelRequested;
-    public event Action<string,string,string,string>? CaptchaRequired;
+    public event Action<string, string, string, string>? CaptchaRequired;
 #pragma warning restore CS0067
     public Func<string, Task<string>>? CaptchaInputRequested;
-#pragma warning disable CS0649 
+#pragma warning disable CS0649
     private string? _pc4399SessionId;
     private string? _pc4399CaptchaUrl;
 #pragma warning restore CS0649
@@ -34,13 +34,13 @@ public sealed partial class AddAccountContent : UserControl
     public string? SelectedType => (AccountTypePivot.SelectedItem as PivotItem)?.Header?.ToString();
 
     public string CookieText => CookieInput.Text;
-        
+
     public string Pc4399User => Pc4399Username.Text;
     public string Pc4399Pass => Pc4399Password.Password;
     public string? Pc4399SessionId => _pc4399SessionId;
     public string? Pc4399CaptchaUrl => _pc4399CaptchaUrl;
     public string Pc4399Captcha => Pc4399CaptchaInput?.Text ?? string.Empty;
-        
+
     public string NeteaseMail => NeteaseEmail.Text;
     public string NeteasePass => NeteasePassword.Password;
 
@@ -58,6 +58,7 @@ public sealed partial class AddAccountContent : UserControl
                 NotificationHost.ShowGlobal(msg, ToastLevel.Error);
                 return false;
             }
+
             if (string.Equals(tVal, "login_4399_error", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(tVal, "login_x19_error", StringComparison.OrdinalIgnoreCase))
             {
@@ -67,15 +68,15 @@ public sealed partial class AddAccountContent : UserControl
                 return false;
             }
         }
+
         if (result is IEnumerable en)
-        {
             foreach (var item in en)
             {
                 var p = item?.GetType().GetProperty("type");
                 var v = p != null ? p.GetValue(item) as string : null;
                 if (string.Equals(v, "Success_login", StringComparison.OrdinalIgnoreCase)) return true;
             }
-        }
+
         if (GetAccount.HasAuthorizedUser()) return true;
         return false;
     }

@@ -8,8 +8,8 @@
 
     <Grid>
         <StackPanel Spacing="10" Margin="0,10,0,0">
-            <TextBox x:Name="RoleNameInput" Header="角色名称" PlaceholderText="输入角色名称"/>
-            <Button x:Name="RandomBtn" Content="随机名字" Click="RandomBtn_Click"/>
+            <TextBox x:Name="RoleNameInput" Header="角色名称" PlaceholderText="输入角色名称" />
+            <Button x:Name="RandomBtn" Content="随机名字" Click="RandomBtn_Click" />
         </StackPanel>
     </Grid>
 </UserControl>

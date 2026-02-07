@@ -38,7 +38,10 @@ public class RecentPlayManager
             Directory.CreateDirectory(ImageFolder);
     }
 
-    public List<RecentPlayItem> GetRecentItems() => _recentItems.ToList();
+    public List<RecentPlayItem> GetRecentItems()
+    {
+        return _recentItems.ToList();
+    }
 
     public void AddOrUpdate(string serverId, string serverName, string serverType, string? imageUrl = null)
     {
@@ -95,13 +98,13 @@ public class RecentPlayManager
         {
             if (!File.Exists(FilePath)) return;
             var json = File.ReadAllText(FilePath);
-            _recentItems = JsonSerializer.Deserialize<List<RecentPlayItem>>(json) ?? new();
+            _recentItems = JsonSerializer.Deserialize<List<RecentPlayItem>>(json) ?? new List<RecentPlayItem>();
             Log.Information("已加载 {Count} 条最近游玩记录", _recentItems.Count);
         }
         catch (Exception ex)
         {
             Log.Error(ex, "加载最近游玩记录失败");
-            _recentItems = new();
+            _recentItems = new List<RecentPlayItem>();
         }
     }
 

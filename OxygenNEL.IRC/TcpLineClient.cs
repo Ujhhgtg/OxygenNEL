@@ -20,9 +20,15 @@ public class TcpLineClient(string host, int port) : IDisposable
         _writer = new StreamWriter(stream, new UTF8Encoding(false)) { AutoFlush = true };
     }
 
-    public void Send(string line) => _writer?.WriteLine(line);
+    public void Send(string line)
+    {
+        _writer?.WriteLine(line);
+    }
 
-    public string? Read() => _reader?.ReadLine();
+    public string? Read()
+    {
+        return _reader?.ReadLine();
+    }
 
     public void Close()
     {

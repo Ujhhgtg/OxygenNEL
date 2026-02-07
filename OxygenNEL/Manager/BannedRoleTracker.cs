@@ -14,27 +14,31 @@ namespace OxygenNEL.Manager;
 
 public static class BannedRoleTracker
 {
-    private static readonly ConcurrentDictionary<string, ConcurrentDictionary<string, HashSet<string>>> _bannedRoles = new();
+    private static readonly ConcurrentDictionary<string, ConcurrentDictionary<string, HashSet<string>>> _bannedRoles =
+        new();
 
     public static void MarkBanned(string userId, string serverId, string roleName)
     {
-        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(serverId) || string.IsNullOrWhiteSpace(roleName))
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(serverId) ||
+            string.IsNullOrWhiteSpace(roleName))
             return;
 
         var userDict = _bannedRoles.GetOrAdd(userId, _ => new ConcurrentDictionary<string, HashSet<string>>());
         var serverSet = userDict.GetOrAdd(serverId, _ => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
-        
+
         lock (serverSet)
         {
             serverSet.Add(roleName);
         }
-        
-        Log.Information("[BannedRoleTracker] 标记封禁: UserId={UserId}, ServerId={ServerId}, Role={Role}", userId, serverId, roleName);
+
+        Log.Information("[BannedRoleTracker] 标记封禁: UserId={UserId}, ServerId={ServerId}, Role={Role}", userId, serverId,
+            roleName);
     }
 
     public static bool IsBanned(string userId, string serverId, string roleName)
     {
-        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(serverId) || string.IsNullOrWhiteSpace(roleName))
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(serverId) ||
+            string.IsNullOrWhiteSpace(roleName))
             return false;
 
         if (!_bannedRoles.TryGetValue(userId, out var userDict))
@@ -55,7 +59,7 @@ public static class BannedRoleTracker
         {
             var roles = AppState.X19.QueryNetGameCharacters(userId, accessToken, serverId);
             var allRoles = roles.Data?.Select(r => r.Name).ToList() ?? new List<string>();
-            
+
             if (!_bannedRoles.TryGetValue(userId, out var userDict))
                 return allRoles;
 
@@ -90,9 +94,9 @@ public static class BannedRoleTracker
     }
 
     public static async Task<bool> TrySwitchToAnotherRole(
-        string userId, 
-        string accessToken, 
-        string serverId, 
+        string userId,
+        string accessToken,
+        string serverId,
         string serverName,
         string currentRole,
         EntitySocks5? socks5)
@@ -102,7 +106,7 @@ public static class BannedRoleTracker
             MarkBanned(userId, serverId, currentRole);
 
             var availableRoles = GetAvailableRoles(userId, accessToken, serverId);
-            
+
             if (availableRoles.Count == 0)
             {
                 Log.Warning("[BannedRoleTracker] 没有可用角色了: UserId={UserId}, ServerId={ServerId}", userId, serverId);

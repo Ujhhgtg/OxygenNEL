@@ -29,7 +29,11 @@ public class GetAccount
     public static object[] GetAccountItems()
     {
         var users = UserManager.Instance.GetUsersNoDetails();
-        return users.Select(u => new { entityId = u.UserId, channel = u.Channel, status = u.Authorized ? "online" : "offline", alias = u.Alias}).ToArray();
+        return users.Select(u => new
+            {
+                entityId = u.UserId, channel = u.Channel, status = u.Authorized ? "online" : "offline", alias = u.Alias
+            })
+            .ToArray();
     }
 
     public static bool HasAuthorizedUser()

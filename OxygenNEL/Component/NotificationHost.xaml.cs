@@ -28,15 +28,11 @@ public sealed partial class NotificationHost
     {
         var inst = Instance;
         if (inst == null || string.IsNullOrWhiteSpace(text)) return;
-            
+
         if (inst.DispatcherQueue.HasThreadAccess)
-        {
             ShowGlobalInternal(inst, text, level);
-        }
         else
-        {
             inst.DispatcherQueue.TryEnqueue(() => ShowGlobalInternal(inst, text, level));
-        }
     }
 
     private static void ShowGlobalInternal(NotificationHost inst, string text, ToastLevel level)
@@ -80,10 +76,7 @@ public sealed partial class NotificationHost
             timer.Tick += (s, ev) =>
             {
                 timer.Stop();
-                AnimateY(fe, 0, -40, 200, () =>
-                {
-                    Items.Remove(item);
-                });
+                AnimateY(fe, 0, -40, 200, () => { Items.Remove(item); });
             };
             timer.Start();
         }
@@ -102,10 +95,7 @@ public sealed partial class NotificationHost
         Storyboard.SetTarget(da, element);
         Storyboard.SetTargetProperty(da, "(UIElement.RenderTransform).(TranslateTransform.Y)");
         sb.Children.Add(da);
-        if (completed != null)
-        {
-            sb.Completed += (s, e) => completed();
-        }
+        if (completed != null) sb.Completed += (s, e) => completed();
         sb.Begin();
     }
 }

@@ -5,21 +5,40 @@ public static class IrcProtocol
     public const string Host = "api.fandmc.cn";
     public const int Port = 9527;
 
-    public static string Register(string token, string roleId) 
-        => $"REGISTER {token} {roleId}";
+    public static string Register(string token, string roleId)
+    {
+        return $"REGISTER {token} {roleId}";
+    }
 
-    public static string Get(string token, string roleId) 
-        => $"GET {token} {roleId}";
+    public static string Get(string token, string roleId)
+    {
+        return $"GET {token} {roleId}";
+    }
 
-    public static string Delete(string token, string roleId) 
-        => $"DELETE {token} {roleId}";
+    public static string Delete(string token, string roleId)
+    {
+        return $"DELETE {token} {roleId}";
+    }
 
-    public static string Chat(string token, string roleId, string msg) 
-        => $"CHAT {token} {roleId} {msg}";
+    public static string Chat(string token, string roleId, string msg)
+    {
+        return $"CHAT {token} {roleId} {msg}";
+    }
 
-    public static string List() => "LIST";
-    public static string Ping() => "PING";
-    public static string Quit() => "QUIT";
+    public static string List()
+    {
+        return "LIST";
+    }
+
+    public static string Ping()
+    {
+        return "PING";
+    }
+
+    public static string Quit()
+    {
+        return "QUIT";
+    }
 
     public static IrcMessage? Parse(string line)
     {

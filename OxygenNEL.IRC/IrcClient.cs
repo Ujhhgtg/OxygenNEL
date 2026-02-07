@@ -38,7 +38,10 @@ public class IrcClient(GameConnection conn, Func<string>? tokenProvider) : IDisp
             if (!string.IsNullOrEmpty(_token) && !string.IsNullOrEmpty(_roleId))
                 _tcp?.Send(IrcProtocol.Delete(_token, _roleId));
         }
-        catch { }
+        catch
+        {
+        }
+
         _tcp?.Close();
     }
 
@@ -49,6 +52,7 @@ public class IrcClient(GameConnection conn, Func<string>? tokenProvider) : IDisp
             Log.Warning("[IRC] SendChat: TCP 未连接");
             return;
         }
+
         var cmd = IrcProtocol.Chat(_token, _roleId, msg);
         Log.Information("[IRC] 发送聊天: {Cmd}", cmd);
         _tcp.Send(cmd);
@@ -71,7 +75,7 @@ public class IrcClient(GameConnection conn, Func<string>? tokenProvider) : IDisp
                 _tcp.Connect();
 
                 _tcp.Send(IrcProtocol.Register(_token, _roleId));
-                
+
                 _pingTimer = new Timer(_ =>
                 {
                     _tcp?.Send(IrcProtocol.Ping());
@@ -102,7 +106,7 @@ public class IrcClient(GameConnection conn, Func<string>? tokenProvider) : IDisp
         var msg = IrcProtocol.Parse(line);
         if (msg == null) return;
 
-        if (msg.IsOk && !_welcomed || msg.IsError && msg.Data.Contains("已注册"))
+        if ((msg.IsOk && !_welcomed) || (msg.IsError && msg.Data.Contains("已注册")))
         {
             _welcomed = true;
             _tcp?.Send(IrcProtocol.List());
@@ -116,6 +120,7 @@ public class IrcClient(GameConnection conn, Func<string>? tokenProvider) : IDisp
                     if (conn.State == EnumConnectionState.Play) break;
                     await Task.Delay(500);
                 }
+
                 if (_running && conn.State == EnumConnectionState.Play)
                 {
                     if (!_listShown)
@@ -123,6 +128,7 @@ public class IrcClient(GameConnection conn, Func<string>? tokenProvider) : IDisp
                         _listShown = true;
                         Msg("§a[§bIRC§a] IRC 连接成功 Ciallo～(∠・ω< )⌒");
                     }
+
                     if (msg.PlayerCount > 0)
                         Msg($"§e[§bIRC§e] 当前在线 {msg.PlayerCount} 人，使用 §a/irc 想说的话§e 聊天");
                 }

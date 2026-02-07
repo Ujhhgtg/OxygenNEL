@@ -8,9 +8,10 @@
 
     <Grid CornerRadius="8" Padding="12">
         <StackPanel Spacing="8">
-            <TextBlock Text="公告" Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <TextBlock Text="公告" Style="{StaticResource SubtitleTextBlockStyle}" />
             <Border CornerRadius="4" Padding="12">
-                <TextBlock x:Name="ContentText" Text="暂无公告" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
+                <TextBlock x:Name="ContentText" Text="暂无公告" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           TextWrapping="Wrap" />
             </Border>
         </StackPanel>
     </Grid>

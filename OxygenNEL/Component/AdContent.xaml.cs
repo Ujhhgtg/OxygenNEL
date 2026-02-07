@@ -23,6 +23,7 @@ public sealed partial class AdContent : UserControl
     private List<AdItem> _ads = new();
     private int _index;
     private DispatcherTimer? _timer;
+
     public AdContent()
     {
         InitializeComponent();
@@ -53,26 +54,31 @@ public sealed partial class AdContent : UserControl
     private void InitializeAds()
     {
         _ads.Clear();
-        _ads.Add(new AdItem { Text = "最好的客户端: Southside | 官方群1011337297", Url = "https://client.freecookie.studio/", ButtonText = "官方网站" });
-        _ads.Add(new AdItem { Text = "Atri Injection 新一代安全热注入 Hyp/布吉岛全模式适用", Url = "https://shop.atri.cards/", ButtonText = "官方网站" });
+        _ads.Add(new AdItem
+        {
+            Text = "最好的客户端: Southside | 官方群1011337297", Url = "https://client.freecookie.studio/", ButtonText = "官方网站"
+        });
+        _ads.Add(new AdItem
+            { Text = "Atri Injection 新一代安全热注入 Hyp/布吉岛全模式适用", Url = "https://shop.atri.cards/", ButtonText = "官方网站" });
         AdStack.Children.Clear();
         foreach (var ad in _ads)
         {
             var sp = new StackPanel { Spacing = 8 };
             var tb = new TextBlock { Text = ad.Text, TextWrapping = TextWrapping.Wrap };
-            var btn = new Button { Content = ad.ButtonText, HorizontalAlignment = HorizontalAlignment.Left, Tag = ad.Url };
+            var btn = new Button
+                { Content = ad.ButtonText, HorizontalAlignment = HorizontalAlignment.Left, Tag = ad.Url };
             btn.Click += OpenOfficialSiteButton_Click;
             sp.Children.Add(tb);
             sp.Children.Add(btn);
             AdStack.Children.Add(sp);
         }
+
         var w = AdScroll.ActualWidth;
         var reserved = 96;
         var contentWidth = w > reserved ? w - reserved : w;
         foreach (var c in AdStack.Children)
-        {
-            if (c is FrameworkElement fe) fe.Width = contentWidth;
-        }
+            if (c is FrameworkElement fe)
+                fe.Width = contentWidth;
         UpdateDots();
     }
 
@@ -82,9 +88,8 @@ public sealed partial class AdContent : UserControl
         var reserved = 96;
         var contentWidth = w > reserved ? w - reserved : w;
         foreach (var c in AdStack.Children)
-        {
-            if (c is FrameworkElement fe) fe.Width = contentWidth;
-        }
+            if (c is FrameworkElement fe)
+                fe.Width = contentWidth;
         UpdateView();
         UpdateDots();
     }
@@ -111,6 +116,7 @@ public sealed partial class AdContent : UserControl
             el.Tapped += Dot_Tapped;
             DotPanel.Children.Add(el);
         }
+
         PrevButton.Visibility = _ads.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
         NextButton.Visibility = _ads.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
         DotPanel.Visibility = _ads.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
@@ -159,13 +165,17 @@ public sealed partial class AdContent : UserControl
                 _timer.Tick += (s, e) => { Next(); };
                 _timer.Start();
             }
+
             return;
         }
+
         try
         {
             _timer.Stop();
             _timer.Start();
         }
-        catch { }
+        catch
+        {
+        }
     }
 }

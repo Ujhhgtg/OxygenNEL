@@ -44,16 +44,14 @@ public class GetFreeSkin
             catch (Exception ex)
             {
                 Log.Error(ex, "获取皮肤列表失败: {Message}", ex.Message);
-                return new GetFreeSkinResult { Success = false, Message = ex.Message};
+                return new GetFreeSkinResult { Success = false, Message = ex.Message };
             }
 
             var baseData = list.Data;
             var baseCount = baseData.Length;
 
             if (baseCount == 0)
-            {
-                return new GetFreeSkinResult { Success = true, Items = new(), HasMore = false };
-            }
+                return new GetFreeSkinResult { Success = true, Items = new List<SkinItemData>(), HasMore = false };
 
             Entities<EntitySkin>? detailed = null;
             try

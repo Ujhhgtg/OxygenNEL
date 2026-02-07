@@ -12,7 +12,7 @@ namespace OxygenNEL.Manager;
 public sealed class AuthManager
 {
     public static AuthManager Instance { get; } = new();
-    
+
     public const bool SkipLogin = true;
 
     public const string FallbackSalt = "EFD76BB364D9C8BD90767B6F51F574F3";
@@ -37,10 +37,7 @@ public sealed class AuthManager
     public async Task<string> GetCrcSaltAsyncIfNeeded(CancellationToken ct = default)
     {
         if (SkipLogin) return FallbackSalt;
-        if (string.IsNullOrEmpty(CachedSalt))
-        {
-            await GetCrcSaltAsync(ct);
-        }
+        if (string.IsNullOrEmpty(CachedSalt)) await GetCrcSaltAsync(ct);
         return CachedSalt;
     }
 
@@ -118,7 +115,8 @@ public sealed class AuthManager
         return new ApiResult(resp.Success, resp.Message ?? (resp.Success ? "成功" : "失败"));
     }
 
-    public async Task<ApiResult> RegisterNextAsync(string email, string username, string password, CancellationToken ct = default)
+    public async Task<ApiResult> RegisterNextAsync(string email, string username, string password,
+        CancellationToken ct = default)
     {
         var resp = await OxygenApi.Instance.RegisterAsync(email, username, password, ct);
         if (!resp.Success) return new ApiResult(false, resp.Message ?? "注册失败");
@@ -130,6 +128,7 @@ public sealed class AuthManager
             SaveToDisk();
             _ = FetchUserInfoAsync(ct);
         }
+
         return new ApiResult(true, resp.Message ?? "成功", resp.Token);
     }
 
@@ -163,6 +162,7 @@ public sealed class AuthManager
             Rank = resp.User.Rank;
             IsAdmin = resp.User.IsAdmin;
         }
+
         Log.Information("Token认证成功: UserId={UserId}, Username={Username}", UserId, Username);
         return new TokenAuthResult(true, "成功");
     }
@@ -185,22 +185,20 @@ public sealed class AuthManager
         Rank = resp.Rank;
         IsBanned = resp.Banned == 1;
         IsAdmin = resp.IsAdmin == 1;
-        Log.Information("用户信息已更新: UserId={UserId}, Username={Username}, HasAvatar={HasAvatar}", UserId, Username, !string.IsNullOrEmpty(Avatar));
+        Log.Information("用户信息已更新: UserId={UserId}, Username={Username}, HasAvatar={HasAvatar}", UserId, Username,
+            !string.IsNullOrEmpty(Avatar));
         return new UserInfoResult(true, "成功");
     }
 
     public async Task<CrcSaltResult> GetCrcSaltAsync(CancellationToken ct = default)
     {
         if (!IsLoggedIn) return new CrcSaltResult(false, "未登录", null, null, null);
-        
+
         if (!string.IsNullOrEmpty(CachedSalt))
             return new CrcSaltResult(true, "成功", CachedSalt, CachedGameVersion, UserId);
 
         var resp = await OxygenApi.Instance.GetCrcSaltAsync(Token, ct);
-        if (!resp.Success)
-        {
-            return new CrcSaltResult(false, resp.Message ?? "获取失败", null, null, null);
-        }
+        if (!resp.Success) return new CrcSaltResult(false, resp.Message ?? "获取失败", null, null, null);
 
         CachedSalt = resp.Salt ?? string.Empty;
         CachedGameVersion = resp.GameVersion ?? string.Empty;
@@ -219,10 +217,7 @@ public sealed class AuthManager
         if (!IsLoggedIn) return new UserUrlResult(false, "未登录", null);
 
         var resp = await OxygenApi.Instance.GenerateUserUrlAsync(Token, ct);
-        if (!resp.Success)
-        {
-            return new UserUrlResult(false, resp.Message ?? "获取失败", null);
-        }
+        if (!resp.Success) return new UserUrlResult(false, resp.Message ?? "获取失败", null);
 
         return new UserUrlResult(true, "成功", resp.UserUrl);
     }
@@ -235,7 +230,11 @@ public sealed class AuthManager
 }
 
 public readonly record struct ApiResult(bool Success, string Message, string? Token = null);
+
 public readonly record struct UserInfoResult(bool Success, string Message);
+
 public readonly record struct TokenAuthResult(bool Success, string Message);
+
 public readonly record struct CrcSaltResult(bool Success, string Message, string? Salt, string? GameVersion, long? Id);
+
 public readonly record struct UserUrlResult(bool Success, string Message, string? UserUrl);

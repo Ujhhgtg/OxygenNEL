@@ -15,7 +15,9 @@ public static class UiLog
 
     private class Sink : ILogEventSink
     {
-        private readonly MessageTemplateTextFormatter _formatter = new("{Timestamp:HH:mm:ss} [{Level}] {Message:lj}{NewLine}{Exception}");
+        private readonly MessageTemplateTextFormatter _formatter =
+            new("{Timestamp:HH:mm:ss} [{Level}] {Message:lj}{NewLine}{Exception}");
+
         public void Emit(LogEvent logEvent)
         {
             using var sw = new StringWriter();
@@ -29,11 +31,25 @@ public static class UiLog
                     if (_buffer.Count > 2000) _buffer.RemoveAt(0);
                 }
             }
-            catch { }
-            try { Logged?.Invoke(s); } catch { }
+            catch
+            {
+            }
+
+            try
+            {
+                Logged?.Invoke(s);
+            }
+            catch
+            {
+            }
         }
     }
-    public static ILogEventSink CreateSink() => new Sink();
+
+    public static ILogEventSink CreateSink()
+    {
+        return new Sink();
+    }
+
     public static IReadOnlyList<string> GetSnapshot()
     {
         lock (_lock)

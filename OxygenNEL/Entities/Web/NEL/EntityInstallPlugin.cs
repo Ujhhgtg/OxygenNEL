@@ -5,35 +5,29 @@ namespace OxygenNEL.Entities.Web.NEL;
 
 public class EntityInstallPlugin
 {
-	[JsonPropertyName("id")]
-	public string Id { get; set; } = "";
+    [JsonPropertyName("id")] public string Id { get; set; } = "";
 
-	[JsonPropertyName("dependencies")]
-	public List<EntityInstallPlugin> Dependencies { get; set; } = [];
+    [JsonPropertyName("dependencies")] public List<EntityInstallPlugin> Dependencies { get; set; } = [];
 
-	[JsonPropertyName("downloadUrl")]
-	public string DownloadUrl { get; set; } = "";
+    [JsonPropertyName("downloadUrl")] public string DownloadUrl { get; set; } = "";
 
-	[JsonPropertyName("fileHash")]
-	public string FileHash { get; set; } = "";
+    [JsonPropertyName("fileHash")] public string FileHash { get; set; } = "";
 
-	[JsonPropertyName("fileSize")]
-	public int FileSize { get; set; }
+    [JsonPropertyName("fileSize")] public int FileSize { get; set; }
 
-	[JsonPropertyName("name")]
-	public string Name { get; set; } = "";
+    [JsonPropertyName("name")] public string Name { get; set; } = "";
 
-	[JsonPropertyName("version")]
-	public string Version { get; set; } = "";
+    [JsonPropertyName("version")] public string Version { get; set; } = "";
 
-	public List<EntityInstallPlugin> GetAllDownloadPlugins()
-	{
-		List<EntityInstallPlugin> list = [this];
-		foreach (var dependency in Dependencies)
-		{
-			var reference = dependency;
-			list.AddRange();
-		}
-		return list;
-	}
+    public List<EntityInstallPlugin> GetAllDownloadPlugins()
+    {
+        List<EntityInstallPlugin> list = [this];
+        foreach (var dependency in Dependencies)
+        {
+            var reference = dependency;
+            list.AddRange();
+        }
+
+        return list;
+    }
 }

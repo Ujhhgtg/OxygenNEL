@@ -18,10 +18,7 @@ public class TokenManager
     {
         try
         {
-            if (!_tokens.TryAdd(id, token))
-            {
-                _tokens[id] = token;
-            }
+            if (!_tokens.TryAdd(id, token)) _tokens[id] = token;
         }
         catch (Exception ex)
         {
@@ -36,6 +33,6 @@ public class TokenManager
 
     public string GetToken(string entityId)
     {
-        return !_tokens.TryGetValue(entityId, out string value) ? string.Empty : value;
+        return !_tokens.TryGetValue(entityId, out var value) ? string.Empty : value;
     }
 }

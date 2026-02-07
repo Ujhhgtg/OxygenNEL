@@ -15,6 +15,7 @@ public class PluginViewModel : INotifyPropertyChanged
     public string DownloadUrl { get; set; } = string.Empty;
 
     private bool _needUpdate;
+
     public bool NeedUpdate
     {
         get => _needUpdate;

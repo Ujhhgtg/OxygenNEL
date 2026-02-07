@@ -17,9 +17,7 @@ public static class IrcEventHandler
         IrcManager.OnClientRemoved = conn => _processed.TryRemove(conn, out _);
 
         foreach (var channel in MessageChannels.AllVersions)
-        {
             EventManager.Instance.RegisterHandler<EventLoginSuccess>(channel, OnLoginSuccess);
-        }
 
         EventManager.Instance.RegisterHandler<EventConnectionClosed>("channel_connection", OnConnectionClosed);
     }
@@ -27,7 +25,7 @@ public static class IrcEventHandler
     private static void OnLoginSuccess(EventLoginSuccess args)
     {
         if (!IrcManager.Enabled) return;
-        
+
         var nickName = args.Connection.NickName;
         if (string.IsNullOrEmpty(nickName)) return;
 

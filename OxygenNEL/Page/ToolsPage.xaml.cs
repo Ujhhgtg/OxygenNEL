@@ -22,6 +22,7 @@ public sealed partial class ToolsPage : Microsoft.UI.Xaml.Controls.Page
     private readonly Queue<string> _pending = new();
     private readonly object _lockObj = new();
     private DispatcherTimer? _flushTimer;
+
     public ToolsPage()
     {
         InitializeComponent();
@@ -31,15 +32,13 @@ public sealed partial class ToolsPage : Microsoft.UI.Xaml.Controls.Page
             var ipv4 = string.Empty;
             var ipv6 = string.Empty;
             foreach (var a in host.AddressList)
-            {
                 if (a.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback(a))
                 {
                     ipv4 = a.ToString();
                     break;
                 }
-            }
+
             foreach (var a in host.AddressList)
-            {
                 if (a.AddressFamily == AddressFamily.InterNetworkV6 && !IPAddress.IsLoopback(a))
                 {
                     var s = a.ToString();
@@ -49,7 +48,7 @@ public sealed partial class ToolsPage : Microsoft.UI.Xaml.Controls.Page
                     ipv6 = s;
                     break;
                 }
-            }
+
             Ipv4Text.Text = ipv4;
             Ipv6Text.Text = string.IsNullOrWhiteSpace(ipv6) ? "无" : ipv6;
             LogList.ItemsSource = _logLines;
@@ -69,19 +68,38 @@ public sealed partial class ToolsPage : Microsoft.UI.Xaml.Controls.Page
                         var line = snap[i];
                         if (!string.IsNullOrEmpty(line)) _logLines.Add(line);
                     }
+
                     if (_logLines.Count > 0 && LogList != null)
                     {
-                        try { LogList.UpdateLayout(); } catch { }
-                        try { LogList.ScrollIntoView(_logLines[_logLines.Count - 1]); } catch { }
+                        try
+                        {
+                            LogList.UpdateLayout();
+                        }
+                        catch
+                        {
+                        }
+
+                        try
+                        {
+                            LogList.ScrollIntoView(_logLines[_logLines.Count - 1]);
+                        }
+                        catch
+                        {
+                        }
                     }
                 }
             }
-            catch { }
+            catch
+            {
+            }
+
             _flushTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
             _flushTimer.Tick += (s, e) => FlushPending();
             _flushTimer.Start();
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     private void OpenSite_Click(object sender, RoutedEventArgs e)
@@ -90,7 +108,9 @@ public sealed partial class ToolsPage : Microsoft.UI.Xaml.Controls.Page
         {
             Process.Start(new ProcessStartInfo { FileName = "https://fandmc.cn/", UseShellExecute = true });
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     private void OpenLogs_Click(object sender, RoutedEventArgs e)
@@ -101,7 +121,9 @@ public sealed partial class ToolsPage : Microsoft.UI.Xaml.Controls.Page
             var dir = Path.Combine(baseDir, "logs");
             Process.Start(new ProcessStartInfo { FileName = dir, UseShellExecute = true });
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     private void CopyIpv4_Click(object sender, RoutedEventArgs e)
@@ -113,7 +135,9 @@ public sealed partial class ToolsPage : Microsoft.UI.Xaml.Controls.Page
             Clipboard.SetContent(dp);
             NotificationHost.ShowGlobal("已复制", ToastLevel.Success);
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     private void CopyIpv6_Click(object sender, RoutedEventArgs e)
@@ -125,7 +149,9 @@ public sealed partial class ToolsPage : Microsoft.UI.Xaml.Controls.Page
             Clipboard.SetContent(dp);
             NotificationHost.ShowGlobal("已复制", ToastLevel.Success);
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     private void UiLog_Logged(string line)
@@ -137,34 +163,46 @@ public sealed partial class ToolsPage : Microsoft.UI.Xaml.Controls.Page
             {
                 _pending.Enqueue(line);
                 if (_pending.Count > 5000)
-                {
-                    while (_pending.Count > 2000) _pending.Dequeue();
-                }
+                    while (_pending.Count > 2000)
+                        _pending.Dequeue();
             }
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     private void ToolsPage_Unloaded(object sender, RoutedEventArgs e)
     {
-        try { UiLog.Logged -= UiLog_Logged; } catch { }
-        try { _flushTimer?.Stop(); } catch { }
+        try
+        {
+            UiLog.Logged -= UiLog_Logged;
+        }
+        catch
+        {
+        }
+
+        try
+        {
+            _flushTimer?.Stop();
+        }
+        catch
+        {
+        }
     }
 
     private static T? FindVisualChild<T>(DependencyObject? parent) where T : DependencyObject
     {
         if (parent == null) return null;
-            
+
         for (var i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
         {
             var child = VisualTreeHelper.GetChild(parent, i);
-            if (child != null && child is T result)
-            {
-                return result;
-            }
+            if (child != null && child is T result) return result;
             var childOfChild = FindVisualChild<T>(child);
             if (childOfChild != null) return childOfChild;
         }
+
         return null;
     }
 
@@ -179,7 +217,7 @@ public sealed partial class ToolsPage : Microsoft.UI.Xaml.Controls.Page
                 batch = new List<string>(_pending.Count);
                 while (_pending.Count > 0) batch.Add(_pending.Dequeue());
             }
-                
+
             var needScroll = false;
             foreach (var line in batch)
             {
@@ -187,10 +225,17 @@ public sealed partial class ToolsPage : Microsoft.UI.Xaml.Controls.Page
                 needScroll = true;
                 if (_logLines.Count > 2000) _logLines.RemoveAt(0);
             }
-                
+
             if (LogList != null && needScroll)
             {
-                try { LogList.UpdateLayout(); } catch { }
+                try
+                {
+                    LogList.UpdateLayout();
+                }
+                catch
+                {
+                }
+
                 if (_logLines.Count > 0)
                 {
                     var scrollViewer = FindVisualChild<ScrollViewer>(LogList);
@@ -198,16 +243,22 @@ public sealed partial class ToolsPage : Microsoft.UI.Xaml.Controls.Page
                     {
                         var isNearBottom = scrollViewer.VerticalOffset >= scrollViewer.ScrollableHeight - 100;
                         if (isNearBottom)
-                        {
                             _ = DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () =>
                             {
-                                try { LogList.ScrollIntoView(_logLines[_logLines.Count - 1]); } catch { }
+                                try
+                                {
+                                    LogList.ScrollIntoView(_logLines[_logLines.Count - 1]);
+                                }
+                                catch
+                                {
+                                }
                             });
-                        }
                     }
                 }
             }
         }
-        catch { }
+        catch
+        {
+        }
     }
 }

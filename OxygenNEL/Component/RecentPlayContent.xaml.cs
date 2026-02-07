@@ -41,13 +41,9 @@ public sealed partial class RecentPlayContent : UserControl
             }
 
             if (item.ServerType == "租赁服")
-            {
                 MainWindow.NavigateToPageStatic(typeof(RentalServerPage), item.ServerId);
-            }
             else if (item.ServerType == "网络服")
-            {
                 MainWindow.NavigateToPageStatic(typeof(NetworkServerPage), item.ServerId);
-            }
         }
     }
 }

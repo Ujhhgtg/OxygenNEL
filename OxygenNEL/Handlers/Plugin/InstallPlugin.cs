@@ -39,26 +39,32 @@ public class InstallPlugin
         }
     }
 
-    private async Task<object> ExecuteInternal(string? id, string? name, string? version, string? downloadUrl, string? depends)
+    private async Task<object> ExecuteInternal(string? id, string? name, string? version, string? downloadUrl,
+        string? depends)
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(downloadUrl) || string.IsNullOrWhiteSpace(id)) return new { type = "install_plugin_error", message = "参数错误" };
+            if (string.IsNullOrWhiteSpace(downloadUrl) || string.IsNullOrWhiteSpace(id))
+                return new { type = "install_plugin_error", message = "参数错误" };
             if (!string.IsNullOrWhiteSpace(depends))
             {
-                var need = !PluginManager.Instance.Plugins.Values.Any(p => string.Equals(p.Id, depends, StringComparison.OrdinalIgnoreCase));
+                var need = !PluginManager.Instance.Plugins.Values.Any(p =>
+                    string.Equals(p.Id, depends, StringComparison.OrdinalIgnoreCase));
                 if (need)
                 {
                     var items = await new ListAvailablePlugins().Execute();
-                    var depItem = items.FirstOrDefault(x => string.Equals(x.Id, depends, StringComparison.OrdinalIgnoreCase));
+                    var depItem = items.FirstOrDefault(x =>
+                        string.Equals(x.Id, depends, StringComparison.OrdinalIgnoreCase));
                     if (depItem == null)
                     {
                         Log.Error("依赖未找到: {Dep}", depends);
                         return new { type = "install_plugin_error", message = "依赖未找到" };
                     }
+
                     await Execute(depItem);
                 }
             }
+
             Log.Information("安装插件 {PluginId} {PluginName} {PluginVersion}", id, name, version);
             using var http = new HttpClient();
             var bytes = await http.GetByteArrayAsync(downloadUrl);
@@ -71,12 +77,24 @@ public class InstallPlugin
                 var candidate = Path.GetFileName(uri.AbsolutePath);
                 fileName = string.IsNullOrWhiteSpace(candidate) ? id + ".ug" : candidate;
             }
-            catch { fileName = id + ".ug"; }
+            catch
+            {
+                fileName = id + ".ug";
+            }
+
             var path = Path.Combine(dir, fileName);
             File.WriteAllBytes(path, bytes);
-            try { PluginManager.Instance.LoadPlugins(dir); } catch { }
+            try
+            {
+                PluginManager.Instance.LoadPlugins(dir);
+            }
+            catch
+            {
+            }
+
             var updPayload = new { type = "installed_plugins_updated" };
-            var resultItems = PluginManager.Instance.Plugins.Values.Select(plugin => new {
+            var resultItems = PluginManager.Instance.Plugins.Values.Select(plugin => new
+            {
                 identifier = plugin.Id,
                 name = plugin.Name,
                 version = plugin.Version,

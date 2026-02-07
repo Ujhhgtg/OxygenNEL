@@ -36,9 +36,7 @@ public class JoinRentalGame
         var last = UserManager.Instance.GetLastAvailableUser();
         if (last == null) return new JoinRentalGameResult { NotLogin = true };
         if (string.IsNullOrWhiteSpace(serverId) || string.IsNullOrWhiteSpace(role))
-        {
             return new JoinRentalGameResult { Success = false, Message = "参数错误" };
-        }
         try
         {
             var ok = await StartAsync(serverId, serverName, role, password, mcVersion);
@@ -52,13 +50,15 @@ public class JoinRentalGame
         }
     }
 
-    public async Task<bool> StartAsync(string serverId, string serverName, string roleId, string password, string mcVersion)
+    public async Task<bool> StartAsync(string serverId, string serverName, string roleId, string password,
+        string mcVersion)
     {
         var available = UserManager.Instance.GetLastAvailableUser();
         if (available == null) return false;
 
         var pwd = string.IsNullOrWhiteSpace(password) ? null : password;
-        var addressResult = AppState.X19.GetRentalGameServerAddress(available.UserId, available.AccessToken, serverId, pwd);
+        var addressResult =
+            AppState.X19.GetRentalGameServerAddress(available.UserId, available.AccessToken, serverId, pwd);
         if (addressResult.Data == null)
         {
             Log.Error("无法获取租赁服地址");
@@ -82,35 +82,27 @@ public class JoinRentalGame
         var shortVersion = "";
         if (versionMatch.Success)
         {
-            fullVersion = versionMatch.Groups[1].Value; 
+            fullVersion = versionMatch.Groups[1].Value;
             var parts = fullVersion.Split('.');
             shortVersion = parts[0] + "." + parts[1];
         }
         else
         {
             var shortMatch = Regex.Match(versionName, @"(\d+\.\d+)");
-            if (shortMatch.Success)
-            {
-                shortVersion = shortMatch.Groups[1].Value;
-            }
+            if (shortMatch.Success) shortVersion = shortMatch.Groups[1].Value;
         }
-        
+
         string resolvedVersion;
         if (!string.IsNullOrEmpty(fullVersion) && Md5Mapping.TryGetMd5FromGameVersion(fullVersion, out _))
-        {
             resolvedVersion = fullVersion;
-        }
         else if (!string.IsNullOrEmpty(shortVersion) && Md5Mapping.TryGetMd5FromGameVersion(shortVersion, out _))
-        {
             resolvedVersion = shortVersion;
-        }
         else
-        {
             resolvedVersion = !string.IsNullOrEmpty(fullVersion) ? fullVersion : shortVersion;
-        }
-        
+
         versionName = resolvedVersion;
-        Log.Debug("[RentalServer] 解析版本: {Original} -> full={Full}, short={Short}, resolved={Resolved}", mcVersion, fullVersion, shortVersion, versionName);
+        Log.Debug("[RentalServer] 解析版本: {Original} -> full={Full}, short={Short}, resolved={Resolved}", mcVersion,
+            fullVersion, shortVersion, versionName);
         var gameVersion = GameVersionUtil.GetEnumFromGameVersion(versionName);
 
         var serverMod = await InstallerService.InstallGameMods(
@@ -130,13 +122,18 @@ public class JoinRentalGame
         var socksCfg = _request?.Socks5;
         var socksAddr = socksCfg != null ? socksCfg.Address ?? string.Empty : string.Empty;
         var socksPort = socksCfg?.Port ?? 0;
-        Log.Information("JoinRentalGame SOCKS5 配置: Address={Addr}, Port={Port}, Username={User}", socksAddr, socksPort, socksCfg?.Username);
+        Log.Information("JoinRentalGame SOCKS5 配置: Address={Addr}, Port={Port}, Username={User}", socksAddr, socksPort,
+            socksCfg?.Username);
         if (!string.IsNullOrWhiteSpace(socksAddr) && socksPort <= 0) return false;
         if (!string.IsNullOrWhiteSpace(socksAddr) && socksPort > 0)
-        {
-            try { Dns.GetHostAddresses(socksAddr); }
-            catch { return false; }
-        }
+            try
+            {
+                Dns.GetHostAddresses(socksAddr);
+            }
+            catch
+            {
+                return false;
+            }
 
         var interceptor = Interceptor.CreateInterceptor(
             _request?.Socks5 ?? new EntitySocks5(),
@@ -191,7 +188,8 @@ public class JoinRentalGame
                 authorizedSignal.Wait();
             });
 
-        InterConn.GameStart(available.UserId, available.AccessToken, _request?.GameId ?? serverId).GetAwaiter().GetResult();
+        InterConn.GameStart(available.UserId, available.AccessToken, _request?.GameId ?? serverId).GetAwaiter()
+            .GetResult();
         GameManager.Instance.AddInterceptor(interceptor);
         _lastIp = interceptor.LocalAddress;
         _lastPort = interceptor.LocalPort;

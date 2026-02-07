@@ -14,31 +14,51 @@ public class AccountModel : INotifyPropertyChanged
     public string EntityId
     {
         get => _entityId;
-        set { _entityId = value; OnPropertyChanged(); }
+        set
+        {
+            _entityId = value;
+            OnPropertyChanged();
+        }
     }
 
     public string Channel
     {
         get => _channel;
-        set { _channel = value; OnPropertyChanged(); }
+        set
+        {
+            _channel = value;
+            OnPropertyChanged();
+        }
     }
 
     public string Status
     {
         get => _status;
-        set { _status = value; OnPropertyChanged(); }
+        set
+        {
+            _status = value;
+            OnPropertyChanged();
+        }
     }
 
     public bool IsLoading
     {
         get => _isLoading;
-        set { _isLoading = value; OnPropertyChanged(); }
+        set
+        {
+            _isLoading = value;
+            OnPropertyChanged();
+        }
     }
 
     public string Alias
     {
         get => _alias;
-        set { _alias = value; OnPropertyChanged(); }
+        set
+        {
+            _alias = value;
+            OnPropertyChanged();
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

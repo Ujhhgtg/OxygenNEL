@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <UserControl
     x:Class="OxygenNEL.Component.UserProfileCard"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -10,10 +11,10 @@
     <StackPanel Margin="12,8,12,0">
         <Grid Height="48">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="48"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="48" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <Button x:Name="AvatarButton" Grid.Column="0" Padding="0" BorderThickness="0" Background="Transparent"
@@ -22,15 +23,16 @@
                     <Ellipse x:Name="AvatarEllipse" Width="40" Height="40">
                         <Ellipse.Fill>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#6366F1" Offset="0"/>
-                                <GradientStop Color="#A855F7" Offset="1"/>
+                                <GradientStop Color="#6366F1" Offset="0" />
+                                <GradientStop Color="#A855F7" Offset="1" />
                             </LinearGradientBrush>
                         </Ellipse.Fill>
                     </Ellipse>
-                    <FontIcon x:Name="AvatarIcon" Glyph="&#xE77B;" FontSize="20" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <FontIcon x:Name="AvatarIcon" Glyph="&#xE77B;" FontSize="20" Foreground="White"
+                              HorizontalAlignment="Center" VerticalAlignment="Center" />
                     <Ellipse x:Name="AvatarImageEllipse" Width="40" Height="40" Visibility="Collapsed">
                         <Ellipse.Fill>
-                            <ImageBrush x:Name="AvatarImageBrush" Stretch="UniformToFill"/>
+                            <ImageBrush x:Name="AvatarImageBrush" Stretch="UniformToFill" />
                         </Ellipse.Fill>
                     </Ellipse>
                 </Grid>
@@ -38,20 +40,24 @@
 
             <Grid Grid.Column="1" VerticalAlignment="Center" Margin="8,0,0,0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <TextBlock x:Name="UsernameText" Grid.Row="0" Text="加载中..." FontSize="14" FontWeight="SemiBold" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis"/>
-                <TextBlock x:Name="UserIdText" Grid.Row="1" Text="" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Top" TextTrimming="CharacterEllipsis"/>
+                <TextBlock x:Name="UsernameText" Grid.Row="0" Text="加载中..." FontSize="14" FontWeight="SemiBold"
+                           VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis" />
+                <TextBlock x:Name="UserIdText" Grid.Row="1" Text="" FontSize="11"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Top"
+                           TextTrimming="CharacterEllipsis" />
             </Grid>
 
-            <StackPanel x:Name="RankPanel" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0" Visibility="Collapsed"/>
+            <StackPanel x:Name="RankPanel" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"
+                        Margin="0,0,8,0" Visibility="Collapsed" />
 
             <Button x:Name="ManageButton" Grid.Column="3" Padding="8,4" VerticalAlignment="Center"
                     Click="ManageButton_Click" ToolTipService.ToolTip="管理账号">
-                <FontIcon Glyph="&#xE713;" FontSize="14"/>
+                <FontIcon Glyph="&#xE713;" FontSize="14" />
             </Button>
         </Grid>
-        <Border Margin="0,8,0,8" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+        <Border Margin="0,8,0,8" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
     </StackPanel>
 </UserControl>
