@@ -179,15 +179,13 @@ public class SUpdateAdvancementsFix : IPacket
 
     private EntityAdvancementDisplay ReadAdvancementDisplay(IByteBuffer buffer)
     {
-        var display = new EntityAdvancementDisplay();
-
-        display.Title = TextComponentSerializer.Deserialize(buffer);
-
-        display.Description = TextComponentSerializer.Deserialize(buffer);
-
-        display.Icon = ReadSlot(buffer);
-
-        display.FrameType = (EnumAdvancementFrameType)buffer.ReadVarIntFromBuffer();
+        var display = new EntityAdvancementDisplay
+        {
+            Title = TextComponentSerializer.Deserialize(buffer),
+            Description = TextComponentSerializer.Deserialize(buffer),
+            Icon = ReadSlot(buffer),
+            FrameType = (EnumAdvancementFrameType)buffer.ReadVarIntFromBuffer()
+        };
 
         var flags = buffer.ReadInt();
         
@@ -412,10 +410,11 @@ public class SUpdateAdvancementsFix : IPacket
 
     private EntityCriterionProgressData ReadCriterionProgress(IByteBuffer buffer)
     {
-        var progressData = new EntityCriterionProgressData();
-        
-        progressData.Achieved = buffer.ReadBoolean();
-        
+        var progressData = new EntityCriterionProgressData
+        {
+            Achieved = buffer.ReadBoolean()
+        };
+
         if (progressData.Achieved)
         {
             progressData.DateOfAchieving = buffer.ReadLong();

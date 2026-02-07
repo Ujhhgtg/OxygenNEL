@@ -1,13 +1,3 @@
-/*
-<OxygenNEL>
-Copyright (C) <2025>  <OxygenNEL>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-*/
-
 using Codexus.Cipher.Protocol;
 using Codexus.OpenSDK.Entities.Yggdrasil;
 using Codexus.OpenSDK.Yggdrasil;
@@ -15,11 +5,9 @@ using OxygenNEL.Manager;
 
 namespace OxygenNEL.type;
 
-internal class Services(
-    StandardYggdrasil Yggdrasil
-    )
+internal class Services(StandardYggdrasil yggdrasil)
 { 
-    public StandardYggdrasil Yggdrasil { get; private set; } = Yggdrasil;
+    public StandardYggdrasil Yggdrasil { get; private set; } = yggdrasil;
 
     public void RefreshYggdrasil()
     {

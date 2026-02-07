@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
@@ -16,7 +17,6 @@
     <WindowsAppSdkUndockedRegFreeWinRTInitialize>true</WindowsAppSdkUndockedRegFreeWinRTInitialize>
     <ApplicationIcon>Assets\OxygenNEL.ico</ApplicationIcon>
     <WindowsPackageType>None</WindowsPackageType>
-    
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,11 +27,13 @@
     <EmbeddedResource Include="Assets\character.txt" />
     <EmbeddedResource Include="Assets\verb.txt" />
   </ItemGroup>
+  
   <ItemGroup>
     <Content Include="resources\api-ms-win-crt-utility-l1-1-1.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0-beta.98" />
     <PackageReference Include="DotNetty.Buffers" Version="0.7.6" />
@@ -49,27 +51,21 @@
     <PackageReference Include="Downloader" Version="4.0.3" />
         <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.2" />
   </ItemGroup>
+  
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
     <Compile Remove="plugins\**" />
   </ItemGroup>
+  
   <ItemGroup>
+    <ProjectReference Include="..\external\Codexus\Codexus.Cipher\Codexus.Cipher.csproj" />
+    <ProjectReference Include="..\external\Codexus\Codexus.Development.SDK\Codexus.Development.SDK.csproj" />
+    <ProjectReference Include="..\external\Codexus\Codexus.Game.Launcher\Codexus.Game.Launcher.csproj" />
+    <ProjectReference Include="..\external\Codexus\Codexus.OpenSDK\Codexus.OpenSDK.csproj" />
     <ProjectReference Include="..\OxygenNEL.Core\OxygenNEL.Core.csproj" />
     <ProjectReference Include="..\OxygenNEL.IRC\OxygenNEL.IRC.csproj" />
-    <Reference Include="OxygenNEL.Core">
-      <HintPath>..\SDK\OxygenNEL.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Codexus.Cipher">
-      <HintPath>..\SDK\Codexus.Cipher.dll</HintPath>
-    </Reference>
-    <Reference Include="Codexus.Development.SDK">
-      <HintPath>..\SDK\Codexus.Development.SDK.dll</HintPath>
-    </Reference>
     <Reference Include="Codexus.Interceptors">
       <HintPath>..\SDK\Codexus.Interceptors.dll</HintPath>
-    </Reference>
-    <Reference Include="Codexus.Game.Launcher">
-      <HintPath>..\SDK\Codexus.Game.Launcher.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

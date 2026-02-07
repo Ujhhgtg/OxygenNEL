@@ -1,13 +1,3 @@
-/*
-<OxygenNEL>
-Copyright (C) <2025>  <OxygenNEL>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-*/
-
 using System;
 using System.IO;
 using System.Numerics;
@@ -113,8 +103,10 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
         string? filePath = null;
         try
         {
-            var picker = new FileOpenPicker();
-            picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            var picker = new FileOpenPicker
+            {
+                SuggestedStartLocation = PickerLocationId.PicturesLibrary
+            };
             picker.FileTypeFilter.Add(".jpg");
             picker.FileTypeFilter.Add(".jpeg");
             picker.FileTypeFilter.Add(".png");
@@ -198,8 +190,10 @@ public sealed partial class SettingsPage : Microsoft.UI.Xaml.Controls.Page
         string? filePath = null;
         try
         {
-            var picker = new FileOpenPicker();
-            picker.SuggestedStartLocation = PickerLocationId.MusicLibrary;
+            var picker = new FileOpenPicker
+            {
+                SuggestedStartLocation = PickerLocationId.MusicLibrary
+            };
             picker.FileTypeFilter.Add(".mp3");
             picker.FileTypeFilter.Add(".wav");
             picker.FileTypeFilter.Add(".flac");

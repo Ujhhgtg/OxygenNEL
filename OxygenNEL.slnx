@@ -4,6 +4,10 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Project Path="external/Codexus/Codexus.Cipher/Codexus.Cipher.csproj" />
+  <Project Path="external/Codexus/Codexus.Development.SDK/Codexus.Development.SDK.csproj" />
+  <Project Path="external/Codexus/Codexus.Game.Launcher/Codexus.Game.Launcher.csproj" />
+  <Project Path="external/Codexus/Codexus.OpenSDK/Codexus.OpenSDK.csproj" />
   <Project Path="OxygenNEL.Core\OxygenNEL.Core.csproj" Type="C#">
     <Configuration Solution="Debug|ARM64" Project="Debug|Any CPU" />
     <Configuration Solution="Debug|x64" Project="Debug|Any CPU" />

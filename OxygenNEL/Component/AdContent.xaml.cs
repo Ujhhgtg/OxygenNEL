@@ -1,13 +1,3 @@
-/*
-<OxygenNEL>
-Copyright (C) <2025>  <OxygenNEL>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-*/
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -112,9 +102,12 @@ public sealed partial class AdContent : UserControl
         DotPanel.Children.Clear();
         for (var i = 0; i < _ads.Count; i++)
         {
-            var el = new Ellipse { Width = 8, Height = 8, Margin = new Thickness(3) };
-            el.Fill = new SolidColorBrush(i == _index ? Colors.DodgerBlue : Colors.Gray);
-            el.Tag = i;
+            var el = new Ellipse
+            {
+                Width = 8, Height = 8, Margin = new Thickness(3),
+                Fill = new SolidColorBrush(i == _index ? Colors.DodgerBlue : Colors.Gray),
+                Tag = i
+            };
             el.Tapped += Dot_Tapped;
             DotPanel.Children.Add(el);
         }
