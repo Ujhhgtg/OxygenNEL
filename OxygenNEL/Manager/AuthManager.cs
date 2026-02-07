@@ -4,20 +4,20 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Serilog;
 using OxygenNEL.Core.Api;
+using Serilog;
 
 namespace OxygenNEL.Manager;
 
 public sealed class AuthManager
 {
-    public static AuthManager Instance { get; } = new AuthManager();
+    public static AuthManager Instance { get; } = new();
     
     public const bool SkipLogin = true;
 
     public const string FallbackSalt = "EFD76BB364D9C8BD90767B6F51F574F3";
 
-    static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
@@ -227,7 +227,7 @@ public sealed class AuthManager
         return new UserUrlResult(true, "成功", resp.UserUrl);
     }
 
-    sealed class AuthData
+    private sealed class AuthData
     {
         public string Token { get; set; } = string.Empty;
         public string? Username { get; set; }

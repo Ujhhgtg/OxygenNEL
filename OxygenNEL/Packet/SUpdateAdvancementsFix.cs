@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 using Codexus.Development.SDK.Connection;
 using Codexus.Development.SDK.Enums;
@@ -26,7 +27,7 @@ using Serilog;
 
 namespace OxygenNEL.Packet;
 
-[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ClientBound, 0x4D, EnumProtocolVersion.V1122, false)]
+[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ClientBound, 0x4D, EnumProtocolVersion.V1122)]
 public class SUpdateAdvancementsFix : IPacket
 {
     public bool Reset { get; set; }
@@ -42,7 +43,7 @@ public class SUpdateAdvancementsFix : IPacket
         
         var advancementsCount = buffer.ReadVarIntFromBuffer();
         Advancements = new EntityAdvancementEntry[advancementsCount];
-        for (int i = 0; i < advancementsCount; i++)
+        for (var i = 0; i < advancementsCount; i++)
         {
             var advancementId = ReadIdentifier(buffer);
             advancementId = SanitizeNamespacedKey(advancementId);
@@ -59,7 +60,7 @@ public class SUpdateAdvancementsFix : IPacket
 
         var removedCount = buffer.ReadVarIntFromBuffer();
         RemovedAdvancements = new string[removedCount];
-        for (int i = 0; i < removedCount; i++)
+        for (var i = 0; i < removedCount; i++)
         {
             var removedId = ReadIdentifier(buffer);
             removedId = SanitizeNamespacedKey(removedId);
@@ -69,7 +70,7 @@ public class SUpdateAdvancementsFix : IPacket
 
         var progressCount = buffer.ReadVarIntFromBuffer();
         Progress = new EntityAdvancementProgressEntry[progressCount];
-        for (int i = 0; i < progressCount; i++)
+        for (var i = 0; i < progressCount; i++)
         {
             var advancementId = ReadIdentifier(buffer);
             advancementId = SanitizeNamespacedKey(advancementId);
@@ -126,7 +127,7 @@ public class SUpdateAdvancementsFix : IPacket
         
         var bytes = new byte[length];
         buffer.ReadBytes(bytes);
-        var str = System.Text.Encoding.UTF8.GetString(bytes);
+        var str = Encoding.UTF8.GetString(bytes);
         
         return SanitizeLocationString(str);
     }
@@ -151,7 +152,7 @@ public class SUpdateAdvancementsFix : IPacket
 
         var criteriaCount = buffer.ReadVarIntFromBuffer();
         adv.Criteria = new string[criteriaCount];
-        for (int i = 0; i < criteriaCount; i++)
+        for (var i = 0; i < criteriaCount; i++)
         {
             var criterionId = ReadIdentifier(buffer);
             criterionId = SanitizeNamespacedKey(criterionId);
@@ -160,11 +161,11 @@ public class SUpdateAdvancementsFix : IPacket
 
         var requirementsArrayLength = buffer.ReadVarIntFromBuffer();
         adv.Requirements = new string[requirementsArrayLength][];
-        for (int i = 0; i < requirementsArrayLength; i++)
+        for (var i = 0; i < requirementsArrayLength; i++)
         {
             var requirementLength = buffer.ReadVarIntFromBuffer();
             var requirementArray = new string[requirementLength];
-            for (int j = 0; j < requirementLength; j++)
+            for (var j = 0; j < requirementLength; j++)
             {
                 var requirement = ReadIdentifier(buffer);
                 requirement = SanitizeNamespacedKey(requirement);
@@ -308,7 +309,7 @@ public class SUpdateAdvancementsFix : IPacket
                 
                 var stringBytes = new byte[stringLength];
                 buffer.ReadBytes(stringBytes);
-                var stringValue = System.Text.Encoding.UTF8.GetString(stringBytes);
+                var stringValue = Encoding.UTF8.GetString(stringBytes);
                 return new NbtString(stringValue);
             case 9:
                 var listTagType = buffer.ReadByte();
@@ -320,7 +321,7 @@ public class SUpdateAdvancementsFix : IPacket
                 }
                 
                 var listElements = new object[listLength];
-                for (int i = 0; i < listLength; i++)
+                for (var i = 0; i < listLength; i++)
                 {
                     listElements[i] = ReadNbtTagByType(buffer, listTagType);
                 }
@@ -328,7 +329,7 @@ public class SUpdateAdvancementsFix : IPacket
             case 10:
                 var compound = new NbtCompound();
                 
-                int tagCount = 0;
+                var tagCount = 0;
                 const int maxTags = 10000;
                 
                 while (true)
@@ -351,7 +352,7 @@ public class SUpdateAdvancementsFix : IPacket
                     
                     var tagNameBytes = new byte[tagNameLength];
                     buffer.ReadBytes(tagNameBytes);
-                    var tagName = System.Text.Encoding.UTF8.GetString(tagNameBytes);
+                    var tagName = Encoding.UTF8.GetString(tagNameBytes);
                     
                     var tagValue = ReadNbtTagByType(buffer, childTagType);
                     compound.Tags.Add(new KeyValuePair<string, object>(tagName, tagValue));
@@ -368,7 +369,7 @@ public class SUpdateAdvancementsFix : IPacket
                 }
                 
                 var intArray = new int[intArrayLength];
-                for (int i = 0; i < intArrayLength; i++)
+                for (var i = 0; i < intArrayLength; i++)
                 {
                     intArray[i] = buffer.ReadInt();
                 }
@@ -392,7 +393,7 @@ public class SUpdateAdvancementsFix : IPacket
         var size = buffer.ReadVarIntFromBuffer();
         progress.Criteria = new EntityCriterionProgress[size];
         
-        for (int i = 0; i < size; i++)
+        for (var i = 0; i < size; i++)
         {
             var criterionId = ReadIdentifier(buffer);
             criterionId = SanitizeNamespacedKey(criterionId);
@@ -425,7 +426,7 @@ public class SUpdateAdvancementsFix : IPacket
 
     private void WriteIdentifier(IByteBuffer buffer, string identifier)
     {
-        var bytes = System.Text.Encoding.UTF8.GetBytes(identifier);
+        var bytes = Encoding.UTF8.GetBytes(identifier);
         buffer.WriteVarInt(bytes.Length);
         buffer.WriteBytes(bytes);
     }
@@ -563,7 +564,7 @@ public class SUpdateAdvancementsFix : IPacket
         else if (nbtTag is NbtString nbtString)
         {
             buffer.WriteByte(8);
-            var stringBytes = System.Text.Encoding.UTF8.GetBytes(nbtString.Value);
+            var stringBytes = Encoding.UTF8.GetBytes(nbtString.Value);
             buffer.WriteShort(stringBytes.Length);
             buffer.WriteBytes(stringBytes);
         }
@@ -583,10 +584,10 @@ public class SUpdateAdvancementsFix : IPacket
             foreach (var tag in nbtCompound.Tags)
             {
                 var tagValue = tag.Value;
-                byte tagType = GetNbtTagType(tagValue);
+                var tagType = GetNbtTagType(tagValue);
                 buffer.WriteByte(tagType);
                 
-                var nameBytes = System.Text.Encoding.UTF8.GetBytes(tag.Key);
+                var nameBytes = Encoding.UTF8.GetBytes(tag.Key);
                 buffer.WriteShort(nameBytes.Length);
                 buffer.WriteBytes(nameBytes);
                 
@@ -702,7 +703,7 @@ public class SUpdateAdvancementsFix : IPacket
 
     private static bool ContainsNonAsciiChars(string str)
     {
-        foreach (char c in str)
+        foreach (var c in str)
         {
             if (c > 127)
                 return true;
@@ -857,7 +858,7 @@ public class NbtList
 
 public class NbtCompound
 {
-    public List<KeyValuePair<string, object>> Tags { get; set; } = new List<KeyValuePair<string, object>>();
+    public List<KeyValuePair<string, object>> Tags { get; set; } = new();
 }
 
 public class NbtIntArray

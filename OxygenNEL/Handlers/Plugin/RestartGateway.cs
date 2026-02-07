@@ -7,16 +7,16 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using Codexus.Development.SDK.Manager;
 
-namespace OxygenNEL.Handlers.Plugin
+namespace OxygenNEL.Handlers.Plugin;
+
+public class RestartGateway
 {
-    public class RestartGateway
+    public object Execute()
     {
-        public object Execute()
-        {
-            PluginManager.RestartGateway();
-            return new { type = "restart_ack" };
-        }
+        PluginManager.RestartGateway();
+        return new { type = "restart_ack" };
     }
 }

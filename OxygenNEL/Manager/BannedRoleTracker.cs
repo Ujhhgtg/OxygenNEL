@@ -7,12 +7,12 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Codexus.Interceptors;
 using Codexus.Development.SDK.Entities;
 using OxygenNEL.Component;
 using OxygenNEL.Entities.Web.NetGame;
@@ -138,12 +138,10 @@ public static class BannedRoleTracker
                 NotificationHost.ShowGlobal($"已切换到角色: {nextRole}", ToastLevel.Success);
                 return true;
             }
-            else
-            {
-                Log.Warning("[BannedRoleTracker] 切换角色失败: {Message}", result.Message);
-                NotificationHost.ShowGlobal($"切换角色失败: {result.Message}", ToastLevel.Error);
-                return false;
-            }
+
+            Log.Warning("[BannedRoleTracker] 切换角色失败: {Message}", result.Message);
+            NotificationHost.ShowGlobal($"切换角色失败: {result.Message}", ToastLevel.Error);
+            return false;
         }
         catch (Exception ex)
         {

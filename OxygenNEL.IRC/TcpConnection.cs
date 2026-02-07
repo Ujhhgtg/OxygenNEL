@@ -7,28 +7,21 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System.Net.Sockets;
 using System.Text;
 
 namespace OxygenNEL.IRC;
 
-public class TcpConnection : IDisposable
+public class TcpConnection(string host, int port) : IDisposable
 {
-    readonly string _host;
-    readonly int _port;
-    readonly object _lock = new();
-    
-    TcpClient? _tcp;
-    StreamReader? _reader;
-    StreamWriter? _writer;
+    private readonly object _lock = new();
+
+    private TcpClient? _tcp;
+    private StreamReader? _reader;
+    private StreamWriter? _writer;
 
     public bool Connected { get; private set; }
-
-    public TcpConnection(string host, int port)
-    {
-        _host = host;
-        _port = port;
-    }
 
     public void Connect()
     {
@@ -36,7 +29,7 @@ public class TcpConnection : IDisposable
         {
             if (Connected) return;
             _tcp = new TcpClient();
-            _tcp.Connect(_host, _port);
+            _tcp.Connect(host, port);
             var stream = _tcp.GetStream();
             _reader = new StreamReader(stream, Encoding.UTF8);
             _writer = new StreamWriter(stream, new UTF8Encoding(false)) { AutoFlush = true };
@@ -81,5 +74,9 @@ public class TcpConnection : IDisposable
         }
     }
 
-    public void Dispose() => Close();
+    public void Dispose()
+    {
+        Close();
+        GC.SuppressFinalize(this);
+    }
 }

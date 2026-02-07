@@ -7,10 +7,12 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
+using System;
+using System.Text.Json;
 using OxygenNEL.Manager;
 using OxygenNEL.type;
 using Serilog;
-using System.Text.Json;
 
 namespace OxygenNEL.Handlers.Skin;
 
@@ -33,17 +35,17 @@ public class SetSkin
             var t = r?.GetType();
             var codeObj = t?.GetProperty("Code")?.GetValue(r);
             var msg = t?.GetProperty("Message")?.GetValue(r) as string ?? string.Empty;
-            int code = 0;
+            var code = 0;
             if (codeObj != null)
             {
-                try { code = System.Convert.ToInt32(codeObj); } catch { }
+                try { code = Convert.ToInt32(codeObj); } catch { }
             }
             var succ = code == 0;
             Log.Debug("设置皮肤响应: code={Code} message={Message}", code, msg);
             try { Log.Debug("设置皮肤响应对象: {Json}", JsonSerializer.Serialize(r)); } catch { }
             return new SetSkinResult { Success = succ, Message = msg };
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Log.Error(ex, "设置皮肤失败");
             return new SetSkinResult { Success = false, Message = "设置失败" };

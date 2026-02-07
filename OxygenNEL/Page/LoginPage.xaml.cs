@@ -1,6 +1,5 @@
 using System;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using OxygenNEL.Component;
@@ -11,14 +10,14 @@ namespace OxygenNEL.Page;
 
 public sealed partial class LoginPage : Microsoft.UI.Xaml.Controls.Page
 {
-    bool _registerCodeVerified;
+    private bool _registerCodeVerified;
 
     public LoginPage()
     {
         InitializeComponent();
     }
 
-    void ModeNav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    private void ModeNav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         if (args.SelectedItem is NavigationViewItem item && item.Tag is string tag)
         {
@@ -30,7 +29,7 @@ public sealed partial class LoginPage : Microsoft.UI.Xaml.Controls.Page
         }
     }
 
-    async void LoginButton_Click(object sender, RoutedEventArgs e)
+    private async void LoginButton_Click(object sender, RoutedEventArgs e)
     {
         SetLoading(LoginButtonText, LoginProgress, LoginButton, true);
         try
@@ -56,7 +55,7 @@ public sealed partial class LoginPage : Microsoft.UI.Xaml.Controls.Page
         }
     }
 
-    async void SendCodeButton_Click(object sender, RoutedEventArgs e)
+    private async void SendCodeButton_Click(object sender, RoutedEventArgs e)
     {
         SetLoading(SendCodeButtonText, SendCodeProgress, SendCodeButton, true);
         try
@@ -80,7 +79,7 @@ public sealed partial class LoginPage : Microsoft.UI.Xaml.Controls.Page
         }
     }
 
-    async void NextStepButton_Click(object sender, RoutedEventArgs e)
+    private async void NextStepButton_Click(object sender, RoutedEventArgs e)
     {
         SetLoading(NextStepButtonText, NextStepProgress, NextStepButton, true);
         try
@@ -108,7 +107,7 @@ public sealed partial class LoginPage : Microsoft.UI.Xaml.Controls.Page
         }
     }
 
-    async void RegisterButton_Click(object sender, RoutedEventArgs e)
+    private async void RegisterButton_Click(object sender, RoutedEventArgs e)
     {
         SetLoading(RegisterButtonText, RegisterProgress, RegisterButton, true);
         try
@@ -144,7 +143,7 @@ public sealed partial class LoginPage : Microsoft.UI.Xaml.Controls.Page
         }
     }
 
-    static void SetLoading(TextBlock textBlock, ProgressRing ring, Control control, bool loading)
+    private static void SetLoading(TextBlock textBlock, ProgressRing ring, Control control, bool loading)
     {
         textBlock.Visibility = loading ? Visibility.Collapsed : Visibility.Visible;
         ring.IsActive = loading;
@@ -152,13 +151,13 @@ public sealed partial class LoginPage : Microsoft.UI.Xaml.Controls.Page
         control.IsEnabled = !loading;
     }
 
-    static bool IsEmail(string email)
+    private static bool IsEmail(string email)
     {
         if (string.IsNullOrWhiteSpace(email)) return false;
         return Regex.IsMatch(email, "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
     }
 
-    static bool IsQQNumber(string qq)
+    private static bool IsQQNumber(string qq)
     {
         if (string.IsNullOrWhiteSpace(qq)) return false;
         return Regex.IsMatch(qq, "^[1-9][0-9]{4,10}$");

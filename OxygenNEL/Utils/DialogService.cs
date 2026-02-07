@@ -7,11 +7,11 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using OxygenNEL;
 using OxygenNEL.Component;
 using Serilog;
 
@@ -51,7 +51,7 @@ public static class DialogService
             var dlg = Create(root, "错误", new TextBlock { Text = message });
             await dlg.ShowAsync();
         }
-        catch (System.Exception ex) { Log.Debug(ex, "显示错误对话框失败"); }
+        catch (Exception ex) { Log.Debug(ex, "显示错误对话框失败"); }
     }
 
     public static async Task<bool> ShowConfirmAsync(XamlRoot root, string title, string message)

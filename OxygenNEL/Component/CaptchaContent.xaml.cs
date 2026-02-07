@@ -7,50 +7,50 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media.Imaging;
+
 using System;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Imaging;
 using OxygenNEL.Manager;
 
-namespace OxygenNEL.Component
+namespace OxygenNEL.Component;
+
+public sealed partial class CaptchaContent : UserControl
 {
-    public sealed partial class CaptchaContent : UserControl
+    private string _sessionId = string.Empty;
+
+    public CaptchaContent()
     {
-        private string _sessionId = string.Empty;
-
-        public CaptchaContent()
+        InitializeComponent();
+        try
         {
-            InitializeComponent();
-            try
-            {
-                var mode = SettingManager.Instance.Get().ThemeMode?.Trim().ToLowerInvariant() ?? "system";
-                ElementTheme t = ElementTheme.Default;
-                if (mode == "light") t = ElementTheme.Light;
-                else if (mode == "dark") t = ElementTheme.Dark;
-                this.RequestedTheme = t;
-            }
-            catch { }
+            var mode = SettingManager.Instance.Get().ThemeMode?.Trim().ToLowerInvariant() ?? "system";
+            var t = ElementTheme.Default;
+            if (mode == "light") t = ElementTheme.Light;
+            else if (mode == "dark") t = ElementTheme.Dark;
+            RequestedTheme = t;
         }
+        catch { }
+    }
 
-        public string CaptchaText => CaptchaInput.Text;
+    public string CaptchaText => CaptchaInput.Text;
 
-        public string SessionId => _sessionId;
+    public string SessionId => _sessionId;
 
-        public void SetCaptcha(string sessionId, string captchaUrl)
+    public void SetCaptcha(string sessionId, string captchaUrl)
+    {
+        _sessionId = sessionId ?? string.Empty;
+        CaptchaInput.Text = string.Empty;
+        try
         {
-            _sessionId = sessionId ?? string.Empty;
-            CaptchaInput.Text = string.Empty;
-            try
+            if (!string.IsNullOrWhiteSpace(captchaUrl))
             {
-                if (!string.IsNullOrWhiteSpace(captchaUrl))
-                {
-                    CaptchaImage.Source = new BitmapImage(new Uri(captchaUrl));
-                }
+                CaptchaImage.Source = new BitmapImage(new Uri(captchaUrl));
             }
-            catch
-            {
-            }
+        }
+        catch
+        {
         }
     }
 }

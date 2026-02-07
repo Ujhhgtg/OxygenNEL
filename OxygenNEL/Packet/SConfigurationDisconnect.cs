@@ -6,15 +6,15 @@ using Codexus.Development.SDK.Enums;
 using Codexus.Development.SDK.Packet;
 using DotNetty.Buffers;
 using OxygenNEL.Component;
+using OxygenNEL.Core.Utils;
 using OxygenNEL.IRC;
 using OxygenNEL.Manager;
 using OxygenNEL.type;
-using OxygenNEL.Core.Utils;
 using Serilog;
 
 namespace OxygenNEL.Packet;
 
-[RegisterPacket(EnumConnectionState.Configuration, EnumPacketDirection.ClientBound, 0x02, EnumProtocolVersion.V1206, false)]
+[RegisterPacket(EnumConnectionState.Configuration, EnumPacketDirection.ClientBound, 0x02, EnumProtocolVersion.V1206)]
 public class SConfigurationDisconnect : IPacket
 {
 	public TextComponent Reason { get; set; } = new();

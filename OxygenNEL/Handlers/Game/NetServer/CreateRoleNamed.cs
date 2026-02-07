@@ -7,13 +7,15 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.Linq;
+using Codexus.Cipher.Entities;
 using Codexus.Cipher.Entities.WPFLauncher.NetGame;
-using OxygenNEL.type;
 using OxygenNEL.Entities.Web.NetGame;
-using Serilog;
 using OxygenNEL.Manager;
+using OxygenNEL.type;
+using Serilog;
 
 namespace OxygenNEL.Handlers.Game.NetServer;
 
@@ -31,7 +33,7 @@ public class CreateRoleNamed
         {
             AppState.X19.CreateCharacter(last.UserId, last.AccessToken, serverId, name);
             if (AppState.Debug) Log.Information("角色创建成功: serverId={ServerId}, name={Name}", serverId, name);
-            Codexus.Cipher.Entities.Entities<EntityGameCharacter> entities = AppState.X19.QueryNetGameCharacters(last.UserId, last.AccessToken, serverId);
+            Entities<EntityGameCharacter> entities = AppState.X19.QueryNetGameCharacters(last.UserId, last.AccessToken, serverId);
             var items = entities.Data.Select(r => new RoleItem { Id = r.Name, Name = r.Name }).ToList();
             return new ServerRolesResult { Success = true, ServerId = serverId, Items = items };
         }

@@ -7,17 +7,18 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Serilog;
 using OxygenNEL.Core.Api;
+using Serilog;
 
 namespace OxygenNEL.Utils;
 
 public static class CaptchaRecognitionService
 {
-    private static readonly HttpClient _httpClient = new()
+    private static readonly HttpClient HttpClient = new()
     {
         Timeout = TimeSpan.FromSeconds(10)
     };
@@ -27,7 +28,7 @@ public static class CaptchaRecognitionService
         try
         {
             Log.Debug("[CaptchaRecognition] 正在下载验证码图片: {Url}", captchaUrl);
-            var imageBytes = await _httpClient.GetByteArrayAsync(captchaUrl);
+            var imageBytes = await HttpClient.GetByteArrayAsync(captchaUrl);
             var base64 = Convert.ToBase64String(imageBytes);
             return await RecognizeFromBase64Async(base64);
         }

@@ -7,31 +7,32 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Codexus.Interceptors;
 using Codexus.Game.Launcher.Services.Java;
+using Codexus.Interceptors;
 using OxygenNEL.Entities.Web.NEL;
 
 namespace OxygenNEL.Manager;
 
 internal class GameManager
 {
-    private readonly Lock _lock = new Lock();
-    static readonly Dictionary<Guid, LauncherService> Launchers = new();
-    static readonly Dictionary<Guid, Interceptor> Interceptors = new();
-    static readonly object Lock = new object();
-    public static GameManager Instance { get; } = new GameManager();
+    private readonly Lock _lock = new();
+    private static readonly Dictionary<Guid, LauncherService> Launchers = new();
+    private static readonly Dictionary<Guid, Interceptor> Interceptors = new();
+    private static readonly object Lock = new();
+    public static GameManager Instance { get; } = new();
 
     public sealed class LockScope : IDisposable
     {
-        readonly object l;
+        private readonly object l;
         public LockScope(object o){l=o; Monitor.Enter(l);} 
         public void Dispose(){ Monitor.Exit(l);} 
     }
-    public static LockScope EnterScope(object o)=>new LockScope(o);
+    public static LockScope EnterScope(object o)=>new(o);
 
     public List<EntityQueryInterceptors> GetQueryInterceptors()
     {

@@ -7,33 +7,28 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
-using OxygenNEL.IRC.Packet;
+
 using Codexus.Development.SDK.Connection;
+using Codexus.Development.SDK.Enums;
+using OxygenNEL.IRC.Packet;
 using Serilog;
 
 namespace OxygenNEL.IRC;
 
-public class IrcClient : IDisposable
+public class IrcClient(GameConnection conn, Func<string>? tokenProvider) : IDisposable
 {
-    readonly GameConnection _conn;
-    readonly string _token;
-    string _roleId = string.Empty;
+    private readonly string _token = tokenProvider?.Invoke() ?? "";
+    private string _roleId = string.Empty;
 
-    TcpLineClient? _tcp;
-    bool _welcomed;
-    bool _listShown;
-    Timer? _pingTimer;
-    volatile bool _running;
+    private TcpLineClient? _tcp;
+    private bool _welcomed;
+    private bool _listShown;
+    private Timer? _pingTimer;
+    private volatile bool _running;
 
     public string RoleId => _roleId;
-    public GameConnection Connection => _conn;
+    public GameConnection Connection => conn;
     public event EventHandler<IrcChatEventArgs>? ChatReceived;
-
-    public IrcClient(GameConnection conn, Func<string>? tokenProvider)
-    {
-        _conn = conn;
-        _token = tokenProvider?.Invoke() ?? "";
-    }
 
     public void Start(string nickName)
     {
@@ -73,9 +68,10 @@ public class IrcClient : IDisposable
     {
         Stop();
         _tcp?.Dispose();
+        GC.SuppressFinalize(this);
     }
 
-    void Run()
+    private void Run()
     {
         while (_running)
         {
@@ -110,18 +106,13 @@ public class IrcClient : IDisposable
         }
     }
 
-    void Process(string line)
+    private void Process(string line)
     {
         Log.Debug("[IRC] 收到: {Line}", line);
         var msg = IrcProtocol.Parse(line);
         if (msg == null) return;
 
-        if (msg.IsOk && !_welcomed)
-        {
-            _welcomed = true;
-            _tcp?.Send(IrcProtocol.List());
-        }
-        else if (msg.IsError && msg.Data.Contains("已注册"))
+        if (msg.IsOk && !_welcomed || msg.IsError && msg.Data.Contains("已注册"))
         {
             _welcomed = true;
             _tcp?.Send(IrcProtocol.List());
@@ -130,12 +121,12 @@ public class IrcClient : IDisposable
         {
             Task.Run(async () =>
             {
-                for (int i = 0; i < 10 && _running; i++)
+                for (var i = 0; i < 10 && _running; i++)
                 {
-                    if (_conn.State == Codexus.Development.SDK.Enums.EnumConnectionState.Play) break;
+                    if (conn.State == EnumConnectionState.Play) break;
                     await Task.Delay(500);
                 }
-                if (_running && _conn.State == Codexus.Development.SDK.Enums.EnumConnectionState.Play)
+                if (_running && conn.State == EnumConnectionState.Play)
                 {
                     if (!_listShown)
                     {
@@ -157,9 +148,9 @@ public class IrcClient : IDisposable
         }
     }
 
-    void Msg(string msg)
+    private void Msg(string msg)
     {
         Log.Information("[IRC] 显示消息: {Msg}", msg);
-        CChatCommandIrc.SendLocalMessage(_conn, msg);
+        CChatCommandIrc.SendLocalMessage(conn, msg);
     }
 }

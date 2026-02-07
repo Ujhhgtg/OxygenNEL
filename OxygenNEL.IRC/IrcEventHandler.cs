@@ -7,22 +7,19 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
-using DotNetty.Buffers;
-using OxygenNEL.IRC.Packet;
+
+using System.Collections.Concurrent;
 using Codexus.Development.SDK.Connection;
-using Codexus.Development.SDK.Enums;
 using Codexus.Development.SDK.Event;
-using Codexus.Development.SDK.Extensions;
 using Codexus.Development.SDK.Manager;
 using Codexus.Development.SDK.Utils;
-using Serilog;
-using System.Collections.Concurrent;
+using OxygenNEL.IRC.Packet;
 
 namespace OxygenNEL.IRC;
 
 public static class IrcEventHandler
 {
-    static readonly ConcurrentDictionary<GameConnection, bool> _processed = new();
+    private static readonly ConcurrentDictionary<GameConnection, bool> _processed = new();
 
     public static void Register(Func<string> tokenProvider)
     {
@@ -37,7 +34,7 @@ public static class IrcEventHandler
         EventManager.Instance.RegisterHandler<EventConnectionClosed>("channel_connection", OnConnectionClosed);
     }
 
-    static void OnLoginSuccess(EventLoginSuccess args)
+    private static void OnLoginSuccess(EventLoginSuccess args)
     {
         if (!IrcManager.Enabled) return;
         
@@ -51,12 +48,12 @@ public static class IrcEventHandler
         client.Start(nickName);
     }
 
-    static void OnConnectionClosed(EventConnectionClosed args)
+    private static void OnConnectionClosed(EventConnectionClosed args)
     {
         IrcManager.Remove(args.Connection);
     }
 
-    static void OnChatReceived(object? sender, IrcChatEventArgs e)
+    private static void OnChatReceived(object? sender, IrcChatEventArgs e)
     {
         if (sender is not IrcClient client) return;
         CChatCommandIrc.SendLocalMessage(client.Connection, e.Message);

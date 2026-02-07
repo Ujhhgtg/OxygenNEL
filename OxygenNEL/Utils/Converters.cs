@@ -7,117 +7,117 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
+using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
-using System;
 using Microsoft.UI.Xaml.Media.Imaging;
 
-namespace OxygenNEL
+namespace OxygenNEL;
+
+public class CountToVisibilityConverter : IValueConverter
 {
-    public class CountToVisibilityConverter : IValueConverter
+    public object Convert(object value, Type targetType, object parameter, string language)
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        if (value is int count)
         {
-            if (value is int count)
-            {
-                return count == 0 ? Visibility.Visible : Visibility.Collapsed;
-            }
-            return Visibility.Collapsed;
+            return count == 0 ? Visibility.Visible : Visibility.Collapsed;
         }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            throw new NotImplementedException();
-        }
+        return Visibility.Collapsed;
     }
 
-    public class StatusToVisibilityConverter : IValueConverter
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value is string status && parameter is string targetStatus)
-            {
-                return status == targetStatus ? Visibility.Visible : Visibility.Collapsed;
-            }
-            return Visibility.Collapsed;
-        }
+        throw new NotImplementedException();
+    }
+}
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+public class StatusToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is string status && parameter is string targetStatus)
         {
-            throw new NotImplementedException();
+            return status == targetStatus ? Visibility.Visible : Visibility.Collapsed;
         }
+        return Visibility.Collapsed;
     }
 
-    public class BoolNegationConverter : IValueConverter
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value is bool b)
-            {
-                return !b;
-            }
-            return false;
-        }
+        throw new NotImplementedException();
+    }
+}
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+public class BoolNegationConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is bool b)
         {
-            throw new NotImplementedException();
+            return !b;
         }
+        return false;
     }
 
-    public class BoolToVisibilityConverter : IValueConverter
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value is bool b)
-            {
-                return b ? Visibility.Visible : Visibility.Collapsed;
-            }
-            return Visibility.Collapsed;
-        }
+        throw new NotImplementedException();
+    }
+}
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+public class BoolToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is bool b)
         {
-            throw new NotImplementedException();
+            return b ? Visibility.Visible : Visibility.Collapsed;
         }
+        return Visibility.Collapsed;
     }
 
-    public class BoolToVisibilityNegationConverter : IValueConverter
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value is bool b)
-            {
-                return b ? Visibility.Collapsed : Visibility.Visible;
-            }
-            return Visibility.Visible;
-        }
+        throw new NotImplementedException();
+    }
+}
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+public class BoolToVisibilityNegationConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is bool b)
         {
-            throw new NotImplementedException();
+            return b ? Visibility.Collapsed : Visibility.Visible;
         }
+        return Visibility.Visible;
     }
 
-    public class StringToImageSourceConverter : IValueConverter
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            try
-            {
-                var s = value as string;
-                if (!string.IsNullOrWhiteSpace(s))
-                {
-                    return new BitmapImage(new Uri(s));
-                }
-            }
-            catch { }
-            return new BitmapImage(new Uri("ms-appx:///Assets/OxygenNEL.png"));
-        }
+        throw new NotImplementedException();
+    }
+}
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+public class StringToImageSourceConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        try
         {
-            throw new NotImplementedException();
+            var s = value as string;
+            if (!string.IsNullOrWhiteSpace(s))
+            {
+                return new BitmapImage(new Uri(s));
+            }
         }
+        catch { }
+        return new BitmapImage(new Uri("ms-appx:///Assets/OxygenNEL.png"));
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
     }
 }

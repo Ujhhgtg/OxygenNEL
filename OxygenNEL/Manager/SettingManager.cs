@@ -7,14 +7,15 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Serilog;
 using OxygenNEL.type;
+using Serilog;
 
 namespace OxygenNEL.Manager;
 

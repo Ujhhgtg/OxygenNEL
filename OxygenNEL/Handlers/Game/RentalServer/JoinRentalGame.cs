@@ -7,21 +7,24 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Codexus.Cipher.Protocol;
-using OxygenNEL.Manager;
-using OxygenNEL.type;
-using OxygenNEL.Entities.Web.RentalGame;
 using Codexus.Development.SDK.Entities;
 using Codexus.Game.Launcher.Services.Java;
 using Codexus.Game.Launcher.Utils;
 using Codexus.Interceptors;
+using Codexus.OpenSDK.Entities.Yggdrasil;
 using OxygenNEL.Core.Utils;
+using OxygenNEL.Entities.Web.RentalGame;
+using OxygenNEL.Manager;
+using OxygenNEL.type;
 using Serilog;
 
 namespace OxygenNEL.Handlers.Game.RentalServer;
@@ -84,9 +87,9 @@ public class JoinRentalGame
         }
 
         var versionName = mcVersion;
-        var versionMatch = System.Text.RegularExpressions.Regex.Match(versionName, @"(\d+\.\d+\.\d+)");
-        string fullVersion = "";
-        string shortVersion = "";
+        var versionMatch = Regex.Match(versionName, @"(\d+\.\d+\.\d+)");
+        var fullVersion = "";
+        var shortVersion = "";
         if (versionMatch.Success)
         {
             fullVersion = versionMatch.Groups[1].Value; 
@@ -95,7 +98,7 @@ public class JoinRentalGame
         }
         else
         {
-            var shortMatch = System.Text.RegularExpressions.Regex.Match(versionName, @"(\d+\.\d+)");
+            var shortMatch = Regex.Match(versionName, @"(\d+\.\d+)");
             if (shortMatch.Success)
             {
                 shortVersion = shortMatch.Groups[1].Value;
@@ -128,15 +131,15 @@ public class JoinRentalGame
             serverId,
             true);
         var mods = JsonSerializer.Serialize(serverMod);
-        SemaphoreSlim authorizedSignal = new SemaphoreSlim(0);
+        var authorizedSignal = new SemaphoreSlim(0);
         var pair = Md5Mapping.GetMd5FromGameVersion(versionName);
 
         _lastIp = serverIp;
         _lastPort = serverPort;
 
         var socksCfg = _request?.Socks5;
-        var socksAddr = socksCfg != null ? (socksCfg.Address ?? string.Empty) : string.Empty;
-        var socksPort = socksCfg != null ? socksCfg.Port : 0;
+        var socksAddr = socksCfg != null ? socksCfg.Address ?? string.Empty : string.Empty;
+        var socksPort = socksCfg?.Port ?? 0;
         Log.Information("JoinRentalGame SOCKS5 配置: Address={Addr}, Port={Port}, Username={User}", socksAddr, socksPort, socksCfg?.Username);
         if (!string.IsNullOrWhiteSpace(socksAddr) && socksPort <= 0) return false;
         if (!string.IsNullOrWhiteSpace(socksAddr) && socksPort > 0)
@@ -145,7 +148,7 @@ public class JoinRentalGame
             catch { return false; }
         }
 
-        Interceptor interceptor = Interceptor.CreateInterceptor(
+        var interceptor = Interceptor.CreateInterceptor(
             _request?.Socks5 ?? new EntitySocks5(),
             mods,
             serverId,
@@ -168,14 +171,14 @@ public class JoinRentalGame
                         AppState.Services?.RefreshYggdrasil();
                         var latest = UserManager.Instance.GetAvailableUser(available.UserId);
                         var currentToken = latest?.AccessToken ?? available.AccessToken;
-                        var success = await AppState.Services!.Yggdrasil.JoinServerAsync(new Codexus.OpenSDK.Entities.Yggdrasil.GameProfile
+                        var success = await AppState.Services!.Yggdrasil.JoinServerAsync(new GameProfile
                         {
                             GameId = serverId,
                             GameVersion = versionName,
                             BootstrapMd5 = pair.BootstrapMd5,
                             DatFileMd5 = pair.DatFileMd5,
-                            Mods = JsonSerializer.Deserialize<Codexus.OpenSDK.Entities.Yggdrasil.ModList>(mods)!,
-                            User = new Codexus.OpenSDK.Entities.Yggdrasil.UserProfile { UserId = int.Parse(available.UserId), UserToken = currentToken }
+                            Mods = JsonSerializer.Deserialize<ModList>(mods)!,
+                            User = new UserProfile { UserId = int.Parse(available.UserId), UserToken = currentToken }
                         }, certification);
                         if (success.IsSuccess)
                         {

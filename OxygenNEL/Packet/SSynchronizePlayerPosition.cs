@@ -7,24 +7,25 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using DotNetty.Buffers;
 using Codexus.Development.SDK.Connection;
 using Codexus.Development.SDK.Entities;
 using Codexus.Development.SDK.Enums;
 using Codexus.Development.SDK.Extensions;
 using Codexus.Development.SDK.Packet;
+using DotNetty.Buffers;
 using OxygenNEL.Component;
+using OxygenNEL.Core.Utils;
 using OxygenNEL.Manager;
 using OxygenNEL.type;
-using OxygenNEL.Core.Utils;
 using Serilog;
 
 namespace OxygenNEL.Packet;
 
-[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ClientBound, 0x40, EnumProtocolVersion.V1206, false)]
+[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ClientBound, 0x40, EnumProtocolVersion.V1206)]
 public class SSynchronizePlayerPosition : IPacket
 {
     private static readonly ConcurrentDictionary<Guid, bool> _detected = new();

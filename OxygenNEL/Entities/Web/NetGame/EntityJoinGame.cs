@@ -7,6 +7,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System.Text.Json.Serialization;
 using Codexus.Development.SDK.Entities;
 
@@ -51,5 +52,5 @@ public class EntityJoinGame
 	public string ServerName { get; set; } = string.Empty;
 
 	[JsonPropertyName("socks5")]
-	public EntitySocks5 Socks5 { get; set; } = new EntitySocks5();
+	public EntitySocks5 Socks5 { get; set; } = new();
 }

@@ -7,6 +7,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -32,13 +33,13 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
 {
     public static string PageTitle => "网络服务器";
 
-    readonly SemaphoreSlim _imageLimiter = new(6);
-    CancellationTokenSource? _cts;
-    int _page = 1;
-    int _refreshId;
-    bool _hasMore;
-    bool _notLogin;
-    string? _pendingServerId;
+    private readonly SemaphoreSlim _imageLimiter = new(6);
+    private CancellationTokenSource? _cts;
+    private int _page = 1;
+    private int _refreshId;
+    private bool _hasMore;
+    private bool _notLogin;
+    private string? _pendingServerId;
 
     public ObservableCollection<ServerItem> Servers { get; } = new();
     public bool NotLogin { get => _notLogin; private set { _notLogin = value; OnPropertyChanged(nameof(NotLogin)); } }
@@ -66,7 +67,7 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
             _pendingServerId = serverId;
     }
 
-    async Task RefreshAsync(string? keyword = null)
+    private async Task RefreshAsync(string? keyword = null)
     {
         _cts?.Cancel();
         _cts = new CancellationTokenSource();
@@ -101,7 +102,7 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
         UpdatePaging();
     }
 
-    async Task LoadImageAsync(ServerItem item, int myId, CancellationToken ct)
+    private async Task LoadImageAsync(ServerItem item, int myId, CancellationToken ct)
     {
         await _imageLimiter.WaitAsync(ct);
         try
@@ -115,7 +116,7 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
         finally { _imageLimiter.Release(); }
     }
 
-    void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+    private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         _page = 1;
         Servers.Clear();
@@ -123,22 +124,22 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
         _ = RefreshAsync((sender as TextBox)?.Text);
     }
 
-    async void SpecifyServerButton_Click(object sender, RoutedEventArgs e)
+    private async void SpecifyServerButton_Click(object sender, RoutedEventArgs e)
     {
         var id = await DialogService.ShowInputAsync(XamlRoot, "指定服务器", "请输入服务器号");
         if (string.IsNullOrWhiteSpace(id)) { if (id != null) NotificationHost.ShowGlobal("请输入服务器号", ToastLevel.Error); return; }
         await JoinServerAsync(id, id);
     }
 
-    async void JoinServerButton_Click(object sender, RoutedEventArgs e)
+    private async void JoinServerButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button { Tag: ServerItem s }) await JoinServerAsync(s.EntityId, s.Name, s.ImageUrl);
     }
 
-    void PrevPageButton_Click(object sender, RoutedEventArgs e) { if (_page > 1) { _page--; _ = RefreshAsync(SearchBox?.Text); } }
-    void NextPageButton_Click(object sender, RoutedEventArgs e) { if (_hasMore) { _page++; _ = RefreshAsync(SearchBox?.Text); } }
+    private void PrevPageButton_Click(object sender, RoutedEventArgs e) { if (_page > 1) { _page--; _ = RefreshAsync(SearchBox?.Text); } }
+    private void NextPageButton_Click(object sender, RoutedEventArgs e) { if (_hasMore) { _page++; _ = RefreshAsync(SearchBox?.Text); } }
 
-    async Task JoinServerAsync(string serverId, string serverName, string? imageUrl = null)
+    private async Task JoinServerAsync(string serverId, string serverName, string? imageUrl = null)
     {
         var openResult = await RunOnStaAsync(() => new OpenServer().Execute(serverId));
         if (!openResult.Success) { await DialogService.ShowErrorAsync(XamlRoot, openResult.Message ?? "打开失败"); return; }
@@ -158,7 +159,7 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
                 if (r.Success) { roles = r.Items; DispatcherQueue.TryEnqueue(() => content.SetRoles(roles.Select(x => new JoinServerContent.OptionItem { Label = x.Name, Value = x.Id }).ToList())); }
             };
 
-            var dlg = DialogService.Create(XamlRoot, "加入服务器", content, "启动", "白端", "关闭");
+            var dlg = DialogService.Create(XamlRoot, "加入服务器", content, "启动", "白端");
             content.ParentDialog = dlg;
             var result = await dlg.ShowAsync();
             var accId = content.SelectedAccountId;
@@ -181,8 +182,8 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
             break;
         }
     }
-    
-    async Task LaunchGameAsync(string accId, string serverId, string serverName, string roleId, string? imageUrl = null)
+
+    private async Task LaunchGameAsync(string accId, string serverId, string serverName, string roleId, string? imageUrl = null)
     {
         NotificationHost.ShowGlobal("正在准备游戏资源...", ToastLevel.Success);
         Log.Information("启动游戏: Server={Server}, Role={Role}", serverId, roleId);
@@ -199,18 +200,18 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
             }
         }
     }
-    
-    async Task<List<RoleItem>?> AddRoleAsync(string serverId)
+
+    private async Task<List<RoleItem>?> AddRoleAsync(string serverId)
     {
         var addContent = new AddRoleContent();
-        var dlg = DialogService.Create(XamlRoot, "添加角色", addContent, "添加", null, "关闭");
+        var dlg = DialogService.Create(XamlRoot, "添加角色", addContent, "添加");
         if (await dlg.ShowAsync() != ContentDialogResult.Primary || string.IsNullOrWhiteSpace(addContent.RoleName)) return null;
         var roleName = addContent.RoleName;
         var r = await RunOnStaAsync(() => new CreateRoleNamed().Execute(serverId, roleName));
         return r.Success ? r.Items : null;
     }
-    
-    void UpdatePaging()
+
+    private void UpdatePaging()
     {
         if (PageInfoText != null) PageInfoText.Text = $"第 {_page} 页";
         if (PrevPageButton != null) PrevPageButton.IsEnabled = _page > 1;
@@ -218,5 +219,5 @@ public sealed partial class NetworkServerPage : Microsoft.UI.Xaml.Controls.Page,
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

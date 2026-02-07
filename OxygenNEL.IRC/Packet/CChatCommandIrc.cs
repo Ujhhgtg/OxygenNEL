@@ -7,16 +7,18 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
-using DotNetty.Buffers;
+
+using System.Text;
 using Codexus.Development.SDK.Connection;
 using Codexus.Development.SDK.Enums;
 using Codexus.Development.SDK.Extensions;
 using Codexus.Development.SDK.Packet;
+using DotNetty.Buffers;
 using Serilog;
 
 namespace OxygenNEL.IRC.Packet;
 
-[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ServerBound, 4, EnumProtocolVersion.V1206, false)]
+[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ServerBound, 4, EnumProtocolVersion.V1206)]
 public class CChatCommandIrc : IPacket
 {
     public EnumProtocolVersion ClientProtocolVersion { get; set; }
@@ -52,7 +54,7 @@ public class CChatCommandIrc : IPacket
         if (!_isIrcCommand) return false;
         if (!IrcManager.Enabled) return false;
 
-        var content = _command.Length > 4 ? _command.Substring(4).Trim() : string.Empty;
+        var content = _command.Length > 4 ? _command[4..].Trim() : string.Empty;
 
         if (string.IsNullOrWhiteSpace(content))
         {
@@ -88,35 +90,32 @@ public class CChatCommandIrc : IPacket
                 Log.Debug("[IRC] 跳过: 状态不是Play");
                 return;
             }
-            if (connection.ProtocolVersion == EnumProtocolVersion.V1122)
+            switch (connection.ProtocolVersion)
             {
-                CChatCommandIrcV1122.SendLocalMessage(connection, message);
-                return;
+                case EnumProtocolVersion.V1122:
+                    CChatCommandIrcV1122.SendLocalMessage(connection, message);
+                    return;
+                case EnumProtocolVersion.V1200:
+                    CChatCommandIrcV1200.SendLocalMessage(connection, message);
+                    return;
+                case EnumProtocolVersion.V1210:
+                    CChatCommandIrcV1210.SendLocalMessage(connection, message);
+                    return;
+                case EnumProtocolVersion.V108X:
+                    CChatCommandIrcV108X.SendLocalMessage(connection, message);
+                    return;
+                case EnumProtocolVersion.V1076:
+                    CChatCommandIrcV107X.SendLocalMessage(connection, message);
+                    return;
+                default:
+                    Log.Warning("unhandled protocol version: {ProtocolVersion}", connection.ProtocolVersion);
+                    break;
             }
-            if (connection.ProtocolVersion == EnumProtocolVersion.V1200)
-            {
-                CChatCommandIrcV1200.SendLocalMessage(connection, message);
-                return;
-            }
-            if (connection.ProtocolVersion == EnumProtocolVersion.V1210)
-            {
-                CChatCommandIrcV1210.SendLocalMessage(connection, message);
-                return;
-            }
-            if (connection.ProtocolVersion == EnumProtocolVersion.V108X)
-            {
-                CChatCommandIrcV108X.SendLocalMessage(connection, message);
-                return;
-            }
-            if (connection.ProtocolVersion == EnumProtocolVersion.V1076)
-            {
-                CChatCommandIrcV107X.SendLocalMessage(connection, message);
-                return;
-            }
+
             if (connection.ProtocolVersion != EnumProtocolVersion.V1206) return;
             var buffer = Unpooled.Buffer();
             buffer.WriteVarInt(108);
-            var textBytes = System.Text.Encoding.UTF8.GetBytes(message);
+            var textBytes = Encoding.UTF8.GetBytes(message);
             buffer.WriteByte(0x08);
             buffer.WriteShort(textBytes.Length);
             buffer.WriteBytes(textBytes);

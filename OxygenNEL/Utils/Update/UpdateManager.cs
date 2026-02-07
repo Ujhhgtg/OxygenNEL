@@ -4,13 +4,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Serilog;
 using OxygenNEL.Component;
 using OxygenNEL.Core.Api;
 using OxygenNEL.type;
+using Serilog;
 
 namespace OxygenNEL.Utils.Update;
 
@@ -18,9 +21,9 @@ public class UpdateManager
 {
     private static async Task<T> RetryHttpRequest<T>(Func<Task<T>> httpRequestFunc, string requestType, int maxRetries = 3)
     {
-        int retryDelayMs = 2000;
+        var retryDelayMs = 2000;
         
-        for (int attempt = 0; attempt <= maxRetries; attempt++)
+        for (var attempt = 0; attempt <= maxRetries; attempt++)
         {
             try
             {
@@ -28,7 +31,7 @@ public class UpdateManager
             }
             catch (Exception ex) when (attempt < maxRetries)
             {
-                Log.Warning(ex, $"{requestType} 请求失败，第 {attempt + 1} 次尝试，将在 {retryDelayMs}ms 后重试");
+                Log.Warning(ex, "{RequestType} 请求失败，第 {Attempt} 次尝试，将在 {RetryDelayMs}ms 后重试", requestType, attempt + 1, retryDelayMs);
                 await Task.Delay(retryDelayMs);
                 
                 retryDelayMs *= 2;
@@ -40,9 +43,9 @@ public class UpdateManager
     
     private static async Task ExecuteWithRetry(Func<Task> operation, string operationType, int maxRetries = 3)
     {
-        int retryDelayMs = 2000;
+        var retryDelayMs = 2000;
         
-        for (int attempt = 0; attempt <= maxRetries; attempt++)
+        for (var attempt = 0; attempt <= maxRetries; attempt++)
         {
             try
             {
@@ -51,7 +54,7 @@ public class UpdateManager
             }
             catch (Exception ex) when (attempt < maxRetries)
             {
-                Log.Warning(ex, $"{operationType} 操作失败，第 {attempt + 1} 次尝试，将在 {retryDelayMs}ms 后重试");
+                Log.Warning(ex, "{OperationType} 操作失败，第 {Attempt} 次尝试，将在 {RetryDelayMs}ms 后重试", operationType, attempt + 1, retryDelayMs);
                 await Task.Delay(retryDelayMs);
                 
                 retryDelayMs *= 2;
@@ -60,7 +63,7 @@ public class UpdateManager
         
         throw new InvalidOperationException($"{operationType} 操作在多次重试后仍然失败");
     }
-    private static readonly HttpClient _http = new(new HttpClientHandler()
+    private static readonly HttpClient HttpClient = new(new HttpClientHandler
     {
         MaxConnectionsPerServer = 16
     })
@@ -81,17 +84,20 @@ public class UpdateManager
                 {
                     var dialog = new ThemedContentDialog
                     {
-                        Title = "检测到新版本",
-                        Content = $"检测到新版本 {result.Version}\n是否更新？",
+                        // Title = "检测到新版本",
+                        // Content = $"检测到新版本 {result.Version}\n是否更新？",
+                        Title = "更新已禁用",
+                        Content = "你按哪个都没用",
                         PrimaryButtonText = "确定",
                         CloseButtonText = "取消",
                         XamlRoot = window.Content.XamlRoot
                     };
 
-                    var dialogResult = await dialog.ShowAsync();
-                    if (dialogResult != ContentDialogResult.Primary) return;
-
-                    await DownloadAndApplyUpdateAsync(result.DownloadUrl!, window);
+                    // var dialogResult = await dialog.ShowAsync();
+                    // if (dialogResult != ContentDialogResult.Primary) return;
+                    await dialog.ShowAsync();
+                    
+                    // await DownloadAndApplyUpdateAsync(result.DownloadUrl!, window);
                 }
             }
         }
@@ -135,7 +141,7 @@ public class UpdateManager
 
             var headResponse = await RetryHttpRequest(async () =>
             {
-                var response = await _http.SendAsync(new HttpRequestMessage(HttpMethod.Head, downloadUrl));
+                var response = await HttpClient.SendAsync(new HttpRequestMessage(HttpMethod.Head, downloadUrl));
                 response.EnsureSuccessStatusCode();
                 return response;
             }, "HEAD");
@@ -149,7 +155,7 @@ public class UpdateManager
 
             var acceptRanges = headResponse.Headers.GetValues("Accept-Ranges").FirstOrDefault();
                         
-            List<string> tempFilesToClean = new List<string>();
+            var tempFilesToClean = new List<string>();
                         
             try
             {
@@ -157,7 +163,7 @@ public class UpdateManager
                 {
                     await ExecuteWithRetry(async () =>
                     {
-                        using var response = await _http.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
+                        using var response = await HttpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
                         response.EnsureSuccessStatusCode();
                                     
                         var buffer = new byte[64 * 1024];
@@ -173,7 +179,7 @@ public class UpdateManager
                             downloadedBytes += bytesRead;
                                                     
                             var percent = (double)downloadedBytes / totalBytes * 100;
-                            Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+                            DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
                             {
                                 progressBar.Value = percent;
                                 statusText.Text = $"正在下载... {percent:F1}%";
@@ -184,7 +190,7 @@ public class UpdateManager
                 else
                 {
                     const int maxThreadCount = 8; 
-                    int threadCount = Math.Min(maxThreadCount, Environment.ProcessorCount);
+                    var threadCount = Math.Min(maxThreadCount, Environment.ProcessorCount);
                     var minChunkSize = 1024 * 1024;
                     var calculatedChunkSize = totalBytes / threadCount;
                                     
@@ -198,7 +204,7 @@ public class UpdateManager
                     var tempFiles = new string[threadCount];
                     var downloadedBytesArray = new long[threadCount];
             
-                    for (int i = 0; i < threadCount; i++)
+                    for (var i = 0; i < threadCount; i++)
                     {
                         var start = i * chunkSize;
                         var end = i == threadCount - 1 ? totalBytes - 1 : (i + 1) * chunkSize - 1;
@@ -225,7 +231,7 @@ public class UpdateManager
                 }
             }
 
-            Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() => statusText.Text = "下载完成，正在准备更新...");
+            DispatcherQueue.GetForCurrentThread().TryEnqueue(() => statusText.Text = "下载完成，正在准备更新...");
 
             var batPath = Path.Combine(exeDir, "update.bat");
             var batContent = $@"@echo off
@@ -266,17 +272,17 @@ del ""%~f0""
 
     private static async Task DownloadChunkAsync(string downloadUrl, string range, string tempFile, long start, long end, long totalBytes, ProgressBar progressBar, TextBlock statusText, long[] downloadedBytesArray, int threadIndex)
     {
-        int maxRetries = 3;
-        int retryDelayMs = 2000;
+        var maxRetries = 3;
+        var retryDelayMs = 2000;
         
-        for (int attempt = 0; attempt <= maxRetries; attempt++)
+        for (var attempt = 0; attempt <= maxRetries; attempt++)
         {
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Get, downloadUrl);
-                request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(start, end);
+                request.Headers.Range = new RangeHeaderValue(start, end);
                 
-                using var response = await _http.SendAsync(request);
+                using var response = await HttpClient.SendAsync(request);
                 response.EnsureSuccessStatusCode();
                 
                 var buffer = new byte[64 * 1024];
@@ -291,16 +297,16 @@ del ""%~f0""
                     await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
                     chunkDownloadedBytes += bytesRead;
                     
-                    System.Threading.Volatile.Write(ref downloadedBytesArray[threadIndex], chunkDownloadedBytes);
+                    Volatile.Write(ref downloadedBytesArray[threadIndex], chunkDownloadedBytes);
                     
                     var totalDownloaded = 0L;
-                    for (int i = 0; i < downloadedBytesArray.Length; i++)
+                    for (var i = 0; i < downloadedBytesArray.Length; i++)
                     {
-                        totalDownloaded += System.Threading.Volatile.Read(ref downloadedBytesArray[i]);
+                        totalDownloaded += Volatile.Read(ref downloadedBytesArray[i]);
                     }
                     
                     var percent = (double)totalDownloaded / totalBytes * 100;
-                    Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+                    DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
                     {
                         progressBar.Value = percent;
                         statusText.Text = $"正在下载... {percent:F1}%";
@@ -311,7 +317,7 @@ del ""%~f0""
             }
             catch (Exception ex) when (attempt < maxRetries)
             {
-                Log.Warning(ex, $"分块下载失败，第 {attempt + 1} 次尝试，将在 {retryDelayMs}ms 后重试。范围: {range}");
+                Log.Warning(ex, "分块下载失败，第 {Attempt} 次尝试，将在 {RetryDelayMs}ms 后重试。范围: {Range}", attempt + 1, retryDelayMs, range);
                 
                 if (File.Exists(tempFile))
                 {

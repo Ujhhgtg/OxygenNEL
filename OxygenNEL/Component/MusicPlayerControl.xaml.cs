@@ -1,11 +1,14 @@
 using System;
 using System.IO;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
+using Windows.Foundation;
 using Windows.Media.Core;
 using Windows.Media.Playback;
-using Serilog;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Input;
 using OxygenNEL.Manager;
+using Serilog;
 
 namespace OxygenNEL.Component;
 
@@ -15,7 +18,7 @@ public sealed partial class MusicPlayerControl : UserControl
     private bool _isMusicPlaying;
     private bool _isDragging;
     private bool _isUpdatingSlider;
-    private Windows.Foundation.Point _dragStartPoint;
+    private Point _dragStartPoint;
     private double _offsetX;
     private double _offsetY;
 
@@ -167,28 +170,28 @@ public sealed partial class MusicPlayerControl : UserControl
         });
     }
 
-    private void MusicProgressSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
+    private void MusicProgressSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
     {
         if (_isUpdatingSlider || _musicPlayer == null) return;
         _musicPlayer.PlaybackSession.Position = TimeSpan.FromSeconds(e.NewValue);
     }
 
-    private void Panel_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    private void Panel_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
         if (e.OriginalSource is Button || e.OriginalSource is Slider || 
-            e.OriginalSource is Microsoft.UI.Xaml.Controls.Primitives.Thumb) return;
+            e.OriginalSource is Thumb) return;
 
         _isDragging = true;
-        _dragStartPoint = e.GetCurrentPoint((UIElement)this.Parent).Position;
+        _dragStartPoint = e.GetCurrentPoint((UIElement)Parent).Position;
         MusicPlayerPanel.CapturePointer(e.Pointer);
         e.Handled = true;
     }
 
-    private void Panel_PointerMoved(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    private void Panel_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
         if (!_isDragging) return;
 
-        var currentPoint = e.GetCurrentPoint((UIElement)this.Parent).Position;
+        var currentPoint = e.GetCurrentPoint((UIElement)Parent).Position;
         var deltaX = currentPoint.X - _dragStartPoint.X;
         var deltaY = currentPoint.Y - _dragStartPoint.Y;
 
@@ -202,7 +205,7 @@ public sealed partial class MusicPlayerControl : UserControl
         e.Handled = true;
     }
 
-    private void Panel_PointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    private void Panel_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
         if (_isDragging)
         {

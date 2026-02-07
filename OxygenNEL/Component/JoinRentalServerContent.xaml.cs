@@ -9,90 +9,79 @@ the Free Software Foundation, either version 3 of the License, or
 */
 
 using System;
-using Microsoft.UI.Xaml.Controls;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
-using Codexus.Development.SDK.Entities;
-using OxygenNEL.Entities.Web.RentalGame;
-using OxygenNEL.Handlers.Game.NetServer;
-using OxygenNEL.Handlers.Game.RentalServer;
+using Microsoft.UI.Xaml.Controls;
 using OxygenNEL.Manager;
-using OxygenNEL.Utils;
-using Serilog;
-using Windows.ApplicationModel.DataTransfer;
-using static OxygenNEL.Utils.StaTaskRunner;
 
-namespace OxygenNEL.Component
+namespace OxygenNEL.Component;
+
+public sealed partial class JoinRentalServerContent : UserControl
 {
-    public sealed partial class JoinRentalServerContent : UserControl
+    public bool AddRoleRequested { get; private set; }
+    public ContentDialog? ParentDialog { get; set; }
+
+    public JoinRentalServerContent()
     {
-        public bool AddRoleRequested { get; private set; }
-        public ContentDialog? ParentDialog { get; set; }
-
-        public JoinRentalServerContent()
+        InitializeComponent();
+        try
         {
-            InitializeComponent();
-            try
-            {
-                var mode = SettingManager.Instance.Get().ThemeMode?.Trim().ToLowerInvariant() ?? "system";
-                ElementTheme t = ElementTheme.Default;
-                if (mode == "light") t = ElementTheme.Light;
-                else if (mode == "dark") t = ElementTheme.Dark;
-                this.RequestedTheme = t;
-            }
-            catch { }
+            var mode = SettingManager.Instance.Get().ThemeMode?.Trim().ToLowerInvariant() ?? "system";
+            var t = ElementTheme.Default;
+            if (mode == "light") t = ElementTheme.Light;
+            else if (mode == "dark") t = ElementTheme.Dark;
+            RequestedTheme = t;
         }
+        catch { }
+    }
 
-        public class OptionItem
-        {
-            public string Label { get; set; } = string.Empty;
-            public string Value { get; set; } = string.Empty;
-        }
+    public class OptionItem
+    {
+        public string Label { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+    }
 
-        public void SetAccounts(List<OptionItem> items)
-        {
-            AccountCombo.ItemsSource = items;
-            if (AccountCombo.SelectedIndex < 0 && items != null && items.Count > 0)
-                AccountCombo.SelectedIndex = 0;
-        }
+    public void SetAccounts(List<OptionItem> items)
+    {
+        AccountCombo.ItemsSource = items;
+        if (AccountCombo.SelectedIndex < 0 && items != null && items.Count > 0)
+            AccountCombo.SelectedIndex = 0;
+    }
 
-        public void SetRoles(List<OptionItem> items)
-        {
-            RoleCombo.ItemsSource = items;
-            if (RoleCombo.SelectedIndex < 0 && items != null && items.Count > 0)
-                RoleCombo.SelectedIndex = 0;
-        }
+    public void SetRoles(List<OptionItem> items)
+    {
+        RoleCombo.ItemsSource = items;
+        if (RoleCombo.SelectedIndex < 0 && items != null && items.Count > 0)
+            RoleCombo.SelectedIndex = 0;
+    }
 
-        public void SetPasswordRequired(bool required)
-        {
-            PasswordPanel.Visibility = required ? Visibility.Visible : Visibility.Collapsed;
-        }
+    public void SetPasswordRequired(bool required)
+    {
+        PasswordPanel.Visibility = required ? Visibility.Visible : Visibility.Collapsed;
+    }
 
-        public string SelectedAccountId => AccountCombo.SelectedValue as string ?? string.Empty;
-        public string SelectedRoleId => RoleCombo.SelectedValue as string ?? string.Empty;
-        public string Password => PasswordBox.Password ?? string.Empty;
+    public string SelectedAccountId => AccountCombo.SelectedValue as string ?? string.Empty;
+    public string SelectedRoleId => RoleCombo.SelectedValue as string ?? string.Empty;
+    public string Password => PasswordBox.Password ?? string.Empty;
 
-        public event Action<string>? AccountChanged;
-        public event Action? AddRoleClicked;
+    public event Action<string>? AccountChanged;
+    public event Action? AddRoleClicked;
 
-        private void AccountCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var id = SelectedAccountId;
-            AccountChanged?.Invoke(id);
-        }
+    private void AccountCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var id = SelectedAccountId;
+        AccountChanged?.Invoke(id);
+    }
 
-        private void AddRole_Click(object sender, RoutedEventArgs e)
-        {
-            AddRoleRequested = true;
-            ParentDialog?.Hide();
-            AddRoleClicked?.Invoke();
-        }
+    private void AddRole_Click(object sender, RoutedEventArgs e)
+    {
+        AddRoleRequested = true;
+        ParentDialog?.Hide();
+        AddRoleClicked?.Invoke();
+    }
 
-        public void ResetAddRoleRequested()
-        {
-            AddRoleRequested = false;
-        }
+    public void ResetAddRoleRequested()
+    {
+        AddRoleRequested = false;
     }
 }

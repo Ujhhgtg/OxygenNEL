@@ -7,16 +7,18 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
-using DotNetty.Buffers;
+
+using System.Text;
 using Codexus.Development.SDK.Connection;
 using Codexus.Development.SDK.Enums;
 using Codexus.Development.SDK.Extensions;
 using Codexus.Development.SDK.Packet;
+using DotNetty.Buffers;
 using Serilog;
 
 namespace OxygenNEL.IRC.Packet;
 
-[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ServerBound, 2, EnumProtocolVersion.V1210, false)]
+[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ServerBound, 2, EnumProtocolVersion.V1210)]
 public class CChatCommandIrcV1210 : IPacket
 {
     public EnumProtocolVersion ClientProtocolVersion { get; set; }
@@ -50,7 +52,7 @@ public class CChatCommandIrcV1210 : IPacket
         if (!_isIrcCommand) return false;
         if (!IrcManager.Enabled) return false;
 
-        var content = _command.Length > 4 ? _command.Substring(4).Trim() : string.Empty;
+        var content = _command.Length > 4 ? _command[4..].Trim() : string.Empty;
 
         if (string.IsNullOrWhiteSpace(content))
         {
@@ -83,7 +85,7 @@ public class CChatCommandIrcV1210 : IPacket
             if (connection.ProtocolVersion != EnumProtocolVersion.V1210) return;
             var buffer = Unpooled.Buffer();
             buffer.WriteVarInt(0x6C);
-            var textBytes = System.Text.Encoding.UTF8.GetBytes(message);
+            var textBytes = Encoding.UTF8.GetBytes(message);
             buffer.WriteByte(0x08);
             buffer.WriteShort(textBytes.Length);
             buffer.WriteBytes(textBytes);

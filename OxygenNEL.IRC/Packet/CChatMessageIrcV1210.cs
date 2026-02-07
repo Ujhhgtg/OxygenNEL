@@ -7,16 +7,16 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
-using DotNetty.Buffers;
+
 using Codexus.Development.SDK.Connection;
 using Codexus.Development.SDK.Enums;
 using Codexus.Development.SDK.Extensions;
 using Codexus.Development.SDK.Packet;
-using Serilog;
+using DotNetty.Buffers;
 
 namespace OxygenNEL.IRC.Packet;
 
-[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ServerBound, 6, EnumProtocolVersion.V1210, false)]
+[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ServerBound, 6, EnumProtocolVersion.V1210)]
 public class CChatMessageIrcV1210 : IPacket
 {
     public EnumProtocolVersion ClientProtocolVersion { get; set; }
@@ -50,7 +50,7 @@ public class CChatMessageIrcV1210 : IPacket
         if (!_isIrcCommand) return false;
         if (!IrcManager.Enabled) return false;
 
-        var content = _message.Length > 5 ? _message.Substring(5).Trim() : string.Empty;
+        var content = _message.Length > 5 ? _message[5..].Trim() : string.Empty;
 
         if (string.IsNullOrWhiteSpace(content))
         {

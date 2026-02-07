@@ -7,45 +7,48 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
+using System.Collections.Generic;
+using System.IO;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting.Display;
 
-namespace OxygenNEL.Utils
+namespace OxygenNEL.Utils;
+
+public static class UiLog
 {
-    public static class UiLog
+    public static event Action<string>? Logged;
+    private static readonly object _lock = new();
+    private static readonly List<string> _buffer = new();
+
+    private class Sink : ILogEventSink
     {
-        public static event Action<string>? Logged;
-        static readonly object _lock = new object();
-        static readonly System.Collections.Generic.List<string> _buffer = new System.Collections.Generic.List<string>();
-        class Sink : ILogEventSink
+        private readonly MessageTemplateTextFormatter _formatter = new("{Timestamp:HH:mm:ss} [{Level}] {Message:lj}{NewLine}{Exception}");
+        public void Emit(LogEvent logEvent)
         {
-            readonly MessageTemplateTextFormatter _formatter = new MessageTemplateTextFormatter("{Timestamp:HH:mm:ss} [{Level}] {Message:lj}{NewLine}{Exception}");
-            public void Emit(LogEvent logEvent)
+            using var sw = new StringWriter();
+            _formatter.Format(logEvent, sw);
+            var s = sw.ToString();
+            try
             {
-                using var sw = new System.IO.StringWriter();
-                _formatter.Format(logEvent, sw);
-                var s = sw.ToString();
-                try
+                lock (_lock)
                 {
-                    lock (_lock)
-                    {
-                        _buffer.Add(s);
-                        if (_buffer.Count > 2000) _buffer.RemoveAt(0);
-                    }
+                    _buffer.Add(s);
+                    if (_buffer.Count > 2000) _buffer.RemoveAt(0);
                 }
-                catch { }
-                try { Logged?.Invoke(s); } catch { }
             }
+            catch { }
+            try { Logged?.Invoke(s); } catch { }
         }
-        public static ILogEventSink CreateSink() => new Sink();
-        public static System.Collections.Generic.IReadOnlyList<string> GetSnapshot()
+    }
+    public static ILogEventSink CreateSink() => new Sink();
+    public static IReadOnlyList<string> GetSnapshot()
+    {
+        lock (_lock)
         {
-            lock (_lock)
-            {
-                return _buffer.ToArray();
-            }
+            return _buffer.ToArray();
         }
     }
 }

@@ -65,7 +65,7 @@ public static class IrcProtocol
         else if (line.StartsWith("CHAT_BROADCAST "))
         {
             msg.Type = "CHAT_BROADCAST";
-            msg.Data = line.Substring(15);
+            msg.Data = line[15..];
         }
         else
         {

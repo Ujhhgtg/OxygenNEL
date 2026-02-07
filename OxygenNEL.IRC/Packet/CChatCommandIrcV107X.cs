@@ -7,16 +7,18 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
-using DotNetty.Buffers;
+
+using System.Text;
 using Codexus.Development.SDK.Connection;
 using Codexus.Development.SDK.Enums;
 using Codexus.Development.SDK.Extensions;
 using Codexus.Development.SDK.Packet;
+using DotNetty.Buffers;
 using Serilog;
 
 namespace OxygenNEL.IRC.Packet;
 
-[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ServerBound, 2, EnumProtocolVersion.V1076, false)]
+[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ServerBound, 2, EnumProtocolVersion.V1076)]
 public class CChatCommandIrcV107X : IPacket
 {
     public EnumProtocolVersion ClientProtocolVersion { get; set; }
@@ -50,7 +52,7 @@ public class CChatCommandIrcV107X : IPacket
         if (!_isIrcCommand) return false;
         if (!IrcManager.Enabled) return false;
 
-        var content = _command.Length > 4 ? _command.Substring(4).Trim() : string.Empty;
+        var content = _command.Length > 4 ? _command[4..].Trim() : string.Empty;
 
         if (string.IsNullOrWhiteSpace(content))
         {
@@ -83,7 +85,7 @@ public class CChatCommandIrcV107X : IPacket
             var buffer = Unpooled.Buffer();
             buffer.WriteVarInt(0x02);
             var jsonMessage = "{\"text\":\"" + message.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"}";
-            buffer.WriteString(jsonMessage, System.Text.Encoding.UTF8);
+            buffer.WriteString(jsonMessage, Encoding.UTF8);
             connection.ClientChannel?.WriteAndFlushAsync(buffer);
         }
         catch (Exception ex)

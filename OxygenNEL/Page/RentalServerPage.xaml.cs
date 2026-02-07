@@ -7,6 +7,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,6 +22,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using OxygenNEL.Component;
 using OxygenNEL.Entities.Web.RentalGame;
+using OxygenNEL.Handlers.Game.NetServer;
 using OxygenNEL.Handlers.Game.RentalServer;
 using OxygenNEL.Manager;
 using OxygenNEL.Utils;
@@ -34,10 +36,10 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
     public static string PageTitle => "租赁服";
 
     public ObservableCollection<RentalServerItem> Servers { get; } = new();
-    CancellationTokenSource? _cts;
-    int _refreshId;
-    bool _notLogin;
-    string? _pendingServerId;
+    private CancellationTokenSource? _cts;
+    private int _refreshId;
+    private bool _notLogin;
+    private string? _pendingServerId;
 
     public bool NotLogin { get => _notLogin; private set { _notLogin = value; OnPropertyChanged(nameof(NotLogin)); } }
 
@@ -64,16 +66,16 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
             _pendingServerId = serverId;
     }
 
-    async void RefreshButton_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
+    private async void RefreshButton_Click(object sender, RoutedEventArgs e) => await RefreshAsync();
 
-    async void SpecifyServerButton_Click(object sender, RoutedEventArgs e)
+    private async void SpecifyServerButton_Click(object sender, RoutedEventArgs e)
     {
         var id = await DialogService.ShowInputAsync(XamlRoot, "指定服务器", "请输入服务器号");
         if (string.IsNullOrWhiteSpace(id)) { if (id != null) NotificationHost.ShowGlobal("请输入服务器号", ToastLevel.Error); return; }
         await JoinServerByIdAsync(id, id);
     }
 
-    async Task JoinServerByIdAsync(string serverId, string serverName)
+    private async Task JoinServerByIdAsync(string serverId, string serverName)
     {
         try
         {
@@ -93,7 +95,7 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
         }
     }
 
-    async Task RefreshAsync()
+    private async Task RefreshAsync()
     {
         _cts?.Cancel();
         _cts = new CancellationTokenSource();
@@ -158,7 +160,7 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
         }
     }
 
-    async Task ShowJoinDialogAsync(string serverId, string serverName, List<JoinRentalServerContent.OptionItem> acctItems, List<JoinRentalServerContent.OptionItem> roleItems, bool hasPassword, string? mcVersion = null)
+    private async Task ShowJoinDialogAsync(string serverId, string serverName, List<JoinRentalServerContent.OptionItem> acctItems, List<JoinRentalServerContent.OptionItem> roleItems, bool hasPassword, string? mcVersion = null)
     {
         while (true)
         {
@@ -166,11 +168,11 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
             joinContent.SetAccounts(acctItems);
             joinContent.SetRoles(roleItems);
             joinContent.SetPasswordRequired(hasPassword);
-            joinContent.AccountChanged += async (accountId) =>
+            joinContent.AccountChanged += async accountId =>
             {
                 try
                 {
-                    await RunOnStaAsync(() => new Handlers.Game.NetServer.SelectAccount().Execute(accountId));
+                    await RunOnStaAsync(() => new SelectAccount().Execute(accountId));
                     var rAcc = await RunOnStaAsync(() => new OpenRentalServer().ExecuteForAccount(accountId, serverId));
                     if (rAcc.Success)
                     {
@@ -181,7 +183,7 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
                 catch (Exception ex) { Log.Debug(ex, "切换账号失败"); }
             };
 
-            var dlg = DialogService.Create(XamlRoot, "加入租赁服", joinContent, "启动", null, "关闭");
+            var dlg = DialogService.Create(XamlRoot, "加入租赁服", joinContent, "启动");
             joinContent.ParentDialog = dlg;
 
             var result = await dlg.ShowAsync();
@@ -198,7 +200,7 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
                 }
 
                 NotificationHost.ShowGlobal("正在准备游戏资源，请稍后", ToastLevel.Success);
-                await RunOnStaAsync(() => new Handlers.Game.NetServer.SelectAccount().Execute(accId));
+                await RunOnStaAsync(() => new SelectAccount().Execute(accId));
 
                 var req = new EntityJoinRentalGame
                 {
@@ -211,7 +213,7 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
                 };
                 var set = SettingManager.Instance.Get();
                 var enabled = set?.Socks5Enabled ?? false;
-                req.Socks5 = (!enabled || string.IsNullOrWhiteSpace(set?.Socks5Address))
+                req.Socks5 = !enabled || string.IsNullOrWhiteSpace(set?.Socks5Address)
                     ? new EntitySocks5 { Address = string.Empty, Port = 0, Username = string.Empty, Password = string.Empty }
                     : new EntitySocks5 { Enabled = true, Address = set!.Socks5Address, Port = set.Socks5Port, Username = set.Socks5Username, Password = set.Socks5Password };
 
@@ -233,17 +235,18 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
                 }
                 break;
             }
-            else if (result == ContentDialogResult.None && joinContent.AddRoleRequested)
+
+            if (result == ContentDialogResult.None && joinContent.AddRoleRequested)
             {
                 var addRoleContent = new AddRoleContent();
-                var dlg2 = DialogService.Create(XamlRoot, "添加角色", addRoleContent, "添加", null, "关闭");
+                var dlg2 = DialogService.Create(XamlRoot, "添加角色", addRoleContent, "添加");
                 var addRes = await dlg2.ShowAsync();
                 if (addRes == ContentDialogResult.Primary && !string.IsNullOrWhiteSpace(addRoleContent.RoleName))
                 {
                     var roleName = addRoleContent.RoleName;
                     var accId2 = joinContent.SelectedAccountId;
                     if (!string.IsNullOrWhiteSpace(accId2))
-                        await RunOnStaAsync(() => new Handlers.Game.NetServer.SelectAccount().Execute(accId2));
+                        await RunOnStaAsync(() => new SelectAccount().Execute(accId2));
                     var r2 = await RunOnStaAsync(() => new CreateRentalRole().Execute(serverId, roleName));
                     if (r2.Success)
                     {
@@ -252,7 +255,6 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
                     }
                 }
                 joinContent.ResetAddRoleRequested();
-                continue;
             }
             else
             {
@@ -262,5 +264,5 @@ public sealed partial class RentalServerPage : Microsoft.UI.Xaml.Controls.Page, 
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
-    void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

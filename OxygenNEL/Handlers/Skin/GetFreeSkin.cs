@@ -7,6 +7,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,7 +46,7 @@ public class GetFreeSkin
         {
             Log.Information("免费皮肤请求 offset={Offset} length={Length}", offset, length);
 
-            Codexus.Cipher.Entities.Entities<EntitySkin> list;
+            Entities<EntitySkin> list;
             try
             {
                 list = AppState.X19.GetFreeSkinList(last.UserId, last.AccessToken, offset, length);
@@ -64,7 +65,7 @@ public class GetFreeSkin
                 return new GetFreeSkinResult { Success = true, Items = new(), HasMore = false };
             }
 
-            Codexus.Cipher.Entities.Entities<EntitySkin>? detailed = null;
+            Entities<EntitySkin>? detailed = null;
             try
             {
                 detailed = AppState.X19.GetSkinDetails(last.UserId, last.AccessToken, list);

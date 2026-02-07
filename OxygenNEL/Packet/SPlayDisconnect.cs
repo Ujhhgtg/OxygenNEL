@@ -4,18 +4,17 @@ using Codexus.Development.SDK.Connection;
 using Codexus.Development.SDK.Entities;
 using Codexus.Development.SDK.Enums;
 using Codexus.Development.SDK.Packet;
-using Codexus.Development.SDK.Utils;
 using DotNetty.Buffers;
 using OxygenNEL.Component;
+using OxygenNEL.Core.Utils;
 using OxygenNEL.IRC;
 using OxygenNEL.Manager;
 using OxygenNEL.type;
-using OxygenNEL.Core.Utils;
 using Serilog;
 
 namespace OxygenNEL.Packet;
 
-[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ClientBound, 0x1D, EnumProtocolVersion.V1206, false)]
+[RegisterPacket(EnumConnectionState.Play, EnumPacketDirection.ClientBound, 0x1D, EnumProtocolVersion.V1206)]
 public class SPlayDisconnect : IPacket
 {
 	public TextComponent Reason { get; set; } = new();

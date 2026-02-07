@@ -7,7 +7,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
-using System;
+
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -19,7 +19,7 @@ public class EntityInstallPlugin
 	public string Id { get; set; } = "";
 
 	[JsonPropertyName("dependencies")]
-	public List<EntityInstallPlugin> Dependencies { get; set; } = new List<EntityInstallPlugin>();
+	public List<EntityInstallPlugin> Dependencies { get; set; } = [];
 
 	[JsonPropertyName("downloadUrl")]
 	public string DownloadUrl { get; set; } = "";
@@ -38,11 +38,11 @@ public class EntityInstallPlugin
 
 	public List<EntityInstallPlugin> GetAllDownloadPlugins()
 	{
-		List<EntityInstallPlugin> list = new List<EntityInstallPlugin> { this };
-		foreach (EntityInstallPlugin dependency in Dependencies)
+		List<EntityInstallPlugin> list = [this];
+		foreach (var dependency in Dependencies)
 		{
-			EntityInstallPlugin reference = dependency;
-			list.AddRange(new ReadOnlySpan<EntityInstallPlugin>(in reference));
+			var reference = dependency;
+			list.AddRange();
 		}
 		return list;
 	}

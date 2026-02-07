@@ -7,21 +7,23 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.Linq;
-using OxygenNEL.type;
-using OxygenNEL.Manager;
+using System.Net;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net;
 using Codexus.Cipher.Protocol;
+using Codexus.Development.SDK.Entities;
 using Codexus.Game.Launcher.Services.Java;
 using Codexus.Game.Launcher.Utils;
 using Codexus.Interceptors;
-using Codexus.Development.SDK.Entities;
-using OxygenNEL.Entities.Web.NetGame;
+using Codexus.OpenSDK.Entities.Yggdrasil;
 using OxygenNEL.Core.Utils;
+using OxygenNEL.Entities.Web.NetGame;
+using OxygenNEL.Manager;
+using OxygenNEL.type;
 using Serilog;
 
 namespace OxygenNEL.Handlers.Game.NetServer;
@@ -39,7 +41,7 @@ public class JoinGame
         return await Execute(req);
     }
 
-    static EntityJoinGame BuildRequest(string serverId, string serverName, string roleId)
+    private static EntityJoinGame BuildRequest(string serverId, string serverName, string roleId)
     {
         var req = new EntityJoinGame { ServerId = serverId, ServerName = serverName, Role = roleId, GameId = serverId };
         var set = SettingManager.Instance.Get();
@@ -112,14 +114,14 @@ public class JoinGame
             serverId,
             false);
         var mods = JsonSerializer.Serialize(serverMod);
-        SemaphoreSlim authorizedSignal = new SemaphoreSlim(0);
+        var authorizedSignal = new SemaphoreSlim(0);
         var pair = Md5Mapping.GetMd5FromGameVersion(version.Name);
 
         _lastIp = serverIp;
         _lastPort = serverPort;
         var socksCfg = _request?.Socks5;
-        var socksAddr = socksCfg != null ? (socksCfg.Address ?? string.Empty) : string.Empty;
-        var socksPort = socksCfg != null ? socksCfg.Port : 0;
+        var socksAddr = socksCfg != null ? socksCfg.Address ?? string.Empty : string.Empty;
+        var socksPort = socksCfg?.Port ?? 0;
         Log.Information("JoinGame 接收的 SOCKS5 配置: Address={Addr}, Port={Port}, Username={User}, Enabled={Enabled}", socksAddr, socksPort, socksCfg?.Username, !string.IsNullOrWhiteSpace(socksAddr) && socksPort > 0);
         if (!string.IsNullOrWhiteSpace(socksAddr) && socksPort <= 0) return false;
         if (!string.IsNullOrWhiteSpace(socksAddr) && socksPort > 0)
@@ -127,7 +129,7 @@ public class JoinGame
             try { Dns.GetHostAddresses(socksAddr); }
             catch { return false; }
         }
-        Interceptor interceptor = Interceptor.CreateInterceptor(_request?.Socks5, mods, serverId, serverName, version.Name, serverIp, serverPort, _request?.Role ?? string.Empty, available.UserId, available.AccessToken, delegate(string certification)
+        var interceptor = Interceptor.CreateInterceptor(_request?.Socks5, mods, serverId, serverName, version.Name, serverIp, serverPort, _request?.Role ?? string.Empty, available.UserId, available.AccessToken, delegate(string certification)
         {
             Log.Information("SOCKS5 => Host: {Host}, Port: {Port}, User: {User} pass: {Pass}",
                 _request?.Socks5?.Address,
@@ -139,19 +141,19 @@ public class JoinGame
             {
                 try
                 {
-                    var salt = await AuthManager.Instance.GetCrcSaltAsyncIfNeeded(default);
+                    var salt = await AuthManager.Instance.GetCrcSaltAsyncIfNeeded();
                     Log.Information("加入游戏 CrcSalt: {Salt}", salt);
                     AppState.Services?.RefreshYggdrasil();
                     var latest = UserManager.Instance.GetAvailableUser(available.UserId);
                     var currentToken = latest?.AccessToken ?? available.AccessToken;
-                    var success = await AppState.Services!.Yggdrasil.JoinServerAsync(new Codexus.OpenSDK.Entities.Yggdrasil.GameProfile
+                    var success = await AppState.Services!.Yggdrasil.JoinServerAsync(new GameProfile
                     {
                         GameId = serverId,
                         GameVersion = version.Name,
                         BootstrapMd5 = pair.BootstrapMd5,
                         DatFileMd5 = pair.DatFileMd5,
-                        Mods = JsonSerializer.Deserialize<Codexus.OpenSDK.Entities.Yggdrasil.ModList>(mods)!,
-                        User = new Codexus.OpenSDK.Entities.Yggdrasil.UserProfile { UserId = int.Parse(available.UserId), UserToken = currentToken }
+                        Mods = JsonSerializer.Deserialize<ModList>(mods)!,
+                        User = new UserProfile { UserId = int.Parse(available.UserId), UserToken = currentToken }
                     }, certification);
                     if (success.IsSuccess)
                     {

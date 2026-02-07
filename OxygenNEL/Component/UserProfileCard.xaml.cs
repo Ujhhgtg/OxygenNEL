@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.UI;
+using Windows.System;
+using Windows.UI;
+using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using OxygenNEL.Manager;
-using Windows.System;
 
 namespace OxygenNEL.Component;
 
@@ -20,7 +21,7 @@ public sealed partial class UserProfileCard : UserControl
         Loaded += UserProfileCard_Loaded;
     }
 
-    void UserProfileCard_Loaded(object sender, RoutedEventArgs e)
+    private void UserProfileCard_Loaded(object sender, RoutedEventArgs e)
     {
         UpdateUserInfo();
     }
@@ -40,7 +41,7 @@ public sealed partial class UserProfileCard : UserControl
         }
     }
 
-    void UpdateRank()
+    private void UpdateRank()
     {
         var rank = AuthManager.Instance.Rank;
         var text = string.IsNullOrWhiteSpace(rank) ? "no iq" : rank;
@@ -53,20 +54,20 @@ public sealed partial class UserProfileCard : UserControl
             {
                 Text = content,
                 FontSize = 11,
-                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                FontWeight = FontWeights.SemiBold,
                 Foreground = new SolidColorBrush(color)
             });
         }
         RankPanel.Visibility = Visibility.Visible;
     }
 
-    static List<(string Text, Windows.UI.Color Color)> ParseMinecraftColors(string text)
+    private static List<(string Text, Color Color)> ParseMinecraftColors(string text)
     {
-        var result = new List<(string, Windows.UI.Color)>();
-        var currentColor = Windows.UI.Color.FromArgb(255, 255, 255, 255);
+        var result = new List<(string, Color)>();
+        var currentColor = Color.FromArgb(255, 255, 255, 255);
         var buffer = "";
         
-        for (int i = 0; i < text.Length; i++)
+        for (var i = 0; i < text.Length; i++)
         {
             if (text[i] == '§' && i + 1 < text.Length)
             {
@@ -87,28 +88,28 @@ public sealed partial class UserProfileCard : UserControl
         return result;
     }
 
-    static Windows.UI.Color GetMinecraftColor(char code) => char.ToLower(code) switch
+    private static Color GetMinecraftColor(char code) => char.ToLower(code) switch
     {
-        '0' => Windows.UI.Color.FromArgb(255, 0, 0, 0),
-        '1' => Windows.UI.Color.FromArgb(255, 0, 0, 170),
-        '2' => Windows.UI.Color.FromArgb(255, 0, 170, 0),
-        '3' => Windows.UI.Color.FromArgb(255, 0, 170, 170),
-        '4' => Windows.UI.Color.FromArgb(255, 170, 0, 0),
-        '5' => Windows.UI.Color.FromArgb(255, 170, 0, 170),
-        '6' => Windows.UI.Color.FromArgb(255, 255, 170, 0),
-        '7' => Windows.UI.Color.FromArgb(255, 170, 170, 170),
-        '8' => Windows.UI.Color.FromArgb(255, 85, 85, 85),
-        '9' => Windows.UI.Color.FromArgb(255, 85, 85, 255),
-        'a' => Windows.UI.Color.FromArgb(255, 85, 255, 85),
-        'b' => Windows.UI.Color.FromArgb(255, 85, 255, 255),
-        'c' => Windows.UI.Color.FromArgb(255, 255, 85, 85),
-        'd' => Windows.UI.Color.FromArgb(255, 255, 85, 255),
-        'e' => Windows.UI.Color.FromArgb(255, 255, 255, 85),
-        'f' => Windows.UI.Color.FromArgb(255, 255, 255, 255),
-        _ => Windows.UI.Color.FromArgb(255, 255, 255, 255)
+        '0' => Color.FromArgb(255, 0, 0, 0),
+        '1' => Color.FromArgb(255, 0, 0, 170),
+        '2' => Color.FromArgb(255, 0, 170, 0),
+        '3' => Color.FromArgb(255, 0, 170, 170),
+        '4' => Color.FromArgb(255, 170, 0, 0),
+        '5' => Color.FromArgb(255, 170, 0, 170),
+        '6' => Color.FromArgb(255, 255, 170, 0),
+        '7' => Color.FromArgb(255, 170, 170, 170),
+        '8' => Color.FromArgb(255, 85, 85, 85),
+        '9' => Color.FromArgb(255, 85, 85, 255),
+        'a' => Color.FromArgb(255, 85, 255, 85),
+        'b' => Color.FromArgb(255, 85, 255, 255),
+        'c' => Color.FromArgb(255, 255, 85, 85),
+        'd' => Color.FromArgb(255, 255, 85, 255),
+        'e' => Color.FromArgb(255, 255, 255, 85),
+        'f' => Color.FromArgb(255, 255, 255, 255),
+        _ => Color.FromArgb(255, 255, 255, 255)
     };
 
-    void UpdateAvatar()
+    private void UpdateAvatar()
     {
         var avatar = AuthManager.Instance.Avatar;
         if (!string.IsNullOrWhiteSpace(avatar))
@@ -141,14 +142,14 @@ public sealed partial class UserProfileCard : UserControl
         }
     }
 
-    void ShowDefaultAvatar()
+    private void ShowDefaultAvatar()
     {
         AvatarImageEllipse.Visibility = Visibility.Collapsed;
         AvatarEllipse.Visibility = Visibility.Visible;
         AvatarIcon.Visibility = Visibility.Visible;
     }
 
-    async Task FetchUserInfoAsync()
+    private async Task FetchUserInfoAsync()
     {
         try
         {
@@ -167,11 +168,11 @@ public sealed partial class UserProfileCard : UserControl
         catch { }
     }
 
-    void AvatarButton_Click(object sender, RoutedEventArgs e)
+    private void AvatarButton_Click(object sender, RoutedEventArgs e)
     {
     }
 
-    async void ManageButton_Click(object sender, RoutedEventArgs e)
+    private async void ManageButton_Click(object sender, RoutedEventArgs e)
     {
         NotificationHost.ShowGlobal("请求中...", ToastLevel.Normal);
         try

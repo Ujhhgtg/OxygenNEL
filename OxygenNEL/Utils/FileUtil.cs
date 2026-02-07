@@ -7,10 +7,10 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.IO;
 using Serilog;
-using Windows.Storage;
 
 namespace OxygenNEL.Utils;
 
@@ -41,9 +41,9 @@ public static class FileUtil
                     if (File.Exists(f))
                     {
                         var attr = File.GetAttributes(f);
-                        if ((attr & System.IO.FileAttributes.ReadOnly) != 0)
+                        if ((attr & FileAttributes.ReadOnly) != 0)
                         {
-                            File.SetAttributes(f, attr & ~System.IO.FileAttributes.ReadOnly);
+                            File.SetAttributes(f, attr & ~FileAttributes.ReadOnly);
                         }
                         File.Delete(f);
                     }
@@ -65,9 +65,9 @@ public static class FileUtil
                         if (Directory.Exists(d))
                         {
                             var attr = File.GetAttributes(d);
-                            if ((attr & System.IO.FileAttributes.ReadOnly) != 0)
+                            if ((attr & FileAttributes.ReadOnly) != 0)
                             {
-                                File.SetAttributes(d, attr & ~System.IO.FileAttributes.ReadOnly);
+                                File.SetAttributes(d, attr & ~FileAttributes.ReadOnly);
                             }
                             Directory.Delete(d, true);
                         }
@@ -81,9 +81,9 @@ public static class FileUtil
                 try
                 {
                     var rootAttr = File.GetAttributes(dirPath);
-                    if ((rootAttr & System.IO.FileAttributes.ReadOnly) != 0)
+                    if ((rootAttr & FileAttributes.ReadOnly) != 0)
                     {
-                        File.SetAttributes(dirPath, rootAttr & ~System.IO.FileAttributes.ReadOnly);
+                        File.SetAttributes(dirPath, rootAttr & ~FileAttributes.ReadOnly);
                     }
                     Directory.Delete(dirPath, true);
                 }

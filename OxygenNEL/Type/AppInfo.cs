@@ -8,7 +8,8 @@ the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
 namespace OxygenNEL.type;
-class AppInfo
+
+internal class AppInfo
 {
     public const string AppVersion = "2.4 - Offline";
 }

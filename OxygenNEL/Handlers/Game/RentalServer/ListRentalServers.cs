@@ -7,10 +7,12 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
+using System;
 using System.Linq;
+using OxygenNEL.Entities.Web.RentalGame;
 using OxygenNEL.Manager;
 using OxygenNEL.type;
-using OxygenNEL.Entities.Web.RentalGame;
 using Serilog;
 
 namespace OxygenNEL.Handlers.Game.RentalServer;
@@ -41,7 +43,7 @@ public class ListRentalServers
             var hasMore = items.Count >= limit;
             return new ListRentalServersResult { Success = true, Items = items, HasMore = hasMore };
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Log.Error(ex, "获取租赁服列表失败");
             return new ListRentalServersResult { Success = false, Message = "获取失败" };

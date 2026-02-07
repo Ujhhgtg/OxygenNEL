@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Text.Json;
-using Serilog;
-using System.Net.Http;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Codexus.Development.SDK.Manager;
 using OxygenNEL.Utils;
+using Serilog;
+
 namespace OxygenNEL.Handlers.Plugin;
 
 public class InstallPluginRequest
@@ -68,7 +69,7 @@ public class InstallPlugin
             {
                 var uri = new Uri(downloadUrl);
                 var candidate = Path.GetFileName(uri.AbsolutePath);
-                fileName = string.IsNullOrWhiteSpace(candidate) ? (id + ".ug") : candidate;
+                fileName = string.IsNullOrWhiteSpace(candidate) ? id + ".ug" : candidate;
             }
             catch { fileName = id + ".ug"; }
             var path = Path.Combine(dir, fileName);

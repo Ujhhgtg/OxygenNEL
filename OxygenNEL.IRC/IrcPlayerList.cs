@@ -7,6 +7,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -15,7 +16,7 @@ namespace OxygenNEL.IRC;
 
 public class IrcPlayerList
 {
-    readonly ConcurrentDictionary<string, string> _players = new();
+    private readonly ConcurrentDictionary<string, string> _players = new();
 
     public int Count => _players.Count;
     public IReadOnlyDictionary<string, string> All => _players;
@@ -31,7 +32,7 @@ public class IrcPlayerList
 
     public void Clear() => _players.Clear();
 
-    class PlayerData
+    private class PlayerData
     {
         [JsonPropertyName("Username")] public string Username { get; set; } = "";
         [JsonPropertyName("PlayerName")] public string PlayerName { get; set; } = "";

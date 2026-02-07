@@ -7,6 +7,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System.Collections.Concurrent;
 using Codexus.Development.SDK.Connection;
 using Serilog;
@@ -20,7 +21,7 @@ public class IrcChatEventArgs : EventArgs
 
 public static class IrcManager
 {
-    static readonly ConcurrentDictionary<GameConnection, IrcClient> _clients = new();
+    private static readonly ConcurrentDictionary<GameConnection, IrcClient> _clients = new();
     
     public static bool Enabled { get; set; } = true;
     public static Func<string>? TokenProvider { get; set; }

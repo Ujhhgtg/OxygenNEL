@@ -7,6 +7,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 */
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -29,22 +30,22 @@ namespace OxygenNEL.Manager;
     {
 	private const string UsersFilePath = "users.json";
 
-	private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+	private static readonly JsonSerializerOptions JsonOptions = new()
 	{
 		WriteIndented = true
 	};
 
-	private static readonly SemaphoreSlim InstanceLock = new SemaphoreSlim(1, 1);
+	private static readonly SemaphoreSlim InstanceLock = new(1, 1);
 
 	private static UserManager? _instance;
 
-	private readonly ConcurrentDictionary<string, EntityUser> _users = new ConcurrentDictionary<string, EntityUser>();
+	private readonly ConcurrentDictionary<string, EntityUser> _users = new();
 
-	private readonly ConcurrentDictionary<string, EntityAvailableUser> _availableUsers = new ConcurrentDictionary<string, EntityAvailableUser>();
+	private readonly ConcurrentDictionary<string, EntityAvailableUser> _availableUsers = new();
 
-	private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+	private readonly CancellationTokenSource _cancellationTokenSource = new();
 
-	private readonly SemaphoreSlim _saveSemaphore = new SemaphoreSlim(1, 1);
+	private readonly SemaphoreSlim _saveSemaphore = new(1, 1);
 
 	private volatile bool _isDirty;
 
@@ -63,7 +64,7 @@ namespace OxygenNEL.Manager;
 			InstanceLock.Wait();
 			try
 			{
-				return _instance ?? (_instance = new UserManager());
+				return _instance ??= new UserManager();
 			}
 			finally
 			{
@@ -95,7 +96,7 @@ namespace OxygenNEL.Manager;
 
 	public EntityAvailableUser? GetAvailableUser(string entityId)
 	{
-		if (!_availableUsers.TryGetValue(entityId, out EntityAvailableUser? value))
+		if (!_availableUsers.TryGetValue(entityId, out var value))
 		{
 			return null;
 		}
@@ -104,7 +105,7 @@ namespace OxygenNEL.Manager;
 
 	private async Task MaintainThreadAsync()
 	{
-		using WPFLauncher launcher = new WPFLauncher();
+		using var launcher = new WPFLauncher();
 		_ = 2;
 		try
 		{
@@ -138,11 +139,11 @@ namespace OxygenNEL.Manager;
 
 	private async Task ProcessExpiredUsersAsync(WPFLauncher launcher)
 	{
-		long expirationThreshold = DateTimeOffset.UtcNow.AddMinutes(-30.0).ToUnixTimeMilliseconds();
-		List<EntityAvailableUser> list = _availableUsers.Values.Where((EntityAvailableUser u) => u.LastLoginTime < expirationThreshold).ToList();
+		var expirationThreshold = DateTimeOffset.UtcNow.AddMinutes(-30.0).ToUnixTimeMilliseconds();
+		var list = _availableUsers.Values.Where(u => u.LastLoginTime < expirationThreshold).ToList();
 		if (list.Count != 0)
 		{
-			await Task.WhenAll(list.Select((EntityAvailableUser user) => UpdateExpiredUserAsync(user, launcher)));
+			await Task.WhenAll(list.Select(user => UpdateExpiredUserAsync(user, launcher)));
 		}
 	}
 
@@ -150,7 +151,7 @@ namespace OxygenNEL.Manager;
 	{
 		try
 		{
-			EntityAuthenticationUpdate? entityAuthenticationUpdate = await launcher.AuthenticationUpdateAsync(expiredUser.UserId, expiredUser.AccessToken);
+			var entityAuthenticationUpdate = await launcher.AuthenticationUpdateAsync(expiredUser.UserId, expiredUser.AccessToken);
             if (entityAuthenticationUpdate == null || entityAuthenticationUpdate.Token == null)
             {
                 Log.Error("更新用户 {UserId} 的令牌失败", expiredUser.UserId);
@@ -168,18 +169,18 @@ namespace OxygenNEL.Manager;
 
 	public List<EntityAccount> GetAvailableUsers()
 	{
-		Dictionary<string, EntityUser> userLookup = _users.ToDictionary<KeyValuePair<string, EntityUser>, string, EntityUser>((KeyValuePair<string, EntityUser> kvp) => kvp.Key, (KeyValuePair<string, EntityUser> kvp) => kvp.Value);
+		var userLookup = _users.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 		EntityUser? value;
-		return _availableUsers.Values.Select((EntityAvailableUser available) => new EntityAccount
+		return _availableUsers.Values.Select(available => new EntityAccount
 		{
 			UserId = available.UserId,
-			Alias = (userLookup.TryGetValue(available.UserId, out value) ? value?.Alias ?? string.Empty : string.Empty)
+			Alias = userLookup.TryGetValue(available.UserId, out value) ? value?.Alias ?? string.Empty : string.Empty
 		}).ToList();
 	}
 
 	public List<EntityUser> GetUsersNoDetails()
 	{
-		return _users.Values.Select((EntityUser u) => new EntityUser
+		return _users.Values.Select(u => new EntityUser
 		{
 			UserId = u.UserId,
 			Authorized = u.Authorized,
@@ -200,7 +201,7 @@ namespace OxygenNEL.Manager;
 
 	public EntityUser? GetUserByEntityId(string entityId)
 	{
-		if (!_users.TryGetValue(entityId, out EntityUser? value))
+		if (!_users.TryGetValue(entityId, out var value))
 		{
 			return null;
 		}
@@ -214,8 +215,8 @@ namespace OxygenNEL.Manager;
 
 	public void AddUserToMaintain(EntityAuthenticationOtp authenticationOtp)
 	{
-		ArgumentNullException.ThrowIfNull(authenticationOtp, "authenticationOtp");
-		EntityAvailableUser addValue = new EntityAvailableUser
+		ArgumentNullException.ThrowIfNull(authenticationOtp);
+		var addValue = new EntityAvailableUser
 		{
 			UserId = authenticationOtp.EntityId,
 			AccessToken = authenticationOtp.Token,
@@ -231,7 +232,7 @@ namespace OxygenNEL.Manager;
 
 	public void AddUser(EntityUser entityUser, bool saveToDisk = true)
 	{
-		ArgumentNullException.ThrowIfNull(entityUser, "entityUser");
+		ArgumentNullException.ThrowIfNull(entityUser);
 		_users.AddOrUpdate(entityUser.UserId, entityUser, delegate(string _, EntityUser existing)
 		{
 			existing.Authorized = true;
@@ -254,7 +255,7 @@ namespace OxygenNEL.Manager;
 	public void RemoveAvailableUser(string entityId)
 	{
 		_availableUsers.TryRemove(entityId, out _);
-		if (_users.TryGetValue(entityId, out EntityUser? value2))
+		if (_users.TryGetValue(entityId, out var value2))
 		{
 			value2.Authorized = false;
 			MarkDirtyAndScheduleSave();
@@ -271,9 +272,9 @@ namespace OxygenNEL.Manager;
 				UsersReadFromDisk?.Invoke();
 				return;
 			}
-			List<EntityUser> list = JsonSerializer.Deserialize<List<EntityUser>>(await File.ReadAllTextAsync(UsersFilePath)) ?? new List<EntityUser>();
+			var list = JsonSerializer.Deserialize<List<EntityUser>>(await File.ReadAllTextAsync(UsersFilePath)) ?? new List<EntityUser>();
 			_users.Clear();
-			foreach (EntityUser item in list)
+			foreach (var item in list)
 			{
 				item.Authorized = false;
 				_users.TryAdd(item.UserId, item);
@@ -321,8 +322,8 @@ namespace OxygenNEL.Manager;
 		{
 			if (_isDirty)
 			{
-				List<EntityUser> usersList = _users.Values.ToList();
-				string contents = JsonSerializer.Serialize(usersList, JsonOptions);
+				var usersList = _users.Values.ToList();
+				var contents = JsonSerializer.Serialize(usersList, JsonOptions);
 				await File.WriteAllTextAsync(UsersFilePath, contents);
 				_isDirty = false;
                 Log.Debug("已将 {Count} 个用户保存到磁盘", usersList.Count);
