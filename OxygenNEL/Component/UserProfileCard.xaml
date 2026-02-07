@@ -18,7 +18,7 @@
             </Grid.ColumnDefinitions>
 
             <Button x:Name="AvatarButton" Grid.Column="0" Padding="0" BorderThickness="0" Background="Transparent"
-                    Click="AvatarButton_Click" ToolTipService.ToolTip="点击更换头像" Width="48" Height="48">
+                    Width="48" Height="48">
                 <Grid Width="40" Height="40" CacheMode="BitmapCache">
                     <Ellipse x:Name="AvatarEllipse" Width="40" Height="40">
                         <Ellipse.Fill>
@@ -52,11 +52,6 @@
 
             <StackPanel x:Name="RankPanel" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"
                         Margin="0,0,8,0" Visibility="Collapsed" />
-
-            <Button x:Name="ManageButton" Grid.Column="3" Padding="8,4" VerticalAlignment="Center"
-                    Click="ManageButton_Click" ToolTipService.ToolTip="管理账号">
-                <FontIcon Glyph="&#xE713;" FontSize="14" />
-            </Button>
         </Grid>
         <Border Margin="0,8,0,8" Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" />
     </StackPanel>

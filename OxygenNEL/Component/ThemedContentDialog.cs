@@ -3,7 +3,7 @@ using OxygenNEL.Manager;
 
 namespace OxygenNEL.Component;
 
-public class ThemedContentDialog : ContentDialog
+public partial class ThemedContentDialog : ContentDialog
 {
     public ThemedContentDialog()
     {

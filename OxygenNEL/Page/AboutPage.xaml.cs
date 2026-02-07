@@ -9,7 +9,7 @@ public sealed partial class AboutPage : Microsoft.UI.Xaml.Controls.Page
 {
     public static string PageTitle => "关于";
 
-    public string AppVersion => AppInfo.AppVersion;
+    public static string AppVersion => AppInfo.AppVersion;
 
     public AboutPage()
     {
@@ -23,11 +23,6 @@ public sealed partial class AboutPage : Microsoft.UI.Xaml.Controls.Page
 
     private async void Github_Click(object sender, RoutedEventArgs e)
     {
-        await Launcher.LaunchUriAsync(new Uri("https://github.com/OxygenNEL/oxygen"));
-    }
-
-    private async void QQGroup_Click(object sender, RoutedEventArgs e)
-    {
-        await Launcher.LaunchUriAsync(new Uri("https://qm.qq.com/q/vF9XAxuoUK"));
+        await Launcher.LaunchUriAsync(new Uri("https://github.com/Ujhhgtg/Oxygen"));
     }
 }

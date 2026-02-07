@@ -30,17 +30,7 @@ public sealed partial class AccountListContent : UserControl
         InitializeComponent();
     }
 
-    private ElementTheme GetAppTheme()
-    {
-        var mode = UserManager.Instance != null
-            ? SettingManager.Instance.Get().ThemeMode?.Trim().ToLowerInvariant() ?? "system"
-            : "system";
-        if (mode == "light") return ElementTheme.Light;
-        if (mode == "dark") return ElementTheme.Dark;
-        return ElementTheme.Default;
-    }
-
-    private ContentDialog CreateDialog(object content, string title)
+    private ThemedContentDialog CreateDialog(object content, string title)
     {
         var d = new ThemedContentDialog
         {
@@ -69,7 +59,7 @@ public sealed partial class AccountListContent : UserControl
             });
     }
 
-    private bool TryDetectSuccess(object result)
+    private static bool TryDetectSuccess(object result)
     {
         if (result == null) return false;
         var tProp = result.GetType().GetProperty("type");

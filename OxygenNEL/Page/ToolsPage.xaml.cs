@@ -102,17 +102,6 @@ public sealed partial class ToolsPage : Microsoft.UI.Xaml.Controls.Page
         }
     }
 
-    private void OpenSite_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            Process.Start(new ProcessStartInfo { FileName = "https://fandmc.cn/", UseShellExecute = true });
-        }
-        catch
-        {
-        }
-    }
-
     private void OpenLogs_Click(object sender, RoutedEventArgs e)
     {
         try

@@ -1,15 +1,9 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-using Windows.System;
 using Windows.UI;
 using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
-using OxygenNEL.Manager;
 
 namespace OxygenNEL.Component;
 
@@ -28,7 +22,7 @@ public sealed partial class UserProfileCard : UserControl
 
     public void UpdateUserInfo()
     {
-        UsernameText.Text = "--- Ujhhgtg ---";
+        UsernameText.Text = "Ujhhgtg";
         UserIdText.Text = "ID: 1337";
         UpdateAvatar();
         UpdateRank();
@@ -110,14 +104,5 @@ public sealed partial class UserProfileCard : UserControl
         AvatarImageEllipse.Visibility = Visibility.Collapsed;
         AvatarEllipse.Visibility = Visibility.Visible;
         AvatarIcon.Visibility = Visibility.Visible;
-    }
-
-    private void AvatarButton_Click(object sender, RoutedEventArgs e)
-    {
-    }
-
-    private void ManageButton_Click(object sender, RoutedEventArgs e)
-    {
-        NotificationHost.ShowGlobal("lol", ToastLevel.Normal);
     }
 }

@@ -18,7 +18,6 @@
                     <StackPanel Spacing="12">
                         <TextBlock Text="常用工具" Style="{StaticResource SubtitleTextBlockStyle}" />
                         <StackPanel Orientation="Horizontal" Spacing="12">
-                            <Button Content="打开官网" Click="OpenSite_Click" />
                             <Button Content="打开日志目录" Click="OpenLogs_Click" />
                         </StackPanel>
                     </StackPanel>
