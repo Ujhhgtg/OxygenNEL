@@ -8,15 +8,13 @@ namespace OxygenNEL.IRC;
 public class IrcClient(GameConnection conn, Func<string>? tokenProvider) : IDisposable
 {
     private readonly string _token = tokenProvider?.Invoke() ?? "";
-    private string _roleId = string.Empty;
-
     private TcpLineClient? _tcp;
     private bool _welcomed;
     private bool _listShown;
     private Timer? _pingTimer;
     private volatile bool _running;
+    public string RoleId { get; private set; } = string.Empty;
 
-    public string RoleId => _roleId;
     public GameConnection Connection => conn;
     public event EventHandler<IrcChatEventArgs>? ChatReceived;
 
@@ -24,8 +22,8 @@ public class IrcClient(GameConnection conn, Func<string>? tokenProvider) : IDisp
     {
         if (_running) return;
         _running = true;
-        _roleId = nickName;
-        Log.Information("[IRC] 启动: NickName={NickName}, RoleId={RoleId}", nickName, _roleId);
+        RoleId = nickName;
+        Log.Information("[IRC] 启动: NickName={NickName}, RoleId={RoleId}", nickName, RoleId);
         Task.Run(Run);
     }
 
@@ -35,8 +33,8 @@ public class IrcClient(GameConnection conn, Func<string>? tokenProvider) : IDisp
         _pingTimer?.Dispose();
         try
         {
-            if (!string.IsNullOrEmpty(_token) && !string.IsNullOrEmpty(_roleId))
-                _tcp?.Send(IrcProtocol.Delete(_token, _roleId));
+            if (!string.IsNullOrEmpty(_token) && !string.IsNullOrEmpty(RoleId))
+                _tcp?.Send(IrcProtocol.Delete(_token, RoleId));
         }
         catch
         {
@@ -53,7 +51,7 @@ public class IrcClient(GameConnection conn, Func<string>? tokenProvider) : IDisp
             return;
         }
 
-        var cmd = IrcProtocol.Chat(_token, _roleId, msg);
+        var cmd = IrcProtocol.Chat(_token, RoleId, msg);
         Log.Information("[IRC] 发送聊天: {Cmd}", cmd);
         _tcp.Send(cmd);
     }
@@ -74,7 +72,7 @@ public class IrcClient(GameConnection conn, Func<string>? tokenProvider) : IDisp
                 _tcp = new TcpLineClient(IrcProtocol.Host, IrcProtocol.Port);
                 _tcp.Connect();
 
-                _tcp.Send(IrcProtocol.Register(_token, _roleId));
+                _tcp.Send(IrcProtocol.Register(_token, RoleId));
 
                 _pingTimer = new Timer(_ =>
                 {

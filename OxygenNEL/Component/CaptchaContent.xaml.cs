@@ -8,8 +8,6 @@ namespace OxygenNEL.Component;
 
 public sealed partial class CaptchaContent : UserControl
 {
-    private string _sessionId = string.Empty;
-
     public CaptchaContent()
     {
         InitializeComponent();
@@ -28,11 +26,11 @@ public sealed partial class CaptchaContent : UserControl
 
     public string CaptchaText => CaptchaInput.Text;
 
-    public string SessionId => _sessionId;
+    public string SessionId { get; private set; } = string.Empty;
 
     public void SetCaptcha(string sessionId, string captchaUrl)
     {
-        _sessionId = sessionId ?? string.Empty;
+        SessionId = sessionId ?? string.Empty;
         CaptchaInput.Text = string.Empty;
         try
         {

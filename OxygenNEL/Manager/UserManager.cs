@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -27,8 +28,6 @@ public class UserManager : IUserManager
 
     private static readonly SemaphoreSlim InstanceLock = new(1, 1);
 
-    private static UserManager? _instance;
-
     private readonly ConcurrentDictionary<string, EntityUser> _users = new();
 
     private readonly ConcurrentDictionary<string, EntityAvailableUser> _availableUsers = new();
@@ -47,11 +46,11 @@ public class UserManager : IUserManager
     {
         get
         {
-            if (_instance != null) return _instance;
+            if (field != null) return field;
             InstanceLock.Wait();
             try
             {
-                return _instance ??= new UserManager();
+                return field ??= new UserManager();
             }
             finally
             {
@@ -64,33 +63,30 @@ public class UserManager : IUserManager
     {
         IUserManager.Instance = this;
         InitializeSaveTimer();
-        Task.Run((Func<Task?>)MaintainThreadAsync, _cancellationTokenSource.Token);
+        Task.Run(MaintainThreadAsync, _cancellationTokenSource.Token);
     }
 
+    [SuppressMessage("ReSharper", "EmptyGeneralCatchClause")]
     private void InitializeSaveTimer()
     {
-        _saveTimer = new Timer(async delegate
+        _saveTimer = new Timer(async _ =>
         {
             try
             {
                 await SaveUsersToDiskIfDirtyAsync();
             }
-            catch (Exception)
-            {
-            }
+            catch { }
         }, null, -1, -1);
     }
 
     public EntityAvailableUser? GetAvailableUser(string entityId)
     {
-        if (!_availableUsers.TryGetValue(entityId, out var value)) return null;
-        return value;
+        return _availableUsers.GetValueOrDefault(entityId);
     }
 
     private async Task MaintainThreadAsync()
     {
         using var launcher = new WPFLauncher();
-        _ = 2;
         try
         {
             while (!_cancellationTokenSource.Token.IsCancellationRequested)
@@ -132,7 +128,7 @@ public class UserManager : IUserManager
         {
             var entityAuthenticationUpdate =
                 await launcher.AuthenticationUpdateAsync(expiredUser.UserId, expiredUser.AccessToken);
-            if (entityAuthenticationUpdate == null || entityAuthenticationUpdate.Token == null)
+            if (entityAuthenticationUpdate?.Token == null)
             {
                 Log.Error("更新用户 {UserId} 的令牌失败", expiredUser.UserId);
                 return;
@@ -184,8 +180,7 @@ public class UserManager : IUserManager
 
     public EntityUser? GetUserByEntityId(string entityId)
     {
-        if (!_users.TryGetValue(entityId, out var value)) return null;
-        return value;
+        return _users.GetValueOrDefault(entityId);
     }
 
     public EntityAvailableUser? GetLastAvailableUser()
@@ -248,8 +243,7 @@ public class UserManager : IUserManager
                 return;
             }
 
-            var list = JsonSerializer.Deserialize<List<EntityUser>>(await File.ReadAllTextAsync(UsersFilePath)) ??
-                       new List<EntityUser>();
+            var list = JsonSerializer.Deserialize<List<EntityUser>>(await File.ReadAllTextAsync(UsersFilePath)) ?? [];
             _users.Clear();
             foreach (var item in list)
             {
